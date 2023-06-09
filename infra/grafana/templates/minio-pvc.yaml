@@ -4,7 +4,7 @@ metadata:
   finalizers:
   - kubernetes.io/pvc-protection
   name: minio
-  namespace: logging
+  namespace: grafana
 spec:
   storageClassName: ""
   accessModes:
