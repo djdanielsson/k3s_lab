@@ -1,6 +1,8 @@
 loki:
   loki:
     auth_enabled: false
+  serviceAccount:
+    create: true
   minio:
     enabled: true
     persistence:
