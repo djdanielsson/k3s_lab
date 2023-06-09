@@ -1,0 +1,33 @@
+loki:
+  loki:
+    auth_enabled: false
+  minio:
+    enabled: true
+    persistence:
+      enabled: true
+  test:
+    enabled: false
+  read:
+    replicas: 1
+  write:
+    replicas: 1
+  monitoring:
+    lokiCanary:
+      enabled: false
+    dashboards:
+      enabled: true
+    serviceMonitor:
+      enabled: true
+    metricsInstance:
+      enabled: true
+  persistence:
+    enabled: false
+promtail:
+  config:
+    logLevel: info
+    serverPort: 3101
+    clients:
+      - url: http://loki-write.logging:3100/loki/api/v1/push
+  tolerations:
+    - effect: NoSchedule
+      operator: Exists
