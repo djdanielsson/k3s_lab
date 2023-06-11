@@ -55,7 +55,7 @@ spec:
   claimRef:
     namespace: prometheus
     name: prometheus-alertmanager
-  local:
+  hostPath:
     path: /mnt/prometheus-am
 ---
 apiVersion: v1
@@ -73,5 +73,5 @@ spec:
   claimRef:
     namespace: prometheus
     name: prometheus-server
-  local:
+  hostPath:
     path: /mnt/prometheus-server
