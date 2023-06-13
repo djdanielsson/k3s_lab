@@ -6,7 +6,7 @@ metadata:
 spec:
   #storageClassName: ""
   accessModes:
-    - ReadWriteMany
+    - ReadWriteOnce # ReadWriteMany
   resources:
     requests:
       storage: 2Gi
@@ -18,7 +18,7 @@ metadata:
   namespace: loki
 spec:
   accessModes:
-    - ReadWriteMany
+    - ReadWriteOnce # ReadWriteMany
   resources:
     requests:
       storage: 10Gi
