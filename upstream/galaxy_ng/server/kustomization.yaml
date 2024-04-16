@@ -9,9 +9,9 @@ generatorOptions:
 secretGenerator:
   - name: galaxy-secret-tls
     type: kubernetes.io/tls
-    files:
-      - tls.crt
-      - tls.key
+    # files:
+    #   - tls.crt
+    #   - tls.key
 
   - name: galaxy-postgres-configuration
     type: Opaque
