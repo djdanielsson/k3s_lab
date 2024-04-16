@@ -20,14 +20,14 @@ secretGenerator:
       - port=5432
       - database=galaxy
       - username=galaxy
-      - password=Galaxy123!
+      - password=Password1234!
       - sslmode=prefer
       - type=managed
 
   - name: galaxy-admin-password
     type: Opaque
     literals:
-      - password=Galaxy123!
+      - password=Password1234!
 
 resources:
   - pv.yaml

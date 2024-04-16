@@ -6,10 +6,10 @@ metadata:
 spec:
   tls:
     - hosts:
-        - git.example.com
+        - git.lab.danielsson.us.com
       secretName: git-secret-tls
   rules:
-    - host: git.example.com
+    - host: git.lab.danielsson.us.com
       http:
         paths:
           - path: /

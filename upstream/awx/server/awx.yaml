@@ -15,7 +15,7 @@ spec:
 
   ingress_type: ingress
   ingress_hosts:
-    - hostname: awx.example.com
+    - hostname: awx.lab.danielsson.us.com
       tls_secret: awx-secret-tls
 
   postgres_configuration_secret: awx-postgres-configuration

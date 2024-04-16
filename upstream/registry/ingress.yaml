@@ -6,10 +6,10 @@ metadata:
 spec:
   tls:
     - hosts:
-        - registry.example.com
+        - registry.lab.danielsson.us.com
       secretName: registry-secret-tls
   rules:
-    - host: registry.example.com
+    - host: registry.lab.danielsson.us.com
       http:
         paths:
           - path: /

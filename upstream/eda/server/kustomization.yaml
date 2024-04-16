@@ -20,13 +20,13 @@ secretGenerator:
       - port=5432
       - database=eda
       - username=eda
-      - password=Ansible123!
+      - password=Password1234!
       - type=managed
 
   - name: eda-admin-password
     type: Opaque
     literals:
-      - password=Ansible123!
+      - password=Password1234!
 
   # If you want to specify encryption key for EDA Server, uncomment following lines and change the value.
   # Refer README for detail about encryption key.

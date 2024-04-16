@@ -16,7 +16,7 @@ spec:
 
   ingress_type: ingress
   ingress_tls_secret: galaxy-secret-tls
-  hostname: galaxy.example.com
+  hostname: galaxy.lab.danielsson.us.com
 
   storage_type: file
   file_storage_storage_class: galaxy-file-volume

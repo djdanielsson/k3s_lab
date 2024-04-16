@@ -9,9 +9,9 @@ spec:
 
   ingress_type: ingress
   ingress_tls_secret: eda-secret-tls
-  hostname: eda.example.com
+  hostname: eda.lab.danielsson.us.com
 
-  automation_server_url: https://awx.example.com/
+  automation_server_url: https://awx.lab.danielsson.us.com/
   automation_server_ssl_verify: no
 
   api:
