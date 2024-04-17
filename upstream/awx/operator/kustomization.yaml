@@ -12,7 +12,7 @@ secretGenerator:
       - operator=awx
 
 resources:
-  - github.com/ansible/awx-operator/config/default?ref=2.14.0
+  - github.com/ansible/awx-operator/config/default?ref=2.15.0
 
 images:
   - name: quay.io/ansible/awx-operator
