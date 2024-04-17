@@ -16,4 +16,4 @@ resources:
 
 images:
   - name: quay.io/ansible/galaxy-operator
-    newTag: 2024.02.29
+    newTag: 2024.04.03
