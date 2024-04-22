@@ -4,7 +4,7 @@
   gather_facts: true
   become: true
   vars:
-    awx_on_k3s_local_hosts: true
+    awx_on_k3s_local_hosts: false
     awx_on_k3s_deploy_k3s: true
     awx_on_k3s_secure_logging: true
     ansible_python_interpreter: ~/ansible/bin/python3
