@@ -15,7 +15,7 @@ spec:
   admin_password_secret: galaxy-admin-password
 
   ingress_type: ingress
-  ingress_tls_secret: galaxy-secret-tls
+  # ingress_tls_secret: galaxy-secret-tls
   hostname: galaxy.lab.danielsson.us.com
 
   storage_type: file

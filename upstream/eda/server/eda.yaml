@@ -8,7 +8,7 @@ spec:
   admin_password_secret: eda-admin-password
 
   ingress_type: ingress
-  ingress_tls_secret: eda-secret-tls
+  # ingress_tls_secret: eda-secret-tls
   hostname: eda.lab.danielsson.us.com
 
   automation_server_url: https://awx.lab.danielsson.us.com/
