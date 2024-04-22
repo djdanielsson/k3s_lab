@@ -17,7 +17,25 @@
       - "{{ ansible_facts['default_ipv4']['address'] }} galaxy.lab.danielsson.us.com"
       - "{{ ansible_facts['default_ipv4']['address'] }} eda.lab.danielsson.us.com"
       - "{{ ansible_facts['default_ipv4']['address'] }} argocd.lab.danielsson.us.com"
-
+    awx_on_k3s_awx_dirs:
+      - path: /data/postgres-15/data
+        owner: 26:0
+        mode: "0775"
+      - path: /data/projects
+        owner: 1000:0
+        mode: "0755"
+      - path: /data/galaxy/postgres-13
+        owner: root
+        mode: "0755"
+      - path: /data/galaxy/redis
+        owner: root
+        mode: "0755"
+      - path: /data/galaxy/file
+        owner: 1000:0
+        mode: "0755"
+      - path: /data/eda/postgres-13/data
+        owner: 26:0
+        mode: "0775"
   environment:
     K8S_AUTH_KUBECONFIG: /etc/rancher/k3s/k3s.yaml
   tasks:
@@ -132,6 +150,14 @@
           kubernetes.core.k8s:
             state: present
             definition: "{{ lookup('kubernetes.core.kustomize', dir='../upstream/argocd/') }}"
+
+        - name: Ensure directories exist and have correct permissions
+          ansible.builtin.file:
+            path: "{{ item['path'] }}"
+            state: directory
+            owner: "{{ item['owner'] }}"
+            mode: "{{ item['mode'] }}"
+          loop: "{{ awx_on_k3s_awx_dirs }}"
 
   handlers:
     - name: Reboot
