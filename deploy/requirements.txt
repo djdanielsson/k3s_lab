@@ -1,3 +1,4 @@
 cryptography
 kubernetes
 kubernetes-validate
+ansible-core
