@@ -7,11 +7,11 @@ generatorOptions:
   disableNameSuffixHash: true
 
 secretGenerator:
-  - name: eda-secret-tls
-    type: kubernetes.io/tls
-    # files:
-    #   - tls.crt
-    #   - tls.key
+  # - name: eda-secret-tls
+  #   type: kubernetes.io/tls
+  #   files:
+  #     - tls.crt
+  #     - tls.key
 
   - name: eda-postgres-configuration
     type: Opaque
