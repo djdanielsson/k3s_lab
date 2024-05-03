@@ -1,0 +1,21 @@
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: galaxy-op
+  namespace: argocd
+spec:
+  destination:
+    namespace: galaxy
+    server: https://kubernetes.default.svc
+  project: default
+  source:
+    path: upstream/galaxy_ng/operator
+    repoURL: https://github.com/djdanielsson/k3s_lab.git
+    targetRevision: HEAD
+  syncPolicy:
+    syncOptions:
+      - CreateNamespace=true
+    managedNamespaceMetadata:
+      labels:
+        external.secrets.io/enabled: "true"

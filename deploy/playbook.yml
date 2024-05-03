@@ -24,7 +24,7 @@
       - path: /data/projects
         owner: 1000:0
         mode: "0755"
-      - path: /data/galaxy/postgres-13
+      - path: /data/galaxy/postgres-15
         owner: root
         mode: "0755"
       - path: /data/galaxy/redis
@@ -33,7 +33,7 @@
       - path: /data/galaxy/file
         owner: 1000:0
         mode: "0755"
-      - path: /data/eda/postgres-13/data
+      - path: /data/eda/postgres-15/data
         owner: 26:0
         mode: "0775"
   environment:
