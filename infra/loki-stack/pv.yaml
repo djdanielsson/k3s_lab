@@ -9,14 +9,14 @@ spec:
   capacity:
     storage: 2Gi
   accessModes:
-    - ReadWriteMany
+    - ReadWriteOnce # ReadWriteMany
   persistentVolumeReclaimPolicy: Retain
   #storageClassName: ""
   claimRef:
     namespace: grafana
     name: grafana
   hostPath:
-    path: "/var/nfs/k8s/grafana"
+    path: "/data/grafana"
 
 ---
 apiVersion: v1
@@ -30,14 +30,14 @@ spec:
   capacity:
     storage: 10Gi
   accessModes:
-    - ReadWriteMany
+    - ReadWriteOnce # ReadWriteMany
   persistentVolumeReclaimPolicy: Retain
   #storageClassName: ""
   claimRef:
     namespace: loki
     name: loki
   hostPath:
-    path: "/var/nfs/k8s/loki"
+    path: "/data/loki"
 
 ---
 apiVersion: v1
@@ -56,7 +56,7 @@ spec:
     namespace: prometheus
     name: prometheus-alertmanager
   hostPath:
-    path: /mnt/prometheus-am
+    path: /data/prometheus-am
 ---
 apiVersion: v1
 kind: PersistentVolume
@@ -74,4 +74,4 @@ spec:
     namespace: prometheus
     name: prometheus-server
   hostPath:
-    path: /mnt/prometheus-server
+    path: /data/prometheus-server
