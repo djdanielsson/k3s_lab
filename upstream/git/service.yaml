@@ -7,7 +7,7 @@ spec:
   ports:
     - name: gitea-http
       protocol: TCP
-      port: 3000
+      port: 3001
     - name: gitea-ssh
       protocol: TCP
       port: 22

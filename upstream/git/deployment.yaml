@@ -20,7 +20,7 @@ spec:
           image: gitea/gitea:latest
           ports:
             - name: gitea-http
-              containerPort: 3000
+              containerPort: 3001
             - name: gitea-ssh
               containerPort: 22
           volumeMounts:
