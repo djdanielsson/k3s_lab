@@ -8,3 +8,4 @@ resources:
 - galaxy-application.yml
 - eda-operator.yml
 - eda-application.yml
+- loki.yaml
