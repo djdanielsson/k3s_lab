@@ -1,0 +1,104 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: loki-stack-charts
+  namespace: argocd
+  finalizers:
+  - resources-finalizer.argocd.argoproj.io
+spec:
+  destination:
+    namespace: loki
+    server: https://kubernetes.default.svc
+  project: default
+  source:
+    chart: loki-stack
+    repoURL: https://grafana.github.io/helm-charts
+    targetRevision: 2.5.0
+    helm:
+      values: |
+        loki:
+          enabled: true
+          persistence:
+            type: pvc
+            enabled: true
+            existingClaim: loki
+          securityContext:
+            runAsGroup: 10001
+            runAsUser: 10001
+
+        promtail:
+          enabled: true
+
+        fluent-bit:
+          enabled: false
+
+        grafana:
+          enabled: true
+          namespaceOverride: grafana
+          sidecar:
+            datasources:
+              enabled: false
+          image:
+            tag: 8.2.2
+          persistence:
+            type: pvc
+            enabled: true
+            existingClaim: grafana
+          securityContext:
+            runAsUser: 472
+            runAsGroup: 472
+          initChownData:
+            enabled: false
+
+        prometheus:
+          enabled: true
+          forceNamespace: prometheus
+          configmapReload:
+            prometheus:
+              enabled: false
+            alertmanager:
+              enabled: false
+          server:
+            persistentVolume:
+              enabled: true
+              existingClaim: prometheus-server
+              accessModes:
+                - ReadWriteMany
+            resources:
+              limits:
+                cpu: 800m
+                memory: 1Gi
+              requests:
+                cpu: 500m
+                memory: 512Mi
+          alertmanager:
+            persistentVolume:
+              enabled: true
+              existingClaim: prometheus-alertmanager
+              accessModes:
+                - ReadWriteMany
+            resources:
+              limits:
+                cpu: 100m
+                memory: 100Mi
+              requests:
+                cpu: 50m
+                memory: 50Mi
+          nodeExporter:
+            enabled: true
+            tolerations:
+              - key: node-role.kubernetes.io/master
+                effect: NoSchedule
+            resources:
+              limits:
+                cpu: 200m
+                memory: 50Mi
+              requests:
+                cpu: 100m
+                memory: 30Mi
+
+        filebeat:
+          enabled: false
+
+        logstash:
+          enabled: false
