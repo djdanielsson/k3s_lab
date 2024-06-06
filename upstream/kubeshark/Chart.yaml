@@ -1,0 +1,8 @@
+---
+name: kubeshark
+apiVersion: v2
+version: 1.0.0
+dependencies:
+  - name: kubeshark
+    version: 52.3.62
+    repository: https://github.com/kubeshark/kubeshark/helm-chart

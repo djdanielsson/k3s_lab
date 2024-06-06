@@ -1,0 +1,8 @@
+---
+name: netdata
+apiVersion: v2
+version: 1.0.0
+dependencies:
+  - name: netdata
+    version: 3.0.11
+    repository: https://netdata.github.io/helmchart/
