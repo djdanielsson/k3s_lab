@@ -4,8 +4,8 @@
   gather_facts: true
   become: true
   vars:
-    deploy_k3s: true
-    deploy_argocd: false
+    deploy_k3s: false
+    deploy_argocd: true
   environment:
     K8S_AUTH_KUBECONFIG: /etc/rancher/k3s/k3s.yaml
   tasks:
