@@ -6,8 +6,11 @@ dependencies:
   - name: kubeshark
     version: 52.3.62
     repository: https://helm.kubeshark.co
-    source:
-      helm:
-        valueFiles:
-        - values.yaml
-        - values2.yaml
+    spec:
+      source:
+        helm:
+          values: |
+            tap:
+              ingress:
+                enabled: true
+                host: kubeshark.lab.danielsson.us.com
