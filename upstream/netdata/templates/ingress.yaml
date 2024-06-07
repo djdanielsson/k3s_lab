@@ -2,8 +2,6 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: netdata
-  namespace: default
   annotations:
     kubernetes.io/ingress.class: nginx
 spec:
@@ -11,12 +9,12 @@ spec:
     - host: netdata.lab.danielsson.us.com
       http:
         paths:
-          - path: /
-            pathType: Prefix
-            backend:
-              serviceName: netdata
-              servicePort: http
+          - backend:
               service:
                 name: netdata
                 port:
                   name: http
+            path: /
+            pathType: Prefix
+status:
+  loadBalancer: {}
