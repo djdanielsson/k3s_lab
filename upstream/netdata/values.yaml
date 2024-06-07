@@ -14,8 +14,8 @@ spec:
           - path: /
             pathType: Prefix
             backend:
-              serviceName: netdata
-              servicePort: http
+              # serviceName: netdata
+              # servicePort: http
               service:
                 name: netdata
                 port:
