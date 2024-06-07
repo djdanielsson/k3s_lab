@@ -21,7 +21,7 @@ apiVersion: traefik.containo.us/v1alpha1
 kind: ServersTransport
 metadata:
   name: skipverify
-  namespace: kubedb
+  namespace: kubernetes-dashboard
 spec:
   insecureSkipVerify: true
 # ---
