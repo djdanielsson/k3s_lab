@@ -3,12 +3,12 @@ app:
       enabled: true
       hosts:
         - dashboard.lab.danielsson.us.com
-      ingressClassName: nginx
-#       issuer:
-#         name: letsencrypt-prod
-#         scope: cluster
-# kong:
-#     proxy:
-#       annotations:
-#         traefik.ingress.kubernetes.io/service.serversscheme: https
-#         traefik.ingress.kubernetes.io/service.serverstransport: kubedb-skipverify@kubernetescrd
+      ingressClassName: traefik
+      # issuer:
+      #   name: letsencrypt-prod
+      #   scope: cluster
+kong:
+    proxy:
+      annotations:
+        traefik.ingress.kubernetes.io/service.serversscheme: https
+        traefik.ingress.kubernetes.io/service.serverstransport: kubedb-skipverify@kubernetescrd
