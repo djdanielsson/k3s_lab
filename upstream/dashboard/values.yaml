@@ -4,16 +4,16 @@ app:
     hosts:
       - dashboard.lab.danielsson.us.com
     ingressClassName: nginx
-    issuer:
-      name: selfsigned
-      scope: default
+    # issuer:
+    #   name: selfsigned
+    #   scope: default
 
 nginx:
   enabled: true
   controller:
     electionID: ingress-controller-leader
     ingressClassResource:
-      name: internal-nginx
+      name: nginx
       default: false
 
 kong:
