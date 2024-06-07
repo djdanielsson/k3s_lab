@@ -11,4 +11,4 @@ spec:
     storage: 4Gi
   storageClassName: git-volume
   hostPath:
-    path: /data/git
+    path: /opt/data/git

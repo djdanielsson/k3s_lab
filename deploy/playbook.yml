@@ -18,22 +18,22 @@
       - "{{ ansible_facts['default_ipv4']['address'] }} eda.lab.danielsson.us.com"
       - "{{ ansible_facts['default_ipv4']['address'] }} argocd.lab.danielsson.us.com"
     awx_on_k3s_awx_dirs:
-      - path: /data/postgres-15/data
+      - path: /opt/data/postgres-15/data
         owner: 26:0
         mode: "0775"
-      - path: /data/projects
+      - path: /opt/data/projects
         owner: 1000:0
         mode: "0755"
-      - path: /data/galaxy/postgres-15
+      - path: /opt/data/galaxy/postgres-15
         owner: root
         mode: "0755"
-      - path: /data/galaxy/redis
+      - path: /opt/data/galaxy/redis
         owner: root
         mode: "0755"
-      - path: /data/galaxy/file
+      - path: /opt/data/galaxy/file
         owner: 1000:0
         mode: "0755"
-      - path: /data/eda/postgres-15/data
+      - path: /opt/data/eda/postgres-15/data
         owner: 26:0
         mode: "0775"
   environment:
