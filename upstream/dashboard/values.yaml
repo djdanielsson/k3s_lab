@@ -2,3 +2,15 @@ kong:
   proxy:
     http:
       enabled: true
+    annotations:
+        traefik.ingress.kubernetes.io/service.serversscheme: http
+        traefik.ingress.kubernetes.io/service.serverstransport: kubernetes-dashboard-skipverify@kubernetescrd
+app:
+    ingress:
+      enabled: true
+      hosts:
+        - dashboard.lab.danielsson.us.com
+      ingressClassName: traefik
+      issuer:
+        name: letsencrypt-prod
+        scope: cluster
