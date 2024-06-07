@@ -9,7 +9,7 @@ app:
       scope: cluster
 kong:
   ingressController:
-    enabled: false
+    enabled: true
   proxy:
     enabled: true
     annotations:
