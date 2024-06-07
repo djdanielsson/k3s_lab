@@ -8,13 +8,13 @@ app:
       name: selfsigned
       scope: default
 
-# nginx:
-#   enabled: true
-#   controller:
-#     electionID: ingress-controller-leader
-#     ingressClassResource:
-#       name: internal-nginx
-#       default: false
+nginx:
+  enabled: true
+  controller:
+    electionID: ingress-controller-leader
+    ingressClassResource:
+      name: internal-nginx
+      default: false
 
 kong:
   enabled: false
