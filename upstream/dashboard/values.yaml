@@ -4,9 +4,9 @@ app:
       hosts:
         - dashboard.lab.danielsson.us.com
       ingressClassName: traefik
-      # issuer:
-      #   name: letsencrypt-prod
-      #   scope: cluster
+      issuer:
+        name: letsencrypt-prod
+        scope: cluster
 kong:
     proxy:
       annotations:
