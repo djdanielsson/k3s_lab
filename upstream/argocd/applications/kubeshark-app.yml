@@ -1,0 +1,21 @@
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: kubeshark
+  namespace: argocd
+spec:
+  destination:
+    namespace: kubeshark
+    server: https://kubernetes.default.svc
+  project: default
+  source:
+    path: upstream/kubeshark/
+    repoURL: https://github.com/djdanielsson/k3s_lab.git
+    targetRevision: test
+  syncPolicy:
+    syncOptions:
+      - CreateNamespace=true
+    managedNamespaceMetadata:
+      labels:
+        external.secrets.io/enabled: "true"

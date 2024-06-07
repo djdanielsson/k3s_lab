@@ -8,3 +8,5 @@ resources:
 - galaxy-application.yml
 - eda-operator.yml
 - eda-application.yml
+- netdata-app.yml
+- kubeshark-app.yml

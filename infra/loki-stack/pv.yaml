@@ -16,7 +16,7 @@ spec:
     namespace: grafana
     name: grafana
   hostPath:
-    path: "/data/grafana"
+    path: "/opt/data/grafana"
 
 ---
 apiVersion: v1
@@ -37,7 +37,7 @@ spec:
     namespace: loki
     name: loki
   hostPath:
-    path: "/data/loki"
+    path: "/opt/data/loki"
 
 ---
 apiVersion: v1
@@ -56,7 +56,7 @@ spec:
     namespace: prometheus
     name: prometheus-alertmanager
   hostPath:
-    path: /data/prometheus-am
+    path: /opt/data/prometheus-am
 ---
 apiVersion: v1
 kind: PersistentVolume
@@ -74,4 +74,4 @@ spec:
     namespace: prometheus
     name: prometheus-server
   hostPath:
-    path: /data/prometheus-server
+    path: /opt/data/prometheus-server

@@ -1,0 +1,131 @@
+---
+- name: Deploy ArgoCD on k3s
+  hosts: all
+  gather_facts: true
+  become: true
+  vars:
+    deploy_k3s: false
+    deploy_argocd: true
+  environment:
+    K8S_AUTH_KUBECONFIG: /etc/rancher/k3s/k3s.yaml
+  tasks:
+    - name: Disable services
+      ansible.builtin.service:
+        name: "{{ item }}"
+        state: stopped
+        enabled: false
+      failed_when: false
+      # notify:
+      #   - Reboot
+      loop:
+        - nm-cloud-setup.service
+        - nm-cloud-setup.timer
+
+    - name: Open port for apiserver
+      ansible.posix.firewalld:
+        port: 6443/tcp
+        permanent: true
+        state: enabled
+      notify:
+        - Reload firewalld
+
+    - name: Open ports for pods
+      ansible.posix.firewalld:
+        source: 10.42.0.0/16
+        zone: trusted
+        state: enabled
+        permanent: true
+      notify:
+        - Reload firewalld
+
+    - name: Open ports for services
+      ansible.posix.firewalld:
+        source: 10.43.0.0/16
+        zone: trusted
+        state: enabled
+        permanent: true
+      notify:
+        - Reload firewalld
+
+    - name: Flush handlers
+      ansible.builtin.meta: flush_handlers
+
+    - name: Ensure required packages are installed
+      ansible.builtin.package:
+        name:
+          - git
+          - curl
+        state: present
+
+    - name: Ensure python packages are installed
+      ansible.builtin.pip:
+        name:
+          - cryptography
+          - kubernetes
+          - kubernetes-validate
+        state: present
+
+    - name: Install k3s
+      ansible.builtin.shell: set -o pipefail && curl -sfL https://get.k3s.io | sh -s - --write-kubeconfig-mode 644
+      changed_when: true
+      when: deploy_k3s
+
+    - name: Deploy ArgoCD
+      when: deploy_argocd
+      block:
+        - name: Check if tls keys already exist
+          ansible.builtin.stat:
+            path: "../upstream/argocd/base/tls.key"
+          register: r_awx_tls_key
+
+        - name: Generate tls when they do not exist
+          when: not r_awx_tls_key['stat']['exists']
+          block:
+            - name: Create private key (RSA, 4096 bits)
+              community.crypto.openssl_privatekey:
+                path: "../upstream/argocd/base/tls.key"
+                mode: "0644"
+
+            - name: Create certificate signing request (CSR) for self-signed certificate
+              community.crypto.openssl_csr_pipe:
+                privatekey_path: "../upstream/argocd/base/tls.key"
+                common_name: "argocd.lab.danielsson.us.com"
+                subject_alt_name:
+                  - "DNS:argocd.lab.danielsson.us.com"
+              register: csr
+
+            - name: Create self-signed certificate from CSR
+              community.crypto.x509_certificate:
+                path: "../upstream/argocd/base/tls.crt"
+                csr_content: "{{ csr.csr }}"
+                privatekey_path: "../upstream/argocd/base/tls.key"
+                provider: selfsigned
+                mode: "0644"
+
+        - name: Deploy ArgoCD
+          kubernetes.core.k8s:
+            state: present
+            definition: "{{ lookup('kubernetes.core.kustomize', dir='../upstream/argocd/base/') }}"
+
+        - name: Ensure directories exist and have correct permissions
+          ansible.builtin.file:
+            path: "{{ item['path'] }}"
+            state: directory
+            owner: "{{ item['owner'] }}"
+            mode: "{{ item['mode'] }}"
+          loop: "{{ awx_dirs }}"
+
+  handlers:
+    - name: Reboot
+      ansible.builtin.reboot:
+
+    - name: Reload firewalld
+      ansible.builtin.service:
+        name: firewalld
+        state: reloaded
+
+    - name: Daemon-reload
+      ansible.builtin.systemd_service:
+        daemon_reload: true
+
+...
