@@ -3,7 +3,7 @@ app:
     enabled: true
     hosts:
       - dashboard.lab.danielsson.us.com
-    ingressClassName: traefik
+    ingressClassName: nginx
     issuer:
       name: selfsigned
       scope: default
@@ -19,7 +19,7 @@ nginx:
 kong:
   ingressController:
     enabled: true
-  proxy:
-    annotations:
-      traefik.ingress.kubernetes.io/service.serversscheme: https
-      traefik.ingress.kubernetes.io/service.serverstransport: kubernetes-dashboard-skipverify@internal
+  # proxy:
+  #   annotations:
+  #     traefik.ingress.kubernetes.io/service.serversscheme: https
+  #     traefik.ingress.kubernetes.io/service.serverstransport: kubernetes-dashboard-skipverify@internal
