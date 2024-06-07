@@ -1,0 +1,17 @@
+ingress:
+    # -- Enable ingress for Query-Service
+    enabled: true
+    # -- Ingress Class Name to be used to identify ingress controllers
+    className: ""
+    # -- Annotations to Query-Service Ingress
+    annotations:
+      kubernetes.io/ingress.class: nginx
+      # kubernetes.io/tls-acme: "true"
+      # cert-manager.io/cluster-issuer: letsencrypt-prod
+    # -- Query-Service Ingress Host names with their path details
+    hosts:
+      - host: signoz.lab.danielsson.us.com
+        paths:
+          - path: /
+            pathType: ImplementationSpecific
+            port: 80
