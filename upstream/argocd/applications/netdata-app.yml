@@ -12,7 +12,7 @@ spec:
   source:
     path: upstream/netdata/
     repoURL: https://github.com/djdanielsson/k3s_lab.git
-    targetRevision: test
+    targetRevision: main
   syncPolicy:
     syncOptions:
       - CreateNamespace=true
