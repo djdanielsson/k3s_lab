@@ -5,13 +5,21 @@ app:
       - dashboard.lab.danielsson.us.com
     ingressClassName: traefik
     issuer:
-      name: letsencrypt-prod
-      scope: cluster
+      name: selfsigned
+      scope: default
+
+nginx:
+  enabled: true
+  controller:
+    electionID: ingress-controller-leader
+    ingressClassResource:
+      name: internal-nginx
+      default: false
+
 kong:
   ingressController:
     enabled: true
   proxy:
-    enabled: true
     annotations:
       traefik.ingress.kubernetes.io/service.serversscheme: https
       traefik.ingress.kubernetes.io/service.serverstransport: kubernetes-dashboard-skipverify@internal
