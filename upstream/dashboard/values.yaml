@@ -11,4 +11,4 @@ kong:
     proxy:
       annotations:
         traefik.ingress.kubernetes.io/service.serversscheme: https
-        traefik.ingress.kubernetes.io/service.serverstransport: kubernetes-dashboard-skipverify@kubernetescrd
+        traefik.ingress.kubernetes.io/service.serverstransport: kubernetes-dashboard-skipverify@internal
