@@ -10,9 +10,11 @@ dependencies:
     #   source:
     #     helm:
     #       parameters:
-    #         - name: "app.settings.ingress.enabled"
+    #         - name: "app.ingress.enabled"
     #           value: true
-    #         - name: "app.settings.ingress.hosts"
+    #         - name: "app.ingress.hosts"
     #           value: dashboard.lab.danielsson.us.com
+    #         - name: "app.ingress.ingressClassName"
+    #           value: traefik
     #         - name: "nginx.enabled"
     #           value: true
