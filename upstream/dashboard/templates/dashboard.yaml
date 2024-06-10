@@ -98,25 +98,25 @@ spec:
 #                 name: kubernetes-dashboard-web
 #                 port:
 #                   number: 8000
-# ---
-# apiVersion: traefik.io/v1alpha1
-# kind: IngressRoute
-# metadata:
-#   name: kubdashboard-ingressroute
-#   namespace: kubernetes-dashboard
-# spec:
-#   entryPoints: [websecure]
-#   routes:
-#     - kind: Rule
-#       match: PathPrefix(`/kubernetes-dashboard`)
-#       services:
-#       - kind: Service
-#         name: kubernetes-dashboard-kong-proxy
-#         namespace: kubernetes-dashboard
-#         port: kong-proxy
-#       middlewares:
-#       - name: stripkubdashboard
-#         namespace: kubernetes-dashboard
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: kubdashboard-ingressroute
+  namespace: kubernetes-dashboard
+spec:
+  entryPoints: [websecure]
+  routes:
+    - kind: Rule
+      match: PathPrefix(`/kubernetes-dashboard`)
+      services:
+      - kind: Service
+        name: kubernetes-dashboard-kong-proxy
+        namespace: kubernetes-dashboard
+        port: kong-proxy
+      middlewares:
+      - name: stripkubdashboard
+        namespace: kubernetes-dashboard
 # ---
 # apiVersion: traefik.io/v1alpha1
 # kind: Middleware
