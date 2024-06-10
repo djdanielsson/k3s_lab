@@ -5,7 +5,7 @@ metadata:
   annotations:
     nginx.org/websocket-services: "kubeshark-front"
   name: kubeshark-ingress
-  namespace: default
+  namespace: kubeshark
 spec:
   rules:
     - host: kubeshark.lab.danielsson.us.com
