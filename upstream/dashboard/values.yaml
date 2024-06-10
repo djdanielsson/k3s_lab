@@ -85,7 +85,7 @@ app:
       # https://localhost:8443
       - dashboard.lab.danielsson.us.com
     # - kubernetes.dashboard.domain.com
-    ingressClassName: internal-nginx
+    ingressClassName: nginx
     # Use only if your ingress controllers support default ingress classes.
     # If set to true ingressClassName will be ignored and not added to the Ingress resources.
     # It should fall back to using IngressClass marked as the default.
@@ -350,7 +350,7 @@ kong:
 ## Enable this if you don't already have cert-manager enabled on your cluster.
 cert-manager:
   enabled: false
-  installCRDs: true
+  installCRDs: false
 
 ## Optional Nginx Ingress sub-chart configuration
 ## Enable this if you don't already have nginx-ingress enabled on your cluster.
