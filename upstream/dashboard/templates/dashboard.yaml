@@ -120,11 +120,11 @@ spec:
 #     prefixes:
 #       - "/kubernetes-dashboard"
 #     forceSlash: true
-# ---
-# apiVersion: traefik.containo.us/v1alpha1
-# kind: ServersTransport
-# metadata:
-#   name: skipverify
-#   namespace: kubernetes-dashboard
-# spec:
-#   insecureSkipVerify: true
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: ServersTransport
+metadata:
+  name: skipverify
+  namespace: kubernetes-dashboard
+spec:
+  insecureSkipVerify: true
