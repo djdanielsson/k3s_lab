@@ -46,7 +46,7 @@ spec:
           service:
             name: kubernetes-dashboard-kong-proxy
             port:
-              name: https
+              number: 443
 # ---
 # kind: Ingress
 # apiVersion: networking.k8s.io/v1
