@@ -16,14 +16,14 @@
 # - kind: ServiceAccount
 #   name: admin-user
 #   namespace: kubernetes-dashboard
-# ---
-# apiVersion: traefik.containo.us/v1alpha1
-# kind: ServersTransport
-# metadata:
-#   name: skipverify
-#   namespace: kubernetes-dashboard
-# spec:
-#   insecureSkipVerify: true
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: ServersTransport
+metadata:
+  name: skipverify
+  namespace: kubernetes-dashboard
+spec:
+  insecureSkipVerify: true
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
