@@ -14,8 +14,8 @@ spec:
     repoURL: https://github.com/djdanielsson/k3s_lab.git
     targetRevision: HEAD
   syncPolicy:
-    syncOptions:
-      - CreateNamespace=true
+    # syncOptions:
+    #   - CreateNamespace=true
     managedNamespaceMetadata:
       labels:
         external.secrets.io/enabled: "true"
