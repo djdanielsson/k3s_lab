@@ -88,11 +88,11 @@ app:
     # Use only if your ingress controllers support default ingress classes.
     # If set to true ingressClassName will be ignored and not added to the Ingress resources.
     # It should fall back to using IngressClass marked as the default.
-    useDefaultIngressClass:
+    useDefaultIngressClass: false
     # This will append our Ingress with annotations required by our default configuration.
-       nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
-       nginx.ingress.kubernetes.io/ssl-passthrough: "true"
-       nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    #    nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
+    #    nginx.ingress.kubernetes.io/ssl-passthrough: "true"
+    #    nginx.ingress.kubernetes.io/ssl-redirect: "true"
     useDefaultAnnotations: true
     pathType: ImplementationSpecific
     # If path is not the default (/), rewrite-target annotation will be added to the Ingress.
@@ -365,7 +365,7 @@ cert-manager:
 ## Optional Nginx Ingress sub-chart configuration
 ## Enable this if you don't already have nginx-ingress enabled on your cluster.
 nginx:
-  enabled: true
+  enabled: false
   controller:
     electionID: ingress-controller-leader
     ingressClassResource:

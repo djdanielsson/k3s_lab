@@ -36,7 +36,7 @@ spec:
         pathType: ImplementationSpecific
         backend:
           service:
-            name: internal-nginx
+            name: kubernetes-dashboard-kong-proxy
             port:
               number: 443
 # ---
