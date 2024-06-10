@@ -44,7 +44,7 @@ spec:
         pathType: Prefix
         backend:
           service:
-            name: kubernetes-dashboard
+            name: kubernetes-dashboard-kong-proxy
             port:
               name: https
 # ---
