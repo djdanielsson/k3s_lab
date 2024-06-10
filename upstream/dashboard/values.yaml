@@ -341,11 +341,11 @@ cert-manager:
 ## Optional Nginx Ingress sub-chart configuration
 ## Enable this if you don't already have nginx-ingress enabled on your cluster.
 nginx:
-  enabled: false
+  enabled: true
   controller:
     electionID: ingress-controller-leader
     ingressClassResource:
-      name: internal-nginx
+      name: kubernetes-dashboard-ingress
       default: false
       controllerValue: k8s.io/internal-ingress-nginx
     service:
