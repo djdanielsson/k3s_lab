@@ -1,21 +1,21 @@
-apiVersion: v1
-kind: ServiceAccount
-metadata:
-  name: admin-user
-  namespace: kubernetes-dashboard
----
-apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRoleBinding
-metadata:
-  name: admin-user
-roleRef:
-  apiGroup: rbac.authorization.k8s.io
-  kind: ClusterRole
-  name: cluster-admin
-subjects:
-- kind: ServiceAccount
-  name: admin-user
-  namespace: kubernetes-dashboard
+# apiVersion: v1
+# kind: ServiceAccount
+# metadata:
+#   name: admin-user
+#   namespace: kubernetes-dashboard
+# ---
+# apiVersion: rbac.authorization.k8s.io/v1
+# kind: ClusterRoleBinding
+# metadata:
+#   name: admin-user
+# roleRef:
+#   apiGroup: rbac.authorization.k8s.io
+#   kind: ClusterRole
+#   name: cluster-admin
+# subjects:
+# - kind: ServiceAccount
+#   name: admin-user
+#   namespace: kubernetes-dashboard
 # ---
 # apiVersion: traefik.containo.us/v1alpha1
 # kind: ServersTransport
@@ -98,33 +98,33 @@ subjects:
 #                 name: kubernetes-dashboard-web
 #                 port:
 #                   number: 8000
----
-apiVersion: traefik.io/v1alpha1
-kind: IngressRoute
-metadata:
-  name: kubdashboard-ingressroute
-  namespace: kubernetes-dashboard
-spec:
-  entryPoints: [websecure]
-  routes:
-    - kind: Rule
-      match: PathPrefix(`/kubernetes-dashboard`)
-      services:
-      - kind: Service
-        name: kubernetes-dashboard-kong-proxy
-        namespace: kubernetes-dashboard
-        port: kong-proxy
-      middlewares:
-      - name: stripkubdashboard
-        namespace: kubernetes-dashboard
----
-apiVersion: traefik.io/v1alpha1
-kind: Middleware
-metadata:
-  name: stripkubdashboard
-  namespace: kubernetes-dashboard
-spec:
-  stripPrefix:
-    prefixes:
-      - "/kubernetes-dashboard"
-    forceSlash: true
+# ---
+# apiVersion: traefik.io/v1alpha1
+# kind: IngressRoute
+# metadata:
+#   name: kubdashboard-ingressroute
+#   namespace: kubernetes-dashboard
+# spec:
+#   entryPoints: [websecure]
+#   routes:
+#     - kind: Rule
+#       match: PathPrefix(`/kubernetes-dashboard`)
+#       services:
+#       - kind: Service
+#         name: kubernetes-dashboard-kong-proxy
+#         namespace: kubernetes-dashboard
+#         port: kong-proxy
+#       middlewares:
+#       - name: stripkubdashboard
+#         namespace: kubernetes-dashboard
+# ---
+# apiVersion: traefik.io/v1alpha1
+# kind: Middleware
+# metadata:
+#   name: stripkubdashboard
+#   namespace: kubernetes-dashboard
+# spec:
+#   stripPrefix:
+#     prefixes:
+#       - "/kubernetes-dashboard"
+#     forceSlash: true

@@ -219,7 +219,7 @@ web:
   containers:
     ports:
       - name: web
-        containerPort: 8000
+        containerPort: 80
         protocol: TCP
     # Additional container arguments
     # Full list of arguments: https://github.com/kubernetes/dashboard/blob/master/docs/common/arguments.md
@@ -355,7 +355,7 @@ cert-manager:
 ## Optional Nginx Ingress sub-chart configuration
 ## Enable this if you don't already have nginx-ingress enabled on your cluster.
 nginx:
-  enabled: true
+  enabled: false
   controller:
     electionID: ingress-controller-leader
     ingressClassResource:
