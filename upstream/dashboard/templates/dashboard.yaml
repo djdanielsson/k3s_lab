@@ -24,29 +24,29 @@
 #   namespace: kubernetes-dashboard
 # spec:
 #   insecureSkipVerify: true
-# ---
-# apiVersion: networking.k8s.io/v1
-# kind: Ingress
-# metadata:
-#   namespace: kubernetes-dashboard
-#   name: kubernetes-dashboard-ingress
-#   annotations:
-#     kubernetes.io/spec.ingressClassName.class: "nginx"
-#     nginx.ingress.kubernetes.io/backend-protocol: "HTTP"
-#     nginx.ingress.kubernetes.io/auth-type: basic
-#     nginx.ingress.kubernetes.io/auth-secret: basic-auth
-# spec:
-#   rules:
-#   - host: dashboard.lab.danielsson.us.com
-#     http:
-#       paths:
-#       - path: /
-#         pathType: Prefix
-#         backend:
-#           service:
-#             name: kubernetes-dashboard
-#             port:
-#               name: http
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  namespace: kubernetes-dashboard
+  name: kubernetes-dashboard-ingress
+  annotations:
+    kubernetes.io/spec.ingressClassName.class: "nginx"
+    nginx.ingress.kubernetes.io/backend-protocol: "HTTP"
+    nginx.ingress.kubernetes.io/auth-type: basic
+    nginx.ingress.kubernetes.io/auth-secret: basic-auth
+spec:
+  rules:
+  - host: dashboard.lab.danielsson.us.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: kubernetes-dashboard
+            port:
+              name: http
 # ---
 # kind: Ingress
 # apiVersion: networking.k8s.io/v1
