@@ -69,7 +69,7 @@ app:
       # https://localhost:8443
       - dashboard.lab.danielsson.us.com
     # - kubernetes.dashboard.domain.com
-    ingressClassName: nginx
+    ingressClassName: traefik
     # Use only if your ingress controllers support default ingress classes.
     # If set to true ingressClassName will be ignored and not added to the Ingress resources.
     # It should fall back to using IngressClass marked as the default.
