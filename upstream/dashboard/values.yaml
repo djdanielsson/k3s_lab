@@ -329,7 +329,9 @@ kong:
     type: ClusterIP
     http:
       enabled: false
-
+      annotations:
+        traefik.ingress.kubernetes.io/service.serversscheme: https
+        traefik.ingress.kubernetes.io/service.serverstransport: kubernetes-dashboard-skipverify@kubernetescrd
 ## Optional Cert Manager sub-chart configuration
 ## Enable this if you don't already have cert-manager enabled on your cluster.
 cert-manager:
