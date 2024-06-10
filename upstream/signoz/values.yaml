@@ -1,7 +1,7 @@
 frontend:
   ingress:
     enabled: true
-    className: nginx
+    className: traefik
     hosts:
       - host: signoz.lab.danielsson.us.com
         paths:
