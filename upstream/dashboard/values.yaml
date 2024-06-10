@@ -318,7 +318,7 @@ metrics-server:
 ## Required Kong sub-chart with DBless configuration to act as a gateway
 ## for our all containers.
 kong:
-  enabled: false
+  enabled: true
   env:
     dns_order: LAST,A,SRV,CNAME
   ingressController:
@@ -327,7 +327,7 @@ kong:
     configMap: kong-dbless-config
   proxy:
     type: ClusterIP
-    http:
+    https:
       enabled: false
       annotations:
         traefik.ingress.kubernetes.io/service.serversscheme: https
@@ -341,7 +341,7 @@ cert-manager:
 ## Optional Nginx Ingress sub-chart configuration
 ## Enable this if you don't already have nginx-ingress enabled on your cluster.
 nginx:
-  enabled: true
+  enabled: false
   controller:
     electionID: ingress-controller-leader
     ingressClassResource:
