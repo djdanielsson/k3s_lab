@@ -6,15 +6,15 @@ dependencies:
   - name: kubernetes-dashboard
     version: 7.5.0
     repository: https://kubernetes.github.io/dashboard/
-    # spec:
-    #   source:
-    #     helm:
-    #       parameters:
-    #         - name: "app.ingress.enabled"
-    #           value: true
-    #         - name: "app.ingress.hosts"
-    #           value: dashboard.lab.danielsson.us.com
-    #         - name: "app.ingress.ingressClassName"
-    #           value: traefik
+    spec:
+      source:
+        helm:
+          parameters:
+            - name: "app.ingress.enabled"
+              value: true
+            - name: "app.ingress.hosts"
+              value: dashboard.lab.danielsson.us.com
+            - name: "app.ingress.ingressClassName"
+              value: traefik
     #         - name: "nginx.enabled"
     #           value: true
