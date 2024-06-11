@@ -4,6 +4,7 @@
   # --set certmanager-issuer.email=me@lab.danielsson.us.com \
   # --set postgresql.image.tag=13.6.0
 global:
+  edition: ce
   hosts:
     domain: lab.danielsson.us.com
     gitlab:
