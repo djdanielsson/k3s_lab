@@ -2,17 +2,17 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: netdata
+  name: eda-op
   namespace: argocd
 spec:
   destination:
-    namespace: netdata
+    namespace: eda
     server: https://kubernetes.default.svc
   project: default
   source:
-    path: upstream/netdata/
+    path: infra/eda/operator
     repoURL: https://github.com/djdanielsson/k3s_lab.git
-    targetRevision: test
+    targetRevision: HEAD
   syncPolicy:
     syncOptions:
       - CreateNamespace=true

@@ -2,15 +2,15 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: galaxy
+  name: awx
   namespace: argocd
 spec:
   destination:
-    namespace: galaxy
+    namespace: awx
     server: https://kubernetes.default.svc
   project: default
   source:
-    path: upstream/galaxy_ng/server
+    path: infra/awx/server
     repoURL: https://github.com/djdanielsson/k3s_lab.git
     targetRevision: HEAD
   syncPolicy:
