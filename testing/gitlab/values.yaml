@@ -23,3 +23,5 @@ global:
       name: pages.lab.danielsson.us.com
       https: false
     ssh: gitlab.lab.danielsson.us.com
+  ingress:
+    configureCertmanager: false
