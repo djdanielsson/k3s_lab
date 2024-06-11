@@ -1,6 +1,6 @@
 ---
 name: gitlab
-apiVersion: v2
+apiVersion: v3
 version: 1.0.0
 dependencies:
   - name: gitlab
