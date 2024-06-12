@@ -33,5 +33,4 @@ global:
       key: postgresql-password
   traefik:
     install: true
-  runner:
-    CI_SERVER_URL: https://gitlab.lab.danielsson.us.com
+gitlabUrl: https://gitlab.lab.danielsson.us.com/
