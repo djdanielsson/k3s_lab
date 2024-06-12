@@ -9,23 +9,23 @@ global:
     domain: lab.danielsson.us.com
     gitlab:
       name: gitlab.lab.danielsson.us.com
-      https: false
+      https: true
     registry:
       name: registry.lab.danielsson.us.com
-      https: false
+      https: true
     minio:
       name: minio.lab.danielsson.us.com
-      https: false
+      https: true
     smartcard:
       name: smartcard.lab.danielsson.us.com
     kas:
       name: kas.lab.danielsson.us.com
     pages:
       name: pages.lab.danielsson.us.com
-      https: false
+      https: true
     ssh: gitlab.lab.danielsson.us.com
   ingress:
-    configureCertmanager: false
+    configureCertmanager: true
   psql:
     password:
       useSecret: true
@@ -33,5 +33,3 @@ global:
       key: postgresql-password
   traefik:
     install: true
-gitlabUrl: http://gitlab.lab.danielsson.us.com/
-CI_SERVER_URL: http://gitlab.lab.danielsson.us.com/
