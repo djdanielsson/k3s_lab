@@ -30,4 +30,4 @@ global:
     password:
       useSecret: true
       secret: gitlab-postgresql-password
-      key: psql-password
+      key: postgresql-password
