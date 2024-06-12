@@ -31,3 +31,7 @@ global:
       useSecret: true
       secret: gitlab-postgresql-password
       key: postgresql-password
+  traefik:
+    install: true
+  runner:
+    CI_SERVER_URL: https://gitlab.lab.danielsson.us.com
