@@ -28,6 +28,4 @@ global:
     configureCertmanager: false
   psql:
     password:
-      useSecret: true
-      secret: gitlab-postgres
-      key: psql-password
+      useSecret: false
