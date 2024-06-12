@@ -33,3 +33,5 @@ global:
       key: postgresql-password
   traefik:
     install: true
+certmanager-issuer:
+  email: email@example.com
