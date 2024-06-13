@@ -12,7 +12,7 @@ spec:
   source:
     path: infra/kubevirt/
     repoURL: https://github.com/djdanielsson/k3s_lab.git
-    targetRevision: test
+    targetRevision: HEAD
   syncPolicy:
     syncOptions:
       - CreateNamespace=true

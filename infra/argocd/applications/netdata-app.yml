@@ -10,15 +10,9 @@ spec:
     server: https://kubernetes.default.svc
   project: default
   source:
-<<<<<<< HEAD:infra/argocd/applications/netdata-app.yml
     path: infra/netdata/
     repoURL: https://github.com/djdanielsson/k3s_lab.git
-    targetRevision: test
-=======
-    path: upstream/netdata/
-    repoURL: https://github.com/djdanielsson/k3s_lab.git
     targetRevision: HEAD
->>>>>>> main:upstream/argocd/applications/netdata-app.yml
   syncPolicy:
     syncOptions:
       - CreateNamespace=true
