@@ -2,6 +2,10 @@
 sudo mkdir -p /opt/data/postgres-15
 sudo mkdir -p /opt/data/projects
 sudo chown 1000:0 /opt/data/projects
+<<<<<<< HEAD
+=======
+sudo chown 26:0 /opt/data/postgres-15/data
+>>>>>>> main
 sudo mkdir -p /opt/data/galaxy/postgres-15
 sudo mkdir -p /opt/data/galaxy/file
 sudo chown 1000:0 /opt/data/galaxy/file

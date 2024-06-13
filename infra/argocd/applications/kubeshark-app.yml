@@ -10,9 +10,15 @@ spec:
     server: https://kubernetes.default.svc
   project: default
   source:
+<<<<<<< HEAD:infra/argocd/applications/kubeshark-app.yml
     path: infra/kubeshark/
     repoURL: https://github.com/djdanielsson/k3s_lab.git
     targetRevision: test
+=======
+    path: upstream/kubeshark/
+    repoURL: https://github.com/djdanielsson/k3s_lab.git
+    targetRevision: HEAD
+>>>>>>> main:upstream/argocd/applications/kubeshark-app.yml
   syncPolicy:
     syncOptions:
       - CreateNamespace=true

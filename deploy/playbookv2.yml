@@ -75,7 +75,11 @@
       block:
         - name: Check if tls keys already exist
           ansible.builtin.stat:
+<<<<<<< HEAD
             path: "../infra/argocd/base/tls.key"
+=======
+            path: "../upstream/argocd/base/tls.key"
+>>>>>>> main
           register: r_awx_tls_key
 
         - name: Generate tls when they do not exist
@@ -83,12 +87,20 @@
           block:
             - name: Create private key (RSA, 4096 bits)
               community.crypto.openssl_privatekey:
+<<<<<<< HEAD
                 path: "../infra/argocd/base/tls.key"
+=======
+                path: "../upstream/argocd/base/tls.key"
+>>>>>>> main
                 mode: "0644"
 
             - name: Create certificate signing request (CSR) for self-signed certificate
               community.crypto.openssl_csr_pipe:
+<<<<<<< HEAD
                 privatekey_path: "../infra/argocd/base/tls.key"
+=======
+                privatekey_path: "../upstream/argocd/base/tls.key"
+>>>>>>> main
                 common_name: "argocd.lab.danielsson.us.com"
                 subject_alt_name:
                   - "DNS:argocd.lab.danielsson.us.com"
@@ -96,16 +108,26 @@
 
             - name: Create self-signed certificate from CSR
               community.crypto.x509_certificate:
+<<<<<<< HEAD
                 path: "../infra/argocd/base/tls.crt"
                 csr_content: "{{ csr.csr }}"
                 privatekey_path: "../infra/argocd/base/tls.key"
+=======
+                path: "../upstream/argocd/base/tls.crt"
+                csr_content: "{{ csr.csr }}"
+                privatekey_path: "../upstream/argocd/base/tls.key"
+>>>>>>> main
                 provider: selfsigned
                 mode: "0644"
 
         - name: Deploy ArgoCD
           kubernetes.core.k8s:
             state: present
+<<<<<<< HEAD
             definition: "{{ lookup('kubernetes.core.kustomize', dir='../infra/argocd/base/') }}"
+=======
+            definition: "{{ lookup('kubernetes.core.kustomize', dir='../upstream/argocd/base/') }}"
+>>>>>>> main
 
         - name: Ensure directories exist and have correct permissions
           ansible.builtin.file:
