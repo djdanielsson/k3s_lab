@@ -1,0 +1,10 @@
+frontend:
+  ingress:
+    enabled: true
+    className: traefik
+    hosts:
+      - host: signoz.lab.danielsson.us.com
+        paths:
+          - path: /
+            pathType: Prefix
+            port: 80
