@@ -1,0 +1,18 @@
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: kubevirt
+  namespace: argocd
+spec:
+  destination:
+    namespace: kubevirt
+    server: https://kubernetes.default.svc
+  project: default
+  source:
+    path: infra/kubevirt/
+    repoURL: https://github.com/djdanielsson/k3s_lab.git
+    targetRevision: HEAD
+  syncPolicy:
+    syncOptions:
+      - CreateNamespace=true
