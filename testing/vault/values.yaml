@@ -1,9 +1,9 @@
 server:
   affinity: ""
   ha:
-    enabled: false
+    enabled: true
     raft: 
-      enabled: false
+      enabled: true
       setNodeId: true
       config: |
         cluster_name = "vault-integrated-storage"
