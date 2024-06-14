@@ -1,0 +1,11 @@
+---
+# https://developer.hashicorp.com/vault/tutorials/kubernetes/kubernetes-minikube-raft
+name: cert-manager
+apiVersion: v2
+version: 1.0.0
+dependencies:
+  - name: cert-manager
+    version: v1.15.0
+    repository: https://charts.jetstack.io
+    alias: cert-manager
+    condition: cert-manager.enabled

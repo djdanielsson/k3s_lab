@@ -1,0 +1,9 @@
+---
+# https://developer.hashicorp.com/vault/tutorials/kubernetes/kubernetes-minikube-raft
+name: vault
+apiVersion: v3
+version: 1.0.0
+dependencies:
+  - name: vault
+    version: 0.27.0
+    repository: https://helm.releases.hashicorp.com
