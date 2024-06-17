@@ -1,0 +1,20 @@
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    app: polaris
+  name: polaris-ingress
+  namespace: polaris
+spec:
+  rules:
+    - host: polaris.lab.danielsson.us.com
+      http:
+        paths:
+          - backend:
+              service:
+                name: polaris-dashboard
+                port:
+                  number: 80
+            path: /
+            pathType: Prefix

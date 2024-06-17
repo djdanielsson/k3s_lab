@@ -1,0 +1,4 @@
+dashboard:
+  ingress:
+    enabled: true
+    hosts: polaris.lab.danielsson.us.com
