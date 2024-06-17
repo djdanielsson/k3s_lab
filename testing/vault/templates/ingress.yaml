@@ -16,3 +16,8 @@ spec:
                   number: 8080
             path: /
             pathType: Prefix
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: webapp
