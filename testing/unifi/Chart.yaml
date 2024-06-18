@@ -1,0 +1,8 @@
+---
+name: my-unifi
+apiVersion: v3
+version: 1.0.0
+dependencies:
+  - name: my-unifi
+    version: 1.10.3
+    repository: oci://ghcr.io/mkilchhofer/unifi-chart/unifi

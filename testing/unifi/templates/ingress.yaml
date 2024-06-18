@@ -1,0 +1,18 @@
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: unifi-ingress
+  namespace: default
+spec:
+  rules:
+    - host: unifi.lab.danielsson.us.com
+      http:
+        paths:
+          - backend:
+              service:
+                name: webapp
+                port:
+                  number: 8080
+            path: /
+            pathType: Prefix
