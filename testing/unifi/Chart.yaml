@@ -1,8 +1,8 @@
 ---
-name: my-unifi
+name: unifi
 apiVersion: v3
 version: 1.0.0
 dependencies:
-  - name: my-unifi
-    version: 0.2.5
-    repository: https://github.com/k8sonlab/publiccharts/tree/main/charts/unifi
+  - name: unifi
+    version: 1.10.3
+    repository: ghcr.io/mkilchhofer/unifi-chart/unifi
