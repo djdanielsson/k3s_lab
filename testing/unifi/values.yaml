@@ -2,4 +2,7 @@ ingress:
   enabled: true
   annotations:
     nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
-  hosts: unifi.lab.danielsson.us.com
+controllerService:
+  ingress:
+    hosts: unifi.lab.danielsson.us.com
+  port: 80
