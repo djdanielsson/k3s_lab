@@ -5,4 +5,4 @@ version: 1.0.0
 dependencies:
   - name: unifi
     version: 1.10.3
-    repository: ghcr.io/mkilchhofer/unifi-chart/unifi
+    repository: oci://ghcr.io/mkilchhofer/unifi-chart/unifi
