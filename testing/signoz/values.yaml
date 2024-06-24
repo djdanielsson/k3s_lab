@@ -6,19 +6,19 @@ frontend:
       - host: signoz.lab.danielsson.us.com
         paths:
           - path: /
-            pathType: Prefix
+            pathType: ImplementationSpecific
             port: 3301
 
 ingress-nginx:
   enabled: true
 
-otelCollector:
-  ingress:
-    enabled: true
-    className: nginx
-    hosts:
-      - host: signoz.lab.danielsson.us.com
-        paths:
-          - path: /
-            pathType: ImplementationSpecific
-            port: 4317
+# otelCollector:
+#   ingress:
+#     enabled: true
+#     className: nginx
+#     hosts:
+#       - host: signoz.lab.danielsson.us.com
+#         paths:
+#           - path: /
+#             pathType: ImplementationSpecific
+#             port: 4317
