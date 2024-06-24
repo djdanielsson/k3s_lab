@@ -1,8 +1,8 @@
 ---
-name: my-unifi
+name: k8sonlab
 apiVersion: v3
 version: 1.0.0
 dependencies:
-  - name: my-unifi
+  - name: k8sonlab
     version: 0.2.4
     repository: https://charts.ar80.eu
