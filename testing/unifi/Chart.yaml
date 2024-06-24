@@ -4,5 +4,5 @@ apiVersion: v3
 version: 1.0.0
 dependencies:
   - name: my-unifi
-    version: 0.2.4
-    repository: https://raw.githubusercontent.com/k8sonlab/publiccharts/main/charts/unifi/Chart.yaml
+    version: 0.2.5
+    repository: https://github.com/k8sonlab/publiccharts/tree/main/charts/unifi
