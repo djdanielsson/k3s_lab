@@ -5,4 +5,4 @@ version: 1.0.0
 dependencies:
   - name: my-unifi
     version: 0.2.4
-    repository: https://github.com/k8sonlab/publiccharts/releases/download/unifi-0.2.4/unifi-0.2.4.tgz
+    repository: https://raw.githubusercontent.com/k8sonlab/publiccharts/main/charts/unifi/Chart.yaml
