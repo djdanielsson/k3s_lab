@@ -5,4 +5,4 @@ version: 1.0.0
 dependencies:
   - name: my-unifi
     version: 0.2.4
-    repository: https://github.com/k8sonlab/publiccharts/
+    repository: https://charts.ar80.eu
