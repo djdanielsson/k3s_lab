@@ -7,4 +7,4 @@ frontend:
         paths:
           - path: /
             pathType: Prefix
-            port: 80
+            port: 3301
