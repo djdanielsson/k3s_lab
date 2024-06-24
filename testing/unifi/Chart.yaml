@@ -4,5 +4,5 @@ apiVersion: v3
 version: 1.0.0
 dependencies:
   - name: my-unifi
-    version: 1.10.3
-    repository: ghcr.io/mkilchhofer/unifi-chart/unifi
+    version: 8.1.113
+    repository: https://charts.ar80.eu
