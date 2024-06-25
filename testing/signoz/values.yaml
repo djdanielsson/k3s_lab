@@ -1,13 +1,13 @@
 frontend:
   ingress:
     enabled: true
-    className: traefik
-    hosts:
-      - host: signoz.lab.danielsson.us.com
-        paths:
-          - path: /
-            pathType: ImplementationSpecific
-            port: 3301
+    # className: traefik
+    # hosts:
+    #   - host: signoz.lab.danielsson.us.com
+    #     paths:
+    #       - path: /
+    #         pathType: ImplementationSpecific
+    #         port: 3301
 
 ingress-nginx:
   enabled: true
