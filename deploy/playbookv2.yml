@@ -6,6 +6,25 @@
   vars:
     deploy_k3s: false
     deploy_argocd: true
+    awx_dirs:
+      - path: /opt/data/postgres-15/data
+        owner: 26:0
+        mode: "0775"
+      - path: /opt/data/projects
+        owner: 1000:0
+        mode: "0755"
+      - path: /opt/data/galaxy/postgres-15
+        owner: root
+        mode: "0755"
+      - path: /opt/data/galaxy/redis
+        owner: root
+        mode: "0755"
+      - path: /opt/data/galaxy/file
+        owner: 1000:0
+        mode: "0755"
+      - path: /opt/data/eda/postgres-15/data
+        owner: 26:0
+        mode: "0775"
   environment:
     K8S_AUTH_KUBECONFIG: /etc/rancher/k3s/k3s.yaml
   tasks:

@@ -10,3 +10,4 @@ resources:
 - eda-application.yml
 - netdata-app.yml
 - kubeshark-app.yml
+- kubevirt.yml
