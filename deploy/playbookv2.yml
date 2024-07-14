@@ -22,7 +22,7 @@
       - path: /opt/data/galaxy/file
         owner: 1000:0
         mode: "0755"
-      - path: /opt/data/eda/postgres-15/data
+      - path: /opt/data/eda/postgres-13/data
         owner: 26:0
         mode: "0775"
   environment:
