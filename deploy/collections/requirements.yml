@@ -2,4 +2,5 @@
 collections:
   - name: kubernetes.core
   - name: community.crypto
+  - name: ansible.posix
 ...

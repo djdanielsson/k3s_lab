@@ -17,7 +17,8 @@ secretGenerator:
     behavior: merge
     literals:
       # argocd account bcrypt --password ArgoCD123!
-      - admin.password=$2a$10$xonpIrp0Q.tgNBEPTV9qZ.VRJTDFRFdYeVQvBJi1Eqwg9uA2hgC7S
+      # - admin.password=$2a$10$xonpIrp0Q.tgNBEPTV9qZ.VRJTDFRFdYeVQvBJi1Eqwg9uA2hgC7S
+      - admin.password=$2a$10$sHT8DHhpvFPAUB5cHAHAAeUjHuhhh3Lxzxjutkaq4emZ1aMSOFnxm
       # date --utc +%FT%T%Z
       - admin.passwordMtime=2023-01-01T00:00:00UTC
 
