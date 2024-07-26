@@ -38,4 +38,3 @@ secretGenerator:
 
 resources:
   - awx.yaml
-  - pvc.yaml
