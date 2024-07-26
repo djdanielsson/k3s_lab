@@ -30,5 +30,4 @@ secretGenerator:
       - password=Password1234!
 
 resources:
-  - pv.yaml
   - galaxy.yaml

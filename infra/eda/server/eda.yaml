@@ -36,7 +36,7 @@ spec:
       requests: {}
   database:
     database_secret: eda-database-configuration
-    postgres_storage_class: eda-postgres-volume
+    postgres_storage_class: local-path
     storage_requirements:
       requests:
         storage: 8Gi
