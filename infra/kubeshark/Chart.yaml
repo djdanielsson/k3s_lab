@@ -4,7 +4,7 @@ apiVersion: v2
 version: 1.0.0
 dependencies:
   - name: kubeshark
-    version: 52.3.74
+    version: 52.3.76
     repository: https://helm.kubeshark.co
     spec:
       source:
