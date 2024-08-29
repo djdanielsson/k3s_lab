@@ -7,7 +7,7 @@
     deploy_k3s: false
     deploy_argocd: true
     awx_dirs:
-      - path: /opt/data/postgres-15/data
+      - path: /opt/data/awx/postgres-15/data
         owner: 26:0
         mode: "0775"
       - path: /opt/data/projects

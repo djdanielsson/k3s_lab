@@ -9,6 +9,5 @@ spec:
   persistentVolumeReclaimPolicy: Retain
   capacity:
     storage: 4Gi
-  storageClassName: git-volume
-  hostPath:
-    path: /opt/data/git
+  storageClassName: local-path
+

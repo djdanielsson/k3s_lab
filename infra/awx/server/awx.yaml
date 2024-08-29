@@ -20,13 +20,14 @@ spec:
 
   postgres_configuration_secret: awx-postgres-configuration
 
-  postgres_storage_class: awx-postgres-volume
+  postgres_storage_class: local-path
   postgres_storage_requirements:
     requests:
       storage: 8Gi
 
-  projects_persistence: true
-  projects_existing_claim: awx-projects-claim
+  # bring this back if persistence for projects is needed
+  # projects_persistence: true
+  # projects_existing_claim: awx-projects-claim
 
   web_replicas: 1
   task_replicas: 1

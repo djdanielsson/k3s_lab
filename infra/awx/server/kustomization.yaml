@@ -37,6 +37,4 @@ secretGenerator:
   #    - secret_key=MySuperSecureSecretKey123!
 
 resources:
-  - pv.yaml
-  - pvc.yaml
   - awx.yaml

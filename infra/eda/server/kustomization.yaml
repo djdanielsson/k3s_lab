@@ -37,5 +37,4 @@ secretGenerator:
   #    - secret_key=MySuperSecureDBFieldsEncryptionKey123!
 
 resources:
-  - pv.yaml
   - eda.yaml

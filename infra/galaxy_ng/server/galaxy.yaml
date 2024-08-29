@@ -19,18 +19,18 @@ spec:
   hostname: galaxy.lab.danielsson.us.com
 
   storage_type: file
-  file_storage_storage_class: galaxy-file-volume
+  file_storage_storage_class: local-path
   file_storage_access_mode: ReadWriteOnce
   file_storage_size: 8Gi
 
   postgres_configuration_secret: galaxy-postgres-configuration
   postgres_data_volume_init: true
-  postgres_storage_class: galaxy-postgres-volume
+  postgres_storage_class: local-path
   postgres_storage_requirements: 
     requests:
       storage: 8Gi
   postgres_resource_requirements: {}
-  redis_storage_class: galaxy-redis-volume
+  redis_storage_class: local-path
 
   pulp_settings:
     galaxy_collection_signing_service: ""
