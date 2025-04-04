@@ -15,7 +15,7 @@ secretGenerator:
 
 images:
   - name: registry
-    newTag: "2.8"
+    newTag: "3.0"
 
 resources:
   - namespace.yaml
