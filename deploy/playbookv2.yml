@@ -40,34 +40,37 @@
         - nm-cloud-setup.service
         - nm-cloud-setup.timer
 
-    - name: Open port for apiserver
-      ansible.posix.firewalld:
-        port: 6443/tcp
-        permanent: true
-        state: enabled
-      notify:
-        - Reload firewalld
+    - name: Firewall related tasks
+      when: ansible_os_family == Red Hat
+      block:
+        - name: Open port for apiserver
+          ansible.posix.firewalld:
+            port: 6443/tcp
+            permanent: true
+            state: enabled
+          notify:
+            - Reload firewalld
 
-    - name: Open ports for pods
-      ansible.posix.firewalld:
-        source: 10.42.0.0/16
-        zone: trusted
-        state: enabled
-        permanent: true
-      notify:
-        - Reload firewalld
+        - name: Open ports for pods
+          ansible.posix.firewalld:
+            source: 10.42.0.0/16
+            zone: trusted
+            state: enabled
+            permanent: true
+          notify:
+            - Reload firewalld
 
-    - name: Open ports for services
-      ansible.posix.firewalld:
-        source: 10.43.0.0/16
-        zone: trusted
-        state: enabled
-        permanent: true
-      notify:
-        - Reload firewalld
+        - name: Open ports for services
+          ansible.posix.firewalld:
+            source: 10.43.0.0/16
+            zone: trusted
+            state: enabled
+            permanent: true
+          notify:
+            - Reload firewalld
 
-    - name: Flush handlers
-      ansible.builtin.meta: flush_handlers
+        - name: Flush handlers
+          ansible.builtin.meta: flush_handlers
 
     - name: Ensure required packages are installed
       ansible.builtin.package:
