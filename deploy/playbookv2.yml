@@ -97,7 +97,7 @@
       block:
         - name: Check if tls keys already exist
           ansible.builtin.stat:
-            path: "infra/argocd/base/tls.key"
+            path: "../infra/argocd/base/tls.key"
           register: r_awx_tls_key
 
         - name: Generate tls when they do not exist
@@ -105,12 +105,12 @@
           block:
             - name: Create private key (RSA, 4096 bits)
               community.crypto.openssl_privatekey:
-                path: "infra/argocd/base/tls.key"
+                path: "../infra/argocd/base/tls.key"
                 mode: "0644"
 
             - name: Create certificate signing request (CSR) for self-signed certificate
               community.crypto.openssl_csr_pipe:
-                privatekey_path: "infra/argocd/base/tls.key"
+                privatekey_path: "../infra/argocd/base/tls.key"
                 common_name: "argocd.lab.danielsson.us.com"
                 subject_alt_name:
                   - "DNS:argocd.lab.danielsson.us.com"
@@ -118,9 +118,9 @@
 
             - name: Create self-signed certificate from CSR
               community.crypto.x509_certificate:
-                path: "infra/argocd/base/tls.crt"
+                path: "../infra/argocd/base/tls.crt"
                 csr_content: "{{ csr.csr }}"
-                privatekey_path: "infra/argocd/base/tls.key"
+                privatekey_path: "../infra/argocd/base/tls.key"
                 provider: selfsigned
                 mode: "0644"
 
