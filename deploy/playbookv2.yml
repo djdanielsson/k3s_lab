@@ -79,13 +79,13 @@
           - curl
         state: present
 
-    - name: Ensure python packages are installed
-      ansible.builtin.pip:
-        name:
-          - cryptography
-          - kubernetes
-          - kubernetes-validate
-        state: present
+    # - name: Ensure python packages are installed
+    #   ansible.builtin.pip:
+    #     name:
+    #       - cryptography
+    #       - kubernetes
+    #       - kubernetes-validate
+    #     state: present
 
     - name: Install k3s
       ansible.builtin.shell: set -o pipefail && curl -sfL https://get.k3s.io | sh -s - --write-kubeconfig-mode 644
