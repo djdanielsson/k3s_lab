@@ -41,7 +41,7 @@
         - nm-cloud-setup.timer
 
     - name: Firewall related tasks
-      when: ansible_os_family == Red Hat
+      when: 'ansible_os_family == "Red Hat"'
       block:
         - name: Open port for apiserver
           ansible.posix.firewalld:
