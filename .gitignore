@@ -1,3 +1,9 @@
 .vscode/
 tls.crt
-tls.key
+tls.key.env
+.env.*
+*.pem
+*.key
+credentials.json
+.env.local
+.env.production
