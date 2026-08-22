@@ -1,0 +1,8 @@
+# Root bootstrap. `kubectl apply -k .` installs ArgoCD and defines the
+# ArgoCD applications (registry + traefik). ArgoCD then syncs every app
+# from this repository.
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - infra/argocd
+  - infra/argocd-apps

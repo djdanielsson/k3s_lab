@@ -1,0 +1,6 @@
+# Lab ingress IngressRoutes — DISABLED by default.
+# Enable by uncommenting the resource line below AND the docs in ingressroute.yaml.
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+# resources:
+#   - ingressroute.yaml

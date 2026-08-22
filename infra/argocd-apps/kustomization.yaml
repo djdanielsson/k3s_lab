@@ -1,0 +1,14 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - appproject.yaml
+  - application-registry.yaml
+  - application-pantrywise.yaml
+  - application-rustfs.yaml
+  - application-radar.yaml
+  - application-cert-manager.yaml
+  - application-sealed-secrets.yaml
+  # cert-manager ClusterIssuer app (Let's Encrypt) — DISABLED. Uncomment when enabling:
+  # - application-cert-manager-issuers.yaml
+  # Ingress app (all Traefik IngressRoutes) — DISABLED. Uncomment when enabling:
+  # - application-ingress.yaml

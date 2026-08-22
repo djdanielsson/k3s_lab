@@ -1,0 +1,24 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: cert-manager
+  namespace: argocd
+spec:
+  project: k3s-lab
+  source:
+    repoURL: https://charts.jetstack.io
+    chart: cert-manager
+    targetRevision: v1.15.3
+    # CRDs are applied out-of-band (see README) because ArgoCD's chart render
+    # does not reliably emit cert-manager's CRDs, and newer cert-manager needs
+    # Kubernetes >= 1.30 (this cluster is k3s 1.26 -> use v1.15.x).
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: cert-manager
+  syncPolicy:
+    automated:
+      prune: false
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true

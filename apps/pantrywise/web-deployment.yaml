@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web
+  namespace: pantrywise
+  labels:
+    app: pantrywise-web
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: pantrywise-web
+  template:
+    metadata:
+      labels:
+        app: pantrywise-web
+    spec:
+      containers:
+        - name: web
+          image: registry.registry.svc:5000/pantrywise-web:5873801
+          ports:
+            - containerPort: 80
+              name: http
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+            limits:
+              cpu: 500m
+              memory: 256Mi

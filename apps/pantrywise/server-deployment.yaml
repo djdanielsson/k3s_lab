@@ -1,0 +1,56 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: server
+  namespace: pantrywise
+  labels:
+    app: pantrywise-server
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: pantrywise-server
+  template:
+    metadata:
+      labels:
+        app: pantrywise-server
+    spec:
+      containers:
+        - name: server
+          image: registry.registry.svc:5000/pantrywise-server:5873801
+          command: ["/bin/sh", "-c"]
+          args:
+            - >-
+              npx prisma db push --accept-data-loss &&
+              node dist/server.js
+          ports:
+            - containerPort: 3001
+              name: http
+          env:
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: pantrywise-secrets
+                  key: database-url
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: pantrywise-secrets
+                  key: jwt-secret
+            - name: JWT_EXPIRES_IN
+              value: "7d"
+            - name: REDIS_URL
+              value: redis://redis:6379
+            - name: PORT
+              value: "3001"
+            - name: NODE_ENV
+              value: production
+            - name: WEB_URL
+              value: http://pantrywise.k3s.lab.danielsson.us.com
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 1000m
+              memory: 512Mi

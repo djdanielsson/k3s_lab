@@ -1,0 +1,13 @@
+# k3s
+.terraform/
+*.tfstate*
+*.retry
+.history/
+**/*.swo
+**/*.swp
+# local kube config / tooling
+kubeconfig*
+*.kubeconfig
+# secrets / local overrides
+.env
+*.local

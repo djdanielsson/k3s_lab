@@ -1,0 +1,6 @@
+# sealed-secrets controller (official controller.yaml from the v0.39.1 release).
+# Installs the SealedSecret CRD, controller, RBAC and services into kube-system.
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - controller.yaml

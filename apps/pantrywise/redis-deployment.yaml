@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis
+  namespace: pantrywise
+  labels:
+    app: pantrywise-redis
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: pantrywise-redis
+  template:
+    metadata:
+      labels:
+        app: pantrywise-redis
+    spec:
+      containers:
+        - name: redis
+          image: docker.io/library/redis:7-alpine
+          command: ["redis-server", "--appendonly", "yes"]
+          ports:
+            - containerPort: 6379
+              name: redis
+          resources:
+            requests:
+              cpu: 50m
+              memory: 32Mi
+            limits:
+              cpu: 500m
+              memory: 256Mi

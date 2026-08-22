@@ -1,0 +1,20 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: radar
+  namespace: argocd
+spec:
+  project: k3s-lab
+  source:
+    repoURL: https://skyhook-io.github.io/helm-charts
+    chart: radar
+    targetRevision: 1.11.0
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: radar
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
