@@ -1,0 +1,29 @@
+# Dependabot configuration for k3s_lab
+version: 2
+updates:
+  # Keep our GitHub Actions up to date (workflows in .github/workflows).
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 10
+    labels:
+      - "dependencies"
+      - "github-actions"
+
+  # Keep container image references up to date (image: tags in our manifests,
+  # plus any Dockerfiles). Public images (postgres, redis, registry, rustfs, ...)
+  # are resolved; our internal registry images are skipped (not pushable/resolvable
+  # by Dependabot).
+  - package-ecosystem: "docker"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 10
+    labels:
+      - "dependencies"
+      - "docker"
+    ignore:
+      # Local/internal images built/pushed to our own registry - Dependabot
+      # cannot resolve them and would only churn.
+      - dependency-name: "registry.registry.svc:5000/*"
