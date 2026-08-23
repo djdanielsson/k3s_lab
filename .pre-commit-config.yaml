@@ -1,0 +1,22 @@
+# Pre-commit hooks — run automatically on `git commit`.
+# Install once per clone with:  pre-commit install
+#   (requires the `pre-commit` tool:  brew install pre-commit / uv tool install pre-commit)
+#
+# gitleaks blocks commits that would introduce hardcoded secrets.
+exclude: '^apps/pantrywise/sealed-secret\.yaml$'
+repos:
+  - repo: https://github.com/gitleaks/gitleaks
+    rev: v8.30.1
+    hooks:
+      - id: gitleaks
+        verbose: true
+
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
+      - id: check-yaml
+        args: [--multi]
+      - id: check-merge-conflict
+      - id: detect-private-key

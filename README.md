@@ -22,6 +22,17 @@ ArgoCD admin password (auto-generated):
 kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d; echo
 ```
 
+## Developer setup (pre-commit)
+
+```console
+brew install pre-commit        # or: uv tool install pre-commit
+pre-commit install             # one-time per clone
+```
+
+Every commit is scanned by **gitleaks** (blocks hardcoded secrets) and the
+standard hooks (trailing whitespace, EOF, YAML, merge-conflict, private keys).
+The `pantrywise` SealedSecret is excluded (its values are already ciphertext).
+
 ## Layout
 
 | Path                  | Purpose                                                    |
