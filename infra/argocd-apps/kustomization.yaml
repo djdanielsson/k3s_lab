@@ -8,6 +8,7 @@ resources:
   - application-radar.yaml
   - application-cert-manager.yaml
   - application-sealed-secrets.yaml
+  - application-forgejo.yaml
   # cert-manager ClusterIssuer app (Let's Encrypt) — DISABLED. Uncomment when enabling:
   # - application-cert-manager-issuers.yaml
   # Ingress app (all Traefik IngressRoutes) — DISABLED. Uncomment when enabling:

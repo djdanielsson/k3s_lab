@@ -1,0 +1,14 @@
+# gitleaks config for k3s_lab
+# - extends gitleaks' default secret rules
+# - allowlists SealedSecret files: their values are already ciphertext
+#   (encrypted by the sealed-secrets controller), so they are not real secrets.
+title = "k3s_lab gitleaks"
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "SealedSecret ciphertext is not a plaintext secret"
+paths = [
+    '''apps/.*/sealed-secret\.yaml''',
+]

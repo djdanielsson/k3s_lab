@@ -3,7 +3,10 @@
 #   (requires the `pre-commit` tool:  brew install pre-commit / uv tool install pre-commit)
 #
 # gitleaks blocks commits that would introduce hardcoded secrets.
-exclude: '^apps/pantrywise/sealed-secret\.yaml$'
+# SealedSecret files are intentionally excluded: their values are ciphertext by
+# design (encrypted by the sealed-secrets controller), so gitleaks would only
+# false-positive on them.
+exclude: '^apps/.*/sealed-secret\.yaml$'
 repos:
   - repo: https://github.com/gitleaks/gitleaks
     rev: v8.30.1

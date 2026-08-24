@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: forgejo-postgres
+  namespace: forgejo
+  labels:
+    app: forgejo-postgres
+spec:
+  type: ClusterIP
+  selector:
+    app: forgejo-postgres
+  ports:
+    - name: postgres
+      port: 5432
+      targetPort: 5432
