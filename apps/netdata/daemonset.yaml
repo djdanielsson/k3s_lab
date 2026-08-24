@@ -1,0 +1,87 @@
+# Netdata - real-time per-node monitoring. Runs as a DaemonSet with host
+# networking/privileges so it can collect host + container metrics directly.
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: netdata
+  namespace: netdata
+  labels:
+    app: netdata
+spec:
+  selector:
+    matchLabels:
+      app: netdata
+  template:
+    metadata:
+      labels:
+        app: netdata
+    spec:
+      hostNetwork: true
+      hostPID: true
+      securityContext:
+        privileged: true
+      containers:
+        - name: netdata
+          image: netdata/netdata:stable
+          ports:
+            - containerPort: 19999
+              name: netdata
+              protocol: TCP
+          env:
+            - name: DOCKER_HOST
+              value: unix:///host/run/docker.sock
+            - name: PGID
+              value: "0"
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 1000m
+              memory: 768Mi
+          volumeMounts:
+            - name: proc
+              mountPath: /host/proc
+              readOnly: true
+            - name: sys
+              mountPath: /host/sys
+              readOnly: true
+            - name: etc
+              mountPath: /host/etc
+              readOnly: true
+            - name: var-log
+              mountPath: /host/var/log
+              readOnly: true
+            - name: cgroup
+              mountPath: /host/sys/fs/cgroup
+              readOnly: true
+            - name: docker-sock
+              mountPath: /host/run/docker.sock
+              readOnly: true
+            - name: netdata-lib
+              mountPath: /var/lib/netdata
+            - name: netdata-cache
+              mountPath: /var/cache/netdata
+      volumes:
+        - name: proc
+          hostPath:
+            path: /proc
+        - name: sys
+          hostPath:
+            path: /sys
+        - name: etc
+          hostPath:
+            path: /etc
+        - name: var-log
+          hostPath:
+            path: /var/log
+        - name: cgroup
+          hostPath:
+            path: /sys/fs/cgroup
+        - name: docker-sock
+          hostPath:
+            path: /run/docker.sock
+        - name: netdata-lib
+          emptyDir: {}
+        - name: netdata-cache
+          emptyDir: {}

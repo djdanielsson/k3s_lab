@@ -1,0 +1,16 @@
+# ClusterIP service for in-cluster / future-ingress access to the netdata dashboard.
+apiVersion: v1
+kind: Service
+metadata:
+  name: netdata
+  namespace: netdata
+  labels:
+    app: netdata
+spec:
+  type: ClusterIP
+  selector:
+    app: netdata
+  ports:
+    - name: netdata
+      port: 19999
+      targetPort: 19999
