@@ -7,13 +7,10 @@ data:
   glance.yml: |
     pages:
       - name: Home
+        header:
+          title: Homelab
+          subtitle: k3s.lab.danielsson.us.com
         columns:
-          - size: full
-            widgets:
-              - type: header
-                title: Homelab
-                subtitle: k3s.lab.danielsson.us.com
-
           - size: full
             widgets:
               - type: groups
