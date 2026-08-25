@@ -10,7 +10,6 @@ resources:
   - application-sealed-secrets.yaml
   - application-forgejo.yaml
   - application-netdata.yaml
-  - application-netmap.yaml
   - application-netalertx.yaml
   # cert-manager ClusterIssuer app (Let's Encrypt) — DISABLED. Uncomment when enabling:
   # - application-cert-manager-issuers.yaml
