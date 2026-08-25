@@ -1,6 +1,5 @@
-# cert-manager issuers — DISABLED by default.
-# Enable by uncommenting the resource line below AND the docs in clusterissuer.yaml.
+# cert-manager issuers (enabled).
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
-# resources:
-#   - clusterissuer.yaml
+resources:
+  - clusterissuer.yaml

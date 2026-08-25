@@ -12,7 +12,5 @@ resources:
   - application-netdata.yaml
   - application-netalertx.yaml
   - application-glance.yaml
-  # cert-manager ClusterIssuer app (Let's Encrypt) — DISABLED. Uncomment when enabling:
-  # - application-cert-manager-issuers.yaml
-  # Ingress app (all Traefik IngressRoutes) — DISABLED. Uncomment when enabling:
-  # - application-ingress.yaml
+  - application-cert-manager-issuers.yaml
+  - application-ingress.yaml

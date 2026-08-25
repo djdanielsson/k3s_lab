@@ -1,56 +1,14 @@
-# ═══════════════════════════════════════════════════════════════════════════════
-# CERT-MANAGER — Let's Encrypt ClusterIssuer (DISABLED)
-# -------------------------------------------------------------------------------
-# This ClusterIssuer is intentionally left COMPLETELY COMMENTED OUT.
-# Enable when you want real TLS certs for *.k3s.lab.danielsson.us.com:
-#
-#   1) Uncomment every line in this file (and set an admin email).
-#   2) In this dir's kustomization.yaml, uncomment  - clusterissuer.yaml.
-#   3) Uncomment ../infra/argocd-apps/application-cert-manager-issuers.yaml
-#      and its line in kustomization.yaml.
-#   4) kubectl apply -k .   (ArgoCD manages it)
-#
-# Prereqs:
-#   - cert-manager is installed (CRDs present).
-#   - Traefik is re-enabled and serving HTTP (the HTTP-01 solver below uses
-#     the Traefik ingress class to complete challenges).
-#   - DNS for the target hostnames points at 192.168.1.116.
-#
-# How to use: reference this issuer from any Service's TLS in your ingress,
-# e.g. in an IngressRoute/Ingress add:
-#     tls:
-#       cert-manager.io/cluster-issuer: letsencrypt-prod
-# ═══════════════════════════════════════════════════════════════════════════════
-#
-# apiVersion: cert-manager.io/v1
-# kind: ClusterIssuer
-# metadata:
-#   name: letsencrypt-prod
-# spec:
-#   acme:
-#     # Replace with your contact email.
-#     email: admin@danielsson.us.com
-#     server: https://acme-v02.api.letsencrypt.org/directory
-#     privateKeySecretRef:
-#       name: letsencrypt-prod-account-key
-#     solvers:
-#       - http01:
-#           ingress:
-#             class: traefik
-#
-# # Optional: a staging issuer you can test with before using production.
-# # (Higher rate limits; certs are signed by Let's Encrypt's staging CA.)
-# # apiVersion: cert-manager.io/v1
-# # kind: ClusterIssuer
-# # metadata:
-# #   name: letsencrypt-staging
-# # spec:
-# #   acme:
-# #     email: admin@danielsson.us.com
-# #     server: https://acme-staging-v02.api.letsencrypt.org/directory
-# #     privateKeySecretRef:
-# #       name: letsencrypt-staging-account-key
-# #     solvers:
-# #       - http01:
-# #           ingress:
-# #             class: traefik
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: letsencrypt-prod
+spec:
+  acme:
+    email: admin@danielsson.us.com
+    server: https://acme-v02.api.letsencrypt.org/directory
+    privateKeySecretRef:
+      name: letsencrypt-prod-account-key
+    solvers:
+      - http01:
+          ingress:
+            class: traefik

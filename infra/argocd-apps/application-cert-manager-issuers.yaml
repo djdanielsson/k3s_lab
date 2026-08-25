@@ -1,24 +1,21 @@
-# cert-manager ClusterIssuer(s) — DISABLED.
-# Enable by removing the leading '#' from this whole file and uncommenting its
-# line in kustomization.yaml (requires cert-manager + Traefik running).
-# apiVersion: argoproj.io/v1alpha1
-# kind: Application
-# metadata:
-#   name: cert-manager-issuers
-#   namespace: argocd
-# spec:
-#   project: k3s-lab
-#   source:
-#     repoURL: https://github.com/djdanielsson/k3s_lab
-#     targetRevision: gitops-fresh
-#     path: apps/cert-manager
-#   destination:
-#     server: https://kubernetes.default.svc
-#     namespace: cert-manager
-#   syncPolicy:
-#     automated:
-#       prune: false
-#       selfHeal: true
-#     syncOptions:
-#       - CreateNamespace=false
-#       - ServerSideApply=true
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: cert-manager-issuers
+  namespace: argocd
+spec:
+  project: k3s-lab
+  source:
+    repoURL: https://github.com/djdanielsson/k3s_lab
+    targetRevision: gitops-fresh
+    path: apps/cert-manager
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: cert-manager
+  syncPolicy:
+    automated:
+      prune: false
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=false
+      - ServerSideApply=true

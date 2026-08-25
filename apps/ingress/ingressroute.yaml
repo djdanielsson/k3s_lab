@@ -1,88 +1,62 @@
-# ═══════════════════════════════════════════════════════════════════════════════
-# LAB INGRESS — Traefik IngressRoutes (all DISABLED)
-# -------------------------------------------------------------------------------
-# Central place for every app's Traefik IngressRoute. Everything below is
-# COMMENTS. Enabling ingress for ALL apps at once:
-#
-#   1) Uncomment this whole file (4 IngressRoute docs).
-#   2) In this dir's kustomization.yaml, uncomment the  - ingressroute.yaml
-#      resource entry.
-#   3) In ../infra/argocd-apps/, uncomment application-ingress.yaml AND its
-#      line in kustomization.yaml.
-#   4) kubectl apply -k .   (ArgoCD then manages them)
-#
-# Prereq: Traefik controller running + host CNI pod-to-pod networking fixed.
-# DNS: point these hosts at 192.168.1.116.
-#   registry.k3s.lab.danielsson.us.com
-#   pantrywise.k3s.lab.danielsson.us.com
-#   rustfs.k3s.lab.danielsson.us.com     (web console; S3 stays on :9000)
-#   radar.k3s.lab.danielsson.us.com
-# ═══════════════════════════════════════════════════════════════════════════════
-#
-# --- registry (S3 API) ---------------------------------------------------------
-# apiVersion: traefik.containo.us/v1alpha1
-# kind: IngressRoute
-# metadata:
-#   name: registry
-#   namespace: registry
-# spec:
-#   entryPoints:
-#     - web
-#   routes:
-#     - kind: Rule
-#       match: Host(`registry.k3s.lab.danielsson.us.com`)
-#       priority: 1
-#       services:
-#         - name: registry
-#           port: 5000
-# ---
-# --- pantrywise (web) ----------------------------------------------------------
-# apiVersion: traefik.containo.us/v1alpha1
-# kind: IngressRoute
-# metadata:
-#   name: pantrywise
-#   namespace: pantrywise
-# spec:
-#   entryPoints:
-#     - web
-#   routes:
-#     - kind: Rule
-#       match: Host(`pantrywise.k3s.lab.danielsson.us.com`)
-#       priority: 1
-#       services:
-#         - name: web
-#           port: 80
-# ---
-# --- rustfs (web console) ------------------------------------------------------
-# apiVersion: traefik.containo.us/v1alpha1
-# kind: IngressRoute
-# metadata:
-#   name: rustfs-console
-#   namespace: rustfs
-# spec:
-#   entryPoints:
-#     - web
-#   routes:
-#     - kind: Rule
-#       match: Host(`rustfs.k3s.lab.danielsson.us.com`)
-#       priority: 1
-#       services:
-#         - name: rustfs
-#           port: 9001
-# ---
-# --- radar (UI) ----------------------------------------------------------------
-# apiVersion: traefik.containo.us/v1alpha1
-# kind: IngressRoute
-# metadata:
-#   name: radar
-#   namespace: radar
-# spec:
-#   entryPoints:
-#     - web
-#   routes:
-#     - kind: Rule
-#       match: Host(`radar.k3s.lab.danielsson.us.com`)
-#       priority: 1
-#       services:
-#         - name: radar
-#           port: 9280
+# Traefik IngressRoutes for the lab apps.
+# DNS: point each host below at 192.168.1.116.
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: registry
+  namespace: registry
+spec:
+  entryPoints:
+    - web
+  routes:
+    - kind: Rule
+      match: Host(`registry.k3s.lab.danielsson.us.com`)
+      services:
+        - name: registry
+          port: 5000
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: pantrywise
+  namespace: pantrywise
+spec:
+  entryPoints:
+    - web
+  routes:
+    - kind: Rule
+      match: Host(`pantrywise.k3s.lab.danielsson.us.com`)
+      services:
+        - name: web
+          port: 80
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: rustfs-console
+  namespace: rustfs
+spec:
+  entryPoints:
+    - web
+  routes:
+    - kind: Rule
+      match: Host(`rustfs.k3s.lab.danielsson.us.com`)
+      services:
+        - name: rustfs
+          port: 9001
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: radar
+  namespace: radar
+spec:
+  entryPoints:
+    - web
+  routes:
+    - kind: Rule
+      match: Host(`radar.k3s.lab.danielsson.us.com`)
+      services:
+        - name: radar
+          port: 9280

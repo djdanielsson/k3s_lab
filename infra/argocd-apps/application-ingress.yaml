@@ -1,23 +1,20 @@
-# Traefik IngressRoutes for lab apps — DISABLED.
-# Enable by removing the leading '#' from this whole file and uncommenting its
-# line in kustomization.yaml (requires Traefik running + host CNI fixed).
-# apiVersion: argoproj.io/v1alpha1
-# kind: Application
-# metadata:
-#   name: ingress
-#   namespace: argocd
-# spec:
-#   project: k3s-lab
-#   source:
-#     repoURL: https://github.com/djdanielsson/k3s_lab
-#     targetRevision: gitops-fresh
-#     path: apps/ingress
-#   destination:
-#     server: https://kubernetes.default.svc
-#     namespace: default
-#   syncPolicy:
-#     automated:
-#       prune: true
-#       selfHeal: true
-#     syncOptions:
-#       - CreateNamespace=false
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: ingress
+  namespace: argocd
+spec:
+  project: k3s-lab
+  source:
+    repoURL: https://github.com/djdanielsson/k3s_lab
+    targetRevision: gitops-fresh
+    path: apps/ingress
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: default
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=false
