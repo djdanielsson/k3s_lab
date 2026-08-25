@@ -14,3 +14,4 @@ resources:
   - application-glance.yaml
   - application-cert-manager-issuers.yaml
   - application-ingress.yaml
+  - application-dnsmasq.yaml

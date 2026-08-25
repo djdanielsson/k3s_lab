@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: dnsmasq-config
+  namespace: dnsmasq
+data:
+  dnsmasq.conf: |
+    # Resolve all *.k3s.lab.danielsson.us.com to the k3s node.
+    address=/k3s.lab.danielsson.us.com/192.168.1.116
+    # Forward everything else to public resolvers.
+    server=1.1.1.1
+    server=8.8.8.8
+    # Bind on all node interfaces, start from scratch (ignore host resolv.conf).
+    no-resolv
+    listen-address=0.0.0.0
