@@ -1,0 +1,16 @@
+# ClusterIP service (pod uses hostNetwork, so it's also directly on <nodeIP>:8000).
+apiVersion: v1
+kind: Service
+metadata:
+  name: netmap
+  namespace: netmap
+  labels:
+    app: netmap
+spec:
+  type: ClusterIP
+  selector:
+    app: netmap
+  ports:
+    - name: http
+      port: 8000
+      targetPort: 8000
