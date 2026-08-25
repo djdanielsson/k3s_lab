@@ -12,6 +12,13 @@ spec:
   destination:
     server: https://kubernetes.default.svc
     namespace: netdata
+  ignoreDifferences:
+    # hostNetwork DaemonSet: api-server-defaulted fields cause benign drift
+    - group: apps
+      kind: DaemonSet
+      jqPathExpressions:
+        - .spec.template.spec.dnsPolicy
+        - .spec.template.spec.terminationGracePeriodSeconds
   syncPolicy:
     automated:
       prune: true
