@@ -1,8 +1,7 @@
-# dnsmasq - LAN DNS resolver with a web UI.
+# dnsmasq - LAN DNS resolver.
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
   - namespace.yaml
   - configmap.yaml
   - deployment.yaml
-  - service.yaml

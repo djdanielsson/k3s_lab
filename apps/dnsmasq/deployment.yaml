@@ -1,6 +1,5 @@
-# dnsmasq - LAN DNS: resolves *.k3s.lab.danielsson.us.com -> node, forwards rest.
-# hostNetwork so it binds :53 on the node (acts as the LAN resolver).
-# Recreate strategy so a host-bound single pod rolls cleanly.
+# dnsmasq - LAN DNS resolver (no web UI). hostNetwork binds :53 on the node.
+# Recreate strategy for a host-bound single pod.
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -23,7 +22,7 @@ spec:
       hostNetwork: true
       containers:
         - name: dnsmasq
-          image: jpillora/dnsmasq:1.1.0
+          image: andyshinn/dnsmasq:2.85
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 53
@@ -32,15 +31,6 @@ spec:
             - containerPort: 53
               name: dns-tcp
               protocol: TCP
-            - containerPort: 5380
-              name: web
-          env:
-            - name: HTTP_PORT
-              value: "5380"
-            - name: HTTP_USER
-              value: admin
-            - name: HTTP_PASS
-              value: admin
           volumeMounts:
             - name: config
               mountPath: /etc/dnsmasq.conf
