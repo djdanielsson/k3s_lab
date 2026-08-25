@@ -18,7 +18,12 @@ spec:
       kind: DaemonSet
       jqPathExpressions:
         - .spec.template.spec.dnsPolicy
+        - .spec.template.spec.restartPolicy
+        - .spec.template.spec.schedulerName
         - .spec.template.spec.terminationGracePeriodSeconds
+        - .spec.template.spec.containers[*].imagePullPolicy
+        - .spec.template.spec.containers[*].terminationMessagePath
+        - .spec.template.spec.containers[*].terminationMessagePolicy
   syncPolicy:
     automated:
       prune: true
