@@ -13,7 +13,10 @@ spec:
     server: https://kubernetes.default.svc
     namespace: netdata
   ignoreDifferences:
-    # hostNetwork DaemonSet: api-server-defaulted fields cause benign drift
+    # hostNetwork DaemonSet: api-server-defaulted pod-level fields cause benign
+    # drift. (Container-level defaults like imagePullPolicy are set explicitly
+    # in the manifest instead of ignored.) Note: ArgoCD's diff normalizer does
+    # not support '*' array traversal, so no jqPathExpressions with '[*]' here.
     - group: apps
       kind: DaemonSet
       jqPathExpressions:
@@ -21,9 +24,6 @@ spec:
         - .spec.template.spec.restartPolicy
         - .spec.template.spec.schedulerName
         - .spec.template.spec.terminationGracePeriodSeconds
-        - .spec.template.spec.containers[*].imagePullPolicy
-        - .spec.template.spec.containers[*].terminationMessagePath
-        - .spec.template.spec.containers[*].terminationMessagePolicy
   syncPolicy:
     automated:
       prune: true

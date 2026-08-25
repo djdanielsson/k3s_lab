@@ -23,6 +23,9 @@ spec:
       containers:
         - name: netdata
           image: netdata/netdata:stable
+          imagePullPolicy: Always
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
           ports:
             - containerPort: 19999
               name: netdata
