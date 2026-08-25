@@ -1,11 +1,12 @@
 """NetMap - tiny nmap LAN scanner with a web UI.
 
-Sweeps a subnet for hosts (ARP/ping) via nmap, stores results in SQLite, and
-serves a small web page. Running in the k8s host network namespace so nmap can
-reach the LAN.
+Sweeps a subnet for hosts via nmap and serves a small web page. Parses nmap's
+plain-text output (robust across versions) rather than its -oJ JSON mode.
+Runs in the node host network namespace so nmap can reach the LAN.
 """
 import json
 import os
+import re
 import sqlite3
 import subprocess
 import threading
@@ -36,46 +37,45 @@ def dbconn():
 
 
 def run_nmap(args):
-    out = ""
     try:
         res = subprocess.run(["nmap"] + args, capture_output=True, text=True, timeout=900)
-        out = res.stdout
+        return res.stdout
     except Exception as e:  # noqa: BLE001
         print("nmap error:", e)
-    return out
+        return ""
 
 
-def parse_hosts(out):
+_MAC_RE = re.compile(r"MAC Address:\s*([0-9A-Fa-f:]+)(?:\s*\((.*?)\))?")
+_IPRE = re.compile(r"\(([0-9.]+)\)$")
+
+
+def parse_sweep_text(out):
+    """Parse `nmap -sn` text into host dicts."""
     hosts = []
-    try:
-        data = json.loads(out)
-    except Exception:  # noqa: BLE001
-        return hosts
-    for h in (data.get("nmaprun") or {}).get("host") or []:
-        addrs = h.get("address") or []
-        ip = next((a.get("addr") for a in addrs if a.get("addrtype") == "ipv4"), None)
-        if not ip:
+    blocks = re.split(r"Nmap scan report for ", out)
+    for b in blocks[1:]:
+        lines = [ln.strip() for ln in b.splitlines() if ln.strip()]
+        if not lines:
             continue
-        macs = [a for a in addrs if a.get("addrtype") == "mac"]
-        hostname = ""
-        for hn in (h.get("hostnames") or {}).get("hostname") or []:
-            hostname = hn.get("name", "")
-            break
-        hosts.append(
-            {
-                "ip": ip,
-                "mac": macs[0].get("addr") if macs else None,
-                "vendor": macs[0].get("vendor") if macs else None,
-                "hostname": hostname,
-                "status": (h.get("status") or {}).get("state", "unknown"),
-            }
-        )
+        target = lines[0]
+        ip = target
+        m = _IPRE.search(target)
+        if m:
+            ip = m.group(1)
+        elif not re.fullmatch(r"[0-9.]+", ip):
+            continue  # can't determine an IP
+        mac = vendor = None
+        mm = _MAC_RE.search(b)
+        if mm:
+            mac, vendor = mm.group(1), mm.group(2)
+        status = "up" if "Host is up" in b else "unknown"
+        hosts.append({"ip": ip, "mac": mac, "hostname": "", "vendor": vendor, "status": status})
     return hosts
 
 
 def scan_sweep():
-    out = run_nmap(["-sn", "-n", SUBNET, "-oJ", "-"])
-    hosts = parse_hosts(out)
+    out = run_nmap(["-sn", "-n", SUBNET])
+    hosts = parse_sweep_text(out)
     c = dbconn()
     for h in hosts:
         c.execute(
@@ -90,31 +90,32 @@ def scan_sweep():
     return len(hosts)
 
 
-def scan_ports(ip):
-    out = run_nmap(["-sV", "-p", "1-1000", "-n", ip, "-oJ", "-"])
+def parse_ports_text(out, ip):
+    """Parse `nmap -sV -p` text into open-port dicts."""
     ports = []
-    try:
-        data = json.loads(out)
-    except Exception:  # noqa: BLE001
-        return ports
-    for h in (data.get("nmaprun") or {}).get("host") or []:
-        for port in ((h.get("ports") or {}).get("port") or []):
-            if (port.get("state") or {}).get("state") == "open":
-                svc = port.get("service") or {}
-                ports.append(
-                    {
-                        "port": port.get("portid"),
-                        "proto": port.get("protocol"),
-                        "name": svc.get("name"),
-                        "service": svc.get("product", ""),
-                    }
-                )
+    for ln in out.splitlines():
+        m = re.match(r"\s*(\d+)/(\w+)\s+(\w+)\s+(\S+)(?: (.*))?$", ln)
+        if m and m.group(3) == "open":
+            ports.append(
+                {
+                    "port": int(m.group(1)),
+                    "proto": m.group(2),
+                    "name": m.group(4),
+                    "service": (m.group(5) or "").strip(),
+                }
+            )
+    return ports
+
+
+def scan_ports(ip):
+    out = run_nmap(["-sV", "-p", "1-1000", "-n", ip])
+    ports = parse_ports_text(out, ip)
     c = dbconn()
     c.execute("DELETE FROM service_ports WHERE ip=?", (ip,))
     for p in ports:
         c.execute(
             "INSERT OR REPLACE INTO service_ports VALUES(?,?,?,?,?)",
-            (ip, p["port"], p["proto"] or "tcp", p["name"], p["service"]),
+            (ip, p["port"], p["proto"], p["name"], p["service"]),
         )
     c.commit()
     c.close()

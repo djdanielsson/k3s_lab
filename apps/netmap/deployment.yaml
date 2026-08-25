@@ -24,7 +24,7 @@ spec:
       terminationGracePeriodSeconds: 30
       containers:
         - name: netmap
-          image: registry.registry.svc:5000/netmap:latest
+          image: registry.registry.svc:5000/netmap:2
           imagePullPolicy: Always
           ports:
             - containerPort: 8000
