@@ -22,7 +22,7 @@ spec:
       hostNetwork: true
       containers:
         - name: dnsmasq
-          image: andyshinn/dnsmasq:2.85
+          image: andyshinn/dnsmasq:2.83
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 53
