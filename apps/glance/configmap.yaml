@@ -13,7 +13,7 @@ data:
         columns:
           - size: full
             widgets:
-              - type: groups
+              - type: bookmarks
                 groups:
                   - title: Services
                     links:
@@ -31,11 +31,6 @@ data:
                         url: https://registry.k3s.lab.danielsson.us.com
                       - title: Radar
                         url: https://radar.k3s.lab.danielsson.us.com
-
-          - size: full
-            widgets:
-              - type: resources
-                label: Node
 
           - size: full
             widgets:
