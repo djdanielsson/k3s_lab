@@ -6,6 +6,8 @@ metadata:
   namespace: glance
   labels:
     app: glance
+  annotations:
+    example: "1"
 spec:
   replicas: 1
   selector:
