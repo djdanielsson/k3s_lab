@@ -5,6 +5,9 @@ metadata:
   namespace: forgejo
   labels:
     app: forgejo
+  annotations:
+    tailscale.com/manage: "true"
+    tailscale.com/hostname: forgejo
 spec:
   type: ClusterIP
   selector:

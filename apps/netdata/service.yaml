@@ -6,6 +6,9 @@ metadata:
   namespace: netdata
   labels:
     app: netdata
+  annotations:
+    tailscale.com/manage: "true"
+    tailscale.com/hostname: netdata
 spec:
   type: ClusterIP
   selector:

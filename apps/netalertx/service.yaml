@@ -6,6 +6,9 @@ metadata:
   namespace: netalertx
   labels:
     app: netalertx
+  annotations:
+    tailscale.com/manage: "true"
+    tailscale.com/hostname: netalertx
 spec:
   type: ClusterIP
   selector:

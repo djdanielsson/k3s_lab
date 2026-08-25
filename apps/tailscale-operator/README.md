@@ -66,3 +66,16 @@ metadata:
     tailscale.com/hostname: radar        # -> radar.<tailnet>.ts.net
 ```
 Its Service proxy gets a MagicDNS name reachable from any Tailscale device.
+
+### Annotated routes (repo-managed Services)
+Already annotated: `registry`, `pantrywise`, `rustfs`, `forgejo`, `glance`,
+`netdata`, `netalertx` (each `tailscale.com/manage: true` + hostname). They
+become live once the operator is installed.
+
+### Helm-managed / not in repo (annotate manually after install)
+- **radar** (Helm chart): once the operator is up, run:
+  ```bash
+  kubectl -n radar annotate svc radar tailscale.com/manage=true tailscale.com/hostname=radar
+  ```
+  (or add `service.annotations` to the radar chart values if supported)
+- argocd-server / cert-manager: annotate similarly if you want them on the tailnet.

@@ -5,6 +5,9 @@ metadata:
   namespace: registry
   labels:
     app: registry
+  annotations:
+    tailscale.com/manage: "true"
+    tailscale.com/hostname: registry
 spec:
   type: NodePort
   selector:

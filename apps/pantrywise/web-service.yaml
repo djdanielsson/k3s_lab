@@ -5,6 +5,9 @@ metadata:
   namespace: pantrywise
   labels:
     app: pantrywise-web
+  annotations:
+    tailscale.com/manage: "true"
+    tailscale.com/hostname: pantrywise
 spec:
   type: ClusterIP
   selector:
