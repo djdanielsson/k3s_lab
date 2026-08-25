@@ -1,0 +1,48 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: glance-config
+  namespace: glance
+data:
+  glance.yml: |
+    pages:
+      - name: Home
+        columns:
+          - size: full
+            widgets:
+              - type: header
+                title: Homelab
+                subtitle: k3s.lab.danielsson.us.com
+
+          - size: full
+            widgets:
+              - type: groups
+                groups:
+                  - title: Services
+                    links:
+                      - title: Netdata
+                        url: http://192.168.1.116:19999
+                      - title: NetAlertX
+                        url: http://192.168.1.116:20211
+                      - title: ArgoCD
+                        url: https://argocd.k3s.lab.danielsson.us.com
+                      - title: Forgejo
+                        url: https://forgejo.k3s.lab.danielsson.us.com
+                      - title: Pantrywise
+                        url: https://pantrywise.k3s.lab.danielsson.us.com
+                      - title: Registry
+                        url: https://registry.k3s.lab.danielsson.us.com
+                      - title: Radar
+                        url: https://radar.k3s.lab.danielsson.us.com
+
+          - size: full
+            widgets:
+              - type: resources
+                label: Node
+
+          - size: full
+            widgets:
+              - type: weather
+                location: Austin, Texas
+                units: metric
+                hour-format: 24h

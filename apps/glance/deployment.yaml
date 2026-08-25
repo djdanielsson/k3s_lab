@@ -18,17 +18,18 @@ spec:
     spec:
       containers:
         - name: glance
-          image: ghcr.io/glanceapp/glance:latest
+          image: docker.io/glanceapp/glance:latest
           imagePullPolicy: Always
           ports:
             - containerPort: 8080
               name: http
           env:
             - name: GLANCE_CONFIG
-              value: /config/glance.yml
+              value: /app/glance.yml
           volumeMounts:
             - name: config
-              mountPath: /config
+              mountPath: /app/glance.yml
+              subPath: glance.yml
           resources:
             requests:
               cpu: 100m

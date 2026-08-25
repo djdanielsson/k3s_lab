@@ -1,13 +1,8 @@
-# Glance - homelab homepage dashboard.
+# Glance - homelab homepage dashboard. Config is a plain ConfigMap (fixed name).
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
   - namespace.yaml
+  - configmap.yaml
   - deployment.yaml
   - service.yaml
-configMapGenerator:
-  - name: glance-config
-    files:
-      - glance.yml
-generatorOptions:
-  disableNameSuffixHash: true
