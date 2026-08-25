@@ -28,8 +28,9 @@ spec:
               value: /app/config/glance.yml
           volumeMounts:
             - name: config
-              mountPath: /app/config/glance.yml
-              subPath: glance.yml
+              # mount the ConfigMap as a dir; its 'glance.yml' key becomes
+              # /app/config/glance.yml (subPath is unreliable here)
+              mountPath: /app/config
           resources:
             requests:
               cpu: 100m
