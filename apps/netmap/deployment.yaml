@@ -8,6 +8,10 @@ metadata:
   labels:
     app: netmap
 spec:
+  # hostNetwork app binds node port 8000: terminate the old pod before starting
+  # the new one on rollout, else the new pod can't schedule (port conflict).
+  strategy:
+    type: Recreate
   replicas: 1
   selector:
     matchLabels:
