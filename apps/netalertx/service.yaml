@@ -1,0 +1,19 @@
+# ClusterIP service (pod is hostNetwork, so it's also directly at <nodeIP>:20211).
+apiVersion: v1
+kind: Service
+metadata:
+  name: netalertx
+  namespace: netalertx
+  labels:
+    app: netalertx
+spec:
+  type: ClusterIP
+  selector:
+    app: netalertx
+  ports:
+    - name: web
+      port: 20211
+      targetPort: 20211
+    - name: graphql
+      port: 20212
+      targetPort: 20212

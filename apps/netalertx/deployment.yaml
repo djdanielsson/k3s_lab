@@ -1,0 +1,76 @@
+# NetAlertX - centralized network visibility + device discovery.
+# hostNetwork required for ARP/ping scanning of the LAN. Runs as root (drops to
+# UID 20211 internally), with only the caps it needs for scanning.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: netalertx
+  namespace: netalertx
+  labels:
+    app: netalertx
+spec:
+  # hostNetwork binds node port 20211: terminate old pod before starting new.
+  strategy:
+    type: Recreate
+  replicas: 1
+  selector:
+    matchLabels:
+      app: netalertx
+  template:
+    metadata:
+      labels:
+        app: netalertx
+    spec:
+      hostNetwork: true
+      containers:
+        - name: netalertx
+          image: ghcr.io/netalertx/netalertx:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 20211
+              name: web
+            - containerPort: 20212
+              name: graphql
+          securityContext:
+            runAsUser: 0
+            runAsGroup: 0
+            capabilities:
+              drop: ["ALL"]
+              add:
+                - NET_ADMIN
+                - NET_RAW
+                - NET_BIND_SERVICE
+                - CHOWN
+                - SETUID
+                - SETGID
+          env:
+            - name: PUID
+              value: "20211"
+            - name: PGID
+              value: "20211"
+            - name: TZ
+              value: UTC
+            - name: LISTEN_ADDR
+              value: 0.0.0.0
+            - name: PORT
+              value: "20211"
+            - name: GRAPHQL_PORT
+              value: "20212"
+          volumeMounts:
+            - name: data
+              mountPath: /data
+            - name: tmp
+              mountPath: /tmp
+          resources:
+            requests:
+              cpu: 200m
+              memory: 256Mi
+            limits:
+              cpu: 2000m
+              memory: 1536Mi
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: netalertx-data
+        - name: tmp
+          emptyDir: {}

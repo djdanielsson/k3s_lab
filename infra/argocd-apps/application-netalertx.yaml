@@ -1,0 +1,28 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: netalertx
+  namespace: argocd
+spec:
+  project: k3s-lab
+  source:
+    repoURL: https://github.com/djdanielsson/k3s_lab
+    targetRevision: gitops-fresh
+    path: apps/netalertx
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: netalertx
+  ignoreDifferences:
+    - group: apps
+      kind: Deployment
+      jqPathExpressions:
+        - .spec.template.spec.dnsPolicy
+        - .spec.template.spec.restartPolicy
+        - .spec.template.spec.schedulerName
+        - .spec.template.spec.terminationGracePeriodSeconds
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=false
