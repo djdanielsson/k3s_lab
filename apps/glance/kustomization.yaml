@@ -9,3 +9,5 @@ configMapGenerator:
   - name: glance-config
     files:
       - glance.yml
+generatorOptions:
+  disableNameSuffixHash: true
