@@ -15,3 +15,4 @@ resources:
   - application-cert-manager-issuers.yaml
   - application-ingress.yaml
   - application-dnsmasq.yaml
+  - application-external-secrets.yaml
