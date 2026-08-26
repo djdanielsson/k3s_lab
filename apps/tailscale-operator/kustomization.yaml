@@ -4,9 +4,7 @@
 # NOTE: the operator Helm chart itself is not installed yet (its chart endpoint
 # 404'd from our sandbox). This dir currently holds:
 #   - namespace.yaml            (tailscale ns)
-#   - sealed-secret.yaml        (SealedSecret for the OAuth client creds)
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
   - namespace.yaml
-  - sealed-secret.yaml
