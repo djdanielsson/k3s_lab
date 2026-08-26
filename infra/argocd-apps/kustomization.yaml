@@ -16,3 +16,4 @@ resources:
   - application-ingress.yaml
   - application-dnsmasq.yaml
   - application-external-secrets.yaml
+  - application-eso-bitwarden.yaml
