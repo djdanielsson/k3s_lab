@@ -13,9 +13,25 @@ These are the auth the bridge/operator use; they're the only things in
 1. Vaultwarden vault → **Settings → Security → Keys → New API Key**.
 2. Copy the **Client ID** + **Client Secret** (`BW_HOST = https://truenas-scale`).
 
+```bash
+kubectl -n external-secrets create secret generic bitwarden-cli \
+  --from-literal=BW_HOST=https://truenas-scale \
+  --from-literal=BW_CLIENTID=<YOUR_CLIENT_ID> \
+  --from-literal=BW_CLIENTSECRET=<YOUR_CLIENT_SECRET> \
+  --from-literal=BW_PASSWORD=<if_used> \
+  --dry-run=client -o yaml | kubectl apply -f -
+```
+
 ### Tailscale OAuth (Tailscale operator)
 1. Admin Console → **Settings → Keys → Generate… → OAuth clients**.
 2. Scope **Read + Write** → copy the **Client ID** + **Client Secret**. Ensure **MagicDNS** is on.
+
+```bash
+kubectl -n tailscale create secret generic tailscale-oauth \
+  --from-literal=CLIENT_ID=<YOUR_CLIENT_ID> \
+  --from-literal=CLIENT_SECRET=<YOUR_CLIENT_SECRET> \
+  --dry-run=client -o yaml | kubectl apply -f -
+```
 
 ## 2. Vaultwarden items to create
 Create items with `k3s/` names. A secret value is stored on an item in one of
