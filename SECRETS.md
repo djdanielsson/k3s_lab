@@ -4,13 +4,18 @@ All app secrets live in **Vaultwarden** and are synced into the cluster by
 **External Secrets Operator (ESO)** via the bitwarden-cli bridge. Item names
 are prefixed **`k3s/`**.
 
-## 1. Vaultwarden auth credential — the one thing that is NOT a vault item
-Create this yourself; it's what lets ESO's bridge talk to Vaultwarden:
+## 1. Provider credentials — create these yourself (NOT vault items)
 
-1. Open your Vaultwarden vault → **Settings → Security → Keys → New API Key**.
-2. Copy the **Client ID** and **Client Secret**.
-3. These (with `BW_HOST`) are the auth used by the `bitwarden-cli`/ESO bridge —
-   store them where the bridge expects them.
+These are the auth the bridge/operator use; they're the only things in
+`SECRETS.md` that don't come from a Vaultwarden item.
+
+### Vaultwarden API (ESO/bitwarden-cli)
+1. Vaultwarden vault → **Settings → Security → Keys → New API Key**.
+2. Copy the **Client ID** + **Client Secret** (`BW_HOST = https://truenas-scale`).
+
+### Tailscale OAuth (Tailscale operator)
+1. Admin Console → **Settings → Keys → Generate… → OAuth clients**.
+2. Scope **Read + Write** → copy the **Client ID** + **Client Secret**. Ensure **MagicDNS** is on.
 
 ## 2. Vaultwarden items to create
 Create items with `k3s/` names. A secret value is stored on an item in one of
