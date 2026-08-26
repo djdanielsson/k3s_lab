@@ -34,8 +34,9 @@ standard hooks (trailing whitespace, EOF, YAML, merge-conflict, private keys).
 
 ## Secrets
 
-See **[SECRETS.md](SECRETS.md)** — inventory of every SealedSecret, its keys,
-and where to get the inputs (Vaultwarden API, Tailscale OAuth, app DB creds).
+All app secrets live in **Vaultwarden** (synced by External Secrets Operator).
+See **[SECRETS.md](SECRETS.md)** for the `k3s/` item names/inputs to create and
+the Vaultwarden API credential setup.
 
 ## Layout
 
