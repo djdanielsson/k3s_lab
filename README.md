@@ -31,7 +31,11 @@ pre-commit install             # one-time per clone
 
 Every commit is scanned by **gitleaks** (blocks hardcoded secrets) and the
 standard hooks (trailing whitespace, EOF, YAML, merge-conflict, private keys).
-The `pantrywise` SealedSecret is excluded (its values are already ciphertext).
+
+## Secrets
+
+See **[SECRETS.md](SECRETS.md)** — inventory of every SealedSecret, its keys,
+and where to get the inputs (Vaultwarden API, Tailscale OAuth, app DB creds).
 
 ## Layout
 
