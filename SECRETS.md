@@ -39,6 +39,56 @@ cd /opt/data/k3s_lab && git add -A && git commit -m "secrets" && git push
 After sealing: the `bitwarden-cli` sidecar authenticates and ESO's webhook
 stores (`bitwarden-login`/`-fields`/-`notes`) read everything else from Vaultwarden.
 
+---
+
+## Vaultwarden items — what to create, and the object/inputs
+
+ESO reads an item by **searching for its name** (`remoteRef.key`), then extracts
+a value from one of three places on that item (choose per secret):
+
+| ESO store             | value comes from the item's…                  | `externalSecret` property |
+|-----------------------|------------------------------------------------|---------------------------|
+| `bitwarden-login`     | **login** object → `username` or `password`   | `username` / `password`    |
+| `bitwarden-fields`    | a **custom field** whose *name* = the property | the field name             |
+| `bitwarden-notes`     | the item's **Notes** (whole text = the value)  | (none — one value)         |
+
+### Rule of thumb
+- **A single secret value** → a **Secure Note** item, put the value in **Notes**,
+  read via `bitwarden-notes`.
+- **A set of values** → an item with **custom Fields** (name = key), read each
+  via `bitwarden-fields`.
+- **A user/pass pair** → use a `login` item, read via `bitwarden-login`.
+
+### Example — PantryWise DB password
+Create a Vaultwarden item named **`pantrywise/db`** (a login or a custom field):
+- custom field name `password` → value = postgres password
+
+ExternalSecret (in the app's ns):
+```yaml
+apiVersion: external-secrets.io/v1beta1
+kind: ExternalSecret
+metadata: { name: pantrywise-db, namespace: pantrywise }
+spec:
+  secretStoreRef: { name: bitwarden-fields, kind: ClusterSecretStore }
+  target: { name: pantrywise-secrets }
+  data:
+    - remoteRef: { key: pantrywise/db, property: password }
+      secretKey: postgres-password
+```
+
+### Suggested items
+| Item name (seek = `remoteRef.key`) | Object        | Field(s)                    | Read via |
+|------------------------------------|---------------|-----------------------------|----------|
+| `pantrywise/jwt`                   | Secure Note / custom | field `jwt`           | notes / fields |
+| `pantrywise/db`                    | custom fields  | `password`, `user`, `url`   | fields    |
+| `github/tokens`                    | custom fields  | one field per token         | fields    |
+| `radar/auth`                       | custom fields  | `oidcSecret`, `clientId`…   | fields    |
+| `registry/htpasswd`                | Secure Note    | Notes = the htpasswd string | notes     |
+
+> The item **name must be uniquely searchable** — ESO's sidecar searches
+> `?search=<key>` and takes data[0], so use unique names (e.g. `pantrywise/db`),
+> not just `password`.
+
 ## 2. `tailscale-oauth` — Tailscale operator creds
 `tailscale` ns · file `apps/tailscale-operator/sealed-secret.yaml`
 
