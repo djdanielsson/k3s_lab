@@ -25,6 +25,8 @@ spec:
       kind: ValidatingWebhookConfiguration
     - group: "cert-manager.io"
       kind: ClusterIssuer
+    - group: "networking.k8s.io"
+      kind: IngressClass
   # No cluster-resource blacklist: operators (cert-manager, etc.) may create CRDs.
   orphanedResources:
     warn: true
