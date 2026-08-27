@@ -1,0 +1,28 @@
+# Tailscale operator — from a GIT source (its Helm chart lives in tailscale/tailscale,
+# NOT a hosted chart repo; that's why we use repoURL=github here instead of a chart repo).
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: tailscale-operator
+  namespace: argocd
+spec:
+  project: k3s-lab
+  source:
+    repoURL: https://github.com/tailscale/tailscale
+    targetRevision: v1.102.3
+    path: cmd/k8s-operator/deploy/chart
+    helm:
+      parameters:
+        - name: operator.image.tag
+          value: v1.102.3
+        - name: operator.image.pullPolicy
+          value: IfNotPresent
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: tailscale
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=false
