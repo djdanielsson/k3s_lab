@@ -7,8 +7,6 @@ metadata:
   labels:
     app: glance
   annotations:
-    tailscale.com/manage: "true"
-    tailscale.com/hostname: glance
 spec:
   type: NodePort
   selector:

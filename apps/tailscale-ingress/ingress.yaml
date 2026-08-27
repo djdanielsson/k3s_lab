@@ -1,0 +1,104 @@
+# Tailscale Cluster-Ingress per app -> exposes each over the tailnet at <hostname>.<tailnet>.ts.net
+# (handled by the installed Tailscale operator; hosts reachable from any tailnet device).
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: pantrywise-ts
+  namespace: pantrywise
+  annotations:
+    tailscale.com/ingress: "true"
+    tailscale.com/hostname: pantrywise
+spec:
+  rules:
+    - host: pantrywise
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend: { service: { name: web, port: { number: 80 } } }
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: forgejo-ts
+  namespace: forgejo
+  annotations:
+    tailscale.com/ingress: "true"
+    tailscale.com/hostname: forgejo
+spec:
+  rules:
+    - host: forgejo
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend: { service: { name: forgejo, port: { number: 3000 } } }
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: radar-ts
+  namespace: radar
+  annotations:
+    tailscale.com/ingress: "true"
+    tailscale.com/hostname: radar
+spec:
+  rules:
+    - host: radar
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend: { service: { name: radar, port: { number: 9280 } } }
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: glance-ts
+  namespace: glance
+  annotations:
+    tailscale.com/ingress: "true"
+    tailscale.com/hostname: glance
+spec:
+  rules:
+    - host: glance
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend: { service: { name: glance, port: { number: 8080 } } }
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: netdata-ts
+  namespace: netdata
+  annotations:
+    tailscale.com/ingress: "true"
+    tailscale.com/hostname: netdata
+spec:
+  rules:
+    - host: netdata
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend: { service: { name: netdata, port: { number: 19999 } } }
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: netalertx-ts
+  namespace: netalertx
+  annotations:
+    tailscale.com/ingress: "true"
+    tailscale.com/hostname: netalertx
+spec:
+  rules:
+    - host: netalertx
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend: { service: { name: netalertx, port: { number: 20211 } } }

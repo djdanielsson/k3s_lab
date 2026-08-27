@@ -6,8 +6,6 @@ metadata:
   labels:
     app: rustfs
   annotations:
-    tailscale.com/manage: "true"
-    tailscale.com/hostname: rustfs
 spec:
   type: ClusterIP
   selector:
