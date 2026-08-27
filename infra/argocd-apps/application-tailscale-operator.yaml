@@ -12,11 +12,15 @@ spec:
     targetRevision: v1.102.3
     path: cmd/k8s-operator/deploy/chart
     helm:
-      parameters:
-        - name: operator.image.tag
-          value: v1.102.3
-        - name: operator.image.pullPolicy
-          value: IfNotPresent
+      values: |
+        operator:
+          image:
+            tag: v1.102.3
+            pullPolicy: IfNotPresent
+          defaultTags:
+            - tag:k3s
+        proxy:
+          defaultTags: tag:k3s
   destination:
     server: https://kubernetes.default.svc
     namespace: tailscale
