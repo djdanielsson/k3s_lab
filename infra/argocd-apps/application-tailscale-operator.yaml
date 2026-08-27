@@ -13,13 +13,10 @@ spec:
     path: cmd/k8s-operator/deploy/chart
     helm:
       values: |
-        operator:
-          image:
-            tag: v1.102.3
-            pullPolicy: IfNotPresent
+        operatorConfig:
           defaultTags:
             - tag:k3s
-        proxy:
+        proxyConfig:
           defaultTags: tag:k3s
   destination:
     server: https://kubernetes.default.svc
