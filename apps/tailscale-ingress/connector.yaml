@@ -1,0 +1,16 @@
+# Tailscale Connector -> advertises the LAN subnet AND acts as an exit node on
+# the tailnet via the Tailscale operator. Tagged tag:k3s.
+apiVersion: tailscale.com/v1alpha1
+kind: Connector
+metadata:
+  name: k3s
+  namespace: tailscale
+spec:
+  tags:
+    - tag:k3s
+  hostnamePrefix: ts-k3s
+  replicas: 1
+  exitNode: true
+  subnetRouter:
+    advertiseRoutes:
+      - "192.168.1.0/24"
