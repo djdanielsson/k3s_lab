@@ -9,6 +9,7 @@ metadata:
   annotations:
     tailscale.com/ingress: "true"
     tailscale.com/hostname: pantrywise
+    tailscale.com/parent-group: k3s
 spec:
   rules:
     - host: pantrywise
@@ -26,6 +27,7 @@ metadata:
   annotations:
     tailscale.com/ingress: "true"
     tailscale.com/hostname: forgejo
+    tailscale.com/parent-group: k3s
 spec:
   rules:
     - host: forgejo
@@ -43,6 +45,7 @@ metadata:
   annotations:
     tailscale.com/ingress: "true"
     tailscale.com/hostname: radar
+    tailscale.com/parent-group: k3s
 spec:
   rules:
     - host: radar
@@ -60,6 +63,7 @@ metadata:
   annotations:
     tailscale.com/ingress: "true"
     tailscale.com/hostname: glance
+    tailscale.com/parent-group: k3s
 spec:
   rules:
     - host: glance
@@ -77,6 +81,7 @@ metadata:
   annotations:
     tailscale.com/ingress: "true"
     tailscale.com/hostname: netdata
+    tailscale.com/parent-group: k3s
 spec:
   rules:
     - host: netdata
@@ -94,6 +99,7 @@ metadata:
   annotations:
     tailscale.com/ingress: "true"
     tailscale.com/hostname: netalertx
+    tailscale.com/parent-group: k3s
 spec:
   rules:
     - host: netalertx
