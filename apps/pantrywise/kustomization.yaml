@@ -12,4 +12,5 @@ resources:
   - redis-deployment.yaml
   - redis-service.yaml
   - sealed-secret.yaml
+  - tailscale-ingress.yaml
   # NOTE: Traefik ingress for pantrywise lives in ../ingress (disabled).

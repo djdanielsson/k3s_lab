@@ -1,0 +1,14 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: registry-ts
+  namespace: registry
+  labels:
+    app.kubernetes.io/instance: tailscale-ingress
+spec:
+  ingressClassName: tailscale
+  defaultBackend:
+    service:
+      name: registry
+      port:
+        number: 5000

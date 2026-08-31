@@ -9,7 +9,7 @@ spec:
   project: k3s-lab
   source:
     repoURL: https://github.com/tailscale/tailscale
-    targetRevision: v1.102.3
+    targetRevision: v1.80.0
     path: cmd/k8s-operator/deploy/chart
     helm:
       values: |

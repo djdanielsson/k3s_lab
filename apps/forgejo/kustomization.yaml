@@ -10,3 +10,4 @@ resources:
   - forgejo-deployment.yaml
   - forgejo-service.yaml
   - data-pvc.yaml
+  - tailscale-ingress.yaml

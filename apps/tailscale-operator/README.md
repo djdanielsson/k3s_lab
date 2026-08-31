@@ -1,81 +1,39 @@
-# Tailscale operator — scaffold
+# Tailscale Operator — pinned to v1.80.0 (required for k3s v1.26)
 
-Exposes Services on your tailnet (`*.ts.net`, over WireGuard) so you can reach
-the apps from any of your devices, anywhere. Deployed **alongside Traefik**
-(Traefik stays for local-LAN access).
+## Why v1.80.0?
 
-> Status: **scaffold only** — namespace + SealedSecret are in place, but the
-> operator Helm chart is not installed yet (its chart endpoint 404'd from our
-> sandbox; install it from the official docs once credentials are ready).
+The lab cluster runs **k3s v1.26.5**. Recent Tailscale operator releases (`v1.82+`,
+including `:stable`) rely on the Kubernetes **ValidatingAdmissionPolicy** API, which
+only exists in **Kubernetes ≥ 1.31**. On k3s v1.26.5 that API is absent, so newer
+operator versions silently skip *every* tailnet Ingress (log noise like
+`no matches for kind "ValidatingAdmissionPolicy"` and `ProxyGroup "" does not exist`),
+which is why apps stopped being reachable on the tailnet.
 
-## 1. Create a Tailscale OAuth client
-1. Admin Console → **Settings → Keys → Generate… → OAuth clients**
-2. Name: `k3s-operator`, scope **"Read and Write"**
-3. Copy the **Client ID** and **Client Secret**.
-4. Ensure **MagicDNS** is enabled (Admin Console → DNS → on).
+**v1.80.0** is the newest release that works on Kubernetes 1.26 and uses the classic
+**TSIngress** model (`ingressClassName: tailscale`). It exposes each app as its own
+Tailscale proxy device with a MagicDNS name — no ProxyGroup/AdmissionPolicy needed.
 
-## 2. Configure the SealedSecret (do this with your real credentials)
-This is the part you fill in. From a machine with `kubeseal`:
+### The fix (what was done)
 
-```bash
-# a) write a plain Secret with YOUR values (this file never gets committed)
-cat > /tmp/ts-secret.yaml <<'EOF'
-apiVersion: v1
-kind: Secret
-metadata:
-  name: tailscale-oauth
-  namespace: tailscale
-type: Opaque
-stringData:
-  client_id: <YOUR_CLIENT_ID>
-  client_secret: <YOUR_CLIENT_SECRET>
-EOF
+1. **Pin the operator image**:
+   ```bash
+   kubectl set image deploy/operator operator=tailscale/k8s-operator:v1.80.0 -n tailscale
+   kubectl rollout status deploy/operator -n tailscale
+   ```
+2. **Pin the Argo CD Application** (this file) to `targetRevision: v1.80.0` so a
+   future sync does not silently undo the downgrade.
+3. Verify it's running clean:
+   ```bash
+   kubectl logs -n tailscale deploy/operator | grep -iE "version|error"
+   # expect: ... operator running, version: 1.80.0-...
+   ```
 
-# b) seal it into the SealedSecret that lives in this repo
-#    (kubeseal is at ~/.local/bin/kubeseal; grab the controller cert if needed:
-#     kubectl -n kube-system get secret -l sealedsecrets.bitnami.com/sealed-secrets-key=active \
-#       -o jsonpath='{.data.tls\.crt}' | base64 -d > /tmp/ss-cert.pem )
-~/.local/bin/kubeseal --cert /tmp/ss-cert.pem --format yaml \
-  < /tmp/ts-secret.yaml > apps/tailscale-operator/sealed-secret.yaml
+> ⚠️ Do **not** bump this above v1.80 until the cluster is upgraded to k8s ≥ 1.31.
 
-# c) commit + push — ArgoCD applies it, the controller updates the Secret in-cluster
-git add apps/tailscale-operator/sealed-secret.yaml
-git commit -m "tailsk: real oauth creds"
-git push origin gitops-fresh
-```
+## Current operator state
 
-The placeholder in the repo currently decrypts to `client_id=REPLACE_WITH_OAUTH_CLIENT_ID`.
-
-## 3. Install the operator (once the chart/creds are ready)
-Per the official docs:
-```bash
-helm repo add tailscale https://pkgs.tailscale.com/helm-charts
-helm upgrade --install operator tailscale/tailscale-operator \
-  --namespace tailscale --create-namespace \
-  --set-string oauth.clientId=<client-id> \
-  --set-string oauth.clientSecret=<client-secret>
-```
-(or configure it to read the `tailscale-oauth` Secret above).
-
-## 4. Expose an app (opt-in per Service)
-Add to any app's Service:
-```yaml
-metadata:
-  annotations:
-    tailscale.com/manage: "true"
-    tailscale.com/hostname: radar        # -> radar.<tailnet>.ts.net
-```
-Its Service proxy gets a MagicDNS name reachable from any Tailscale device.
-
-### Annotated routes (repo-managed Services)
-Already annotated: `registry`, `pantrywise`, `rustfs`, `forgejo`, `glance`,
-`netdata`, `netalertx` (each `tailscale.com/manage: true` + hostname). They
-become live once the operator is installed.
-
-### Helm-managed / not in repo (annotate manually after install)
-- **radar** (Helm chart): once the operator is up, run:
-  ```bash
-  kubectl -n radar annotate svc radar tailscale.com/manage=true tailscale.com/hostname=radar
-  ```
-  (or add `service.annotations` to the radar chart values if supported)
-- argocd-server / cert-manager: annotate similarly if you want them on the tailnet.
+- Namespace: `tailscale`
+- Connector `k3s` (subnet router + exit node, `tag:k3s`) advertises:
+  `192.168.1.0/24`, `10.42.0.0/16`, `10.43.0.0/16`.
+- OAuth creds: `operator-oauth` / `tailscale-oauth` SealedSecrets.
+- Tailnet: `tail7f3c08.ts.net`
