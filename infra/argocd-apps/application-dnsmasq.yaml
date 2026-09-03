@@ -7,7 +7,7 @@ spec:
   project: k3s-lab
   source:
     repoURL: https://github.com/djdanielsson/k3s_lab
-    targetRevision: gitops-fresh
+    targetRevision: main
     path: apps/dnsmasq
   destination:
     server: https://kubernetes.default.svc
