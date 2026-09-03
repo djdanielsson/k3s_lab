@@ -1,0 +1,32 @@
+# Expose the Hermes dashboard + OpenAI API over the Tailscale tailnet.
+# Each Ingress gets its own MagicDNS name (hermes-dashboard-ts / hermes-api-ts).
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: hermes-dashboard-ts
+  namespace: hermes
+  labels:
+    app.kubernetes.io/instance: tailscale-ingress
+spec:
+  ingressClassName: tailscale
+  defaultBackend:
+    service:
+      name: hermes
+      port:
+        number: 9119
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: hermes-api-ts
+  namespace: hermes
+  labels:
+    app.kubernetes.io/instance: tailscale-ingress
+spec:
+  ingressClassName: tailscale
+  defaultBackend:
+    service:
+      name: hermes
+      port:
+        number: 8642

@@ -19,3 +19,4 @@ resources:
   - application-eso-bitwarden.yaml
   - application-tailscale-operator.yaml
   - application-tailscale-ingress.yaml
+  - application-hermes.yaml
