@@ -24,6 +24,7 @@ spec:
         # Changes when hermes-config changes => ArgoCD rolls the pod on config edits.
         checksum/hermes-config: f759f7bef442d007dbb2679cdd59858b337066ab7c837ca7560c1a069c513eb9
     spec:
+      serviceAccountName: hermes
       securityContext:
         # Align the local-path volume group with the runtime hermes uid.
         fsGroup: 10000

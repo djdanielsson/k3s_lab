@@ -1,0 +1,18 @@
+# Grants the in-cluster Hermes agent FULL cluster-admin (bind to the built-in
+# cluster-admin ClusterRole). Operator explicitly accepted the blast radius —
+# this agent can kubectl anything in the cluster. Least-privilege alternative
+# is a scoped ClusterRole; swap roleRef if that becomes preferable.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: hermes-cluster-admin
+  labels:
+    app: hermes
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cluster-admin
+subjects:
+  - kind: ServiceAccount
+    name: hermes
+    namespace: hermes
