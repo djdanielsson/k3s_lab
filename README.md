@@ -94,10 +94,9 @@ Point these to the k3s node (`192.168.1.116`): `argocd`, `registry`,
 - Radar's chart has **auth mode `none`** by default — do not expose it outside
   the cluster until auth (proxy/OIDC) is configured.
 - **Hermes** (`apps/hermes`) exposes an OpenAI-compatible API (8642) +
-  dashboard (9119) over Tailscale. Telegram runs on the existing **native**
-  gateway on the node — the in-cluster instance leaves `platforms.telegram`
-  disabled so the two never pull the same bot token. To move Telegram into the
-  cluster: stop the native gateway, set `telegram.enabled: true` in
-  `apps/hermes/configmap.yaml`, and add the `TELEGRAM_*` fields to the
-  `k3s/hermes-env` Vaultwarden item. The image is pinned to tag
-  `v2026.8.31` (update the `image:` in the deployment to upgrade).
+  dashboard (9119) over Tailscale and runs the **Telegram** gateway in-cluster
+  (bot days from the `k3s/hermes-env` Vaultwarden item). Telegram polling is
+  outbound, so the pod needs egress to `api.telegram.org`. The node's **native**
+  Hermes gateway must be stopped once the cluster one is up — two gateways on
+  the same bot token conflict. Image pinned to tag `v2026.8.31` (update the
+  `image:` in the deployment to upgrade).

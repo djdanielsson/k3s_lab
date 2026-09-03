@@ -32,12 +32,14 @@ data:
         same_tool_failure: 5
         idempotent_no_progress: 5
 
-    # Chat platforms. DISABLED by default so this instance doesn't fight the
-    # existing native Telegram gateway on the same bot token. To run Telegram
-    # from the cluster instead: set enabled: true, add TELEGRAM_BOT_TOKEN /
-    # TELEGRAM_ALLOWED_USERS / TELEGRAM_HOME_CHANNEL to the `k3s/hermes-env`
-    # Vaultwarden item, and stop the native gateway first (two gateways on one
-    # bot token conflict).
+    # Chat platforms. Telegram is ENABLED (bot token / allowed users / home
+    # channel come from the `k3s/hermes-env` Vaultwarden item via ESO).
+    # IMPORTANT: the cluster gateway and the node's NATIVE Hermes gateway must
+    # not poll the same bot token simultaneously — they fight for updates.
+    # Stop the native gateway (`sudo systemctl stop hermes-agent` on the node,
+    # or `hermes gateway stop`) once this instance is up, so only the cluster
+    # one consumes the bot. Hermes polls Telegram outbound (long-polling, no
+    # inbound port), so the pod needs egress to api.telegram.org.
     platforms:
       telegram:
-        enabled: false
+        enabled: true
