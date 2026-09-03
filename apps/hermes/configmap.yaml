@@ -19,6 +19,14 @@ data:
       base_url: https://opencode.ai/zen/go/v1
       api_mode: chat_completions
 
+    # Plugins are OPT-IN — all bundled plugins stay off unless listed here.
+    # dashboard_auth.basic ("basic") is required for the web dashboard to bind;
+    # it registers the username/password auth provider (see dashboard below).
+    plugins:
+      enabled:
+        - basic
+      disabled: []
+
     # Unattended gateway guards (recommended by Hermes docs for server deploys).
     tool_loop_guardrails:
       warnings_enabled: true
