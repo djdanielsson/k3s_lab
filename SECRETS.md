@@ -53,4 +53,4 @@ Item names must be unique (the bridge searches by exact name).
 | `k3s/github-tokens`   | Custom fields| one field per token            |
 | `k3s/radar-auth`      | Custom fields| `oidcSecret`, `clientId`       |
 | `k3s/registry-htpasswd` | Secure Note | Notes = the htpasswd string  |
-| `k3s/hermes-env`       | Custom fields| `OPENCODE_GO_API_KEY`, `API_SERVER_KEY`, `HERMES_DASHBOARD_BASIC_AUTH_USERNAME`, `HERMES_DASHBOARD_BASIC_AUTH_PASSWORD`, `HERMES_DASHBOARD_BASIC_AUTH_SECRET`, and (if running Telegram in-cluster) `TELEGRAM_BOT_TOKEN`, `TELEGRAM_ALLOWED_USERS`, `TELEGRAM_HOME_CHANNEL` |
+| `k3s/hermes-env`       | Custom fields| `OPENCODE_GO_API_KEY`, `GITHUB_TOKEN`, `API_SERVER_KEY`, `HERMES_DASHBOARD_BASIC_AUTH_USERNAME`, `HERMES_DASHBOARD_BASIC_AUTH_PASSWORD`, `HERMES_DASHBOARD_BASIC_AUTH_SECRET`, and (if running Telegram in-cluster) `TELEGRAM_BOT_TOKEN`, `TELEGRAM_ALLOWED_USERS`, `TELEGRAM_HOME_CHANNEL` |
