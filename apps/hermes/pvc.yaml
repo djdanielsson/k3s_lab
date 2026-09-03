@@ -1,0 +1,16 @@
+# Hermes state lives entirely under /opt/data on this PVC (config, sessions,
+# memory, skills, .env). Single-writer -> RWO + Recreate strategy on the pod.
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: hermes-data
+  namespace: hermes
+  labels:
+    app: hermes
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: local-path
+  resources:
+    requests:
+      storage: 10Gi

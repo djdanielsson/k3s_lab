@@ -1,0 +1,125 @@
+# Hermes Agent gateway (nousresearch/hermes-agent). Runs the official
+# supervised path: image starts as root/PID1 with s6, drops to the `hermes`
+# user (uid 10000) and chowns /opt/data at boot. Do NOT pin runAsUser to an
+# arbitrary UID; the image refuses any UID that isn't root or the hermes user.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hermes
+  namespace: hermes
+  labels:
+    app: hermes
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate # single-writer SQLite state on the PVC
+  selector:
+    matchLabels:
+      app: hermes
+  template:
+    metadata:
+      labels:
+        app: hermes
+    spec:
+      securityContext:
+        # Align the local-path volume group with the runtime hermes uid.
+        fsGroup: 10000
+        seccompProfile:
+          type: RuntimeDefault
+      initContainers:
+        # First-boot only: make the fresh PVC writeable by the hermes user
+        # (10000). Idempotent; harmless on restarts.
+        - name: fix-perms
+          image: busybox:1.36
+          command:
+            - sh
+            - -ec
+            - |
+              chown -R 10000:10000 /opt/data
+              mkdir -p /opt/data/home
+          volumeMounts:
+            - name: data
+              mountPath: /opt/data
+          securityContext:
+            runAsUser: 0
+      containers:
+        - name: hermes
+          image: nousresearch/hermes-agent:v2026.8.31
+          imagePullPolicy: IfNotPresent
+          # Pass subcommand via args so the image entrypoint stays PID 1 and
+          # s6 supervision stays active (do NOT override `command:`).
+          args:
+            - gateway
+            - run
+          env:
+            - name: HERMES_HOME
+              value: /opt/data
+            - name: HERMES_CONFIG
+              value: /config/config.yaml
+            - name: HERMES_UID
+              value: "10000"
+            - name: HERMES_GID
+              value: "10000"
+            # OpenAI-compatible API server (in-cluster + Tailscale).
+            - name: API_SERVER_ENABLED
+              value: "true"
+            - name: API_SERVER_HOST
+              value: "0.0.0.0"
+            - name: API_SERVER_PORT
+              value: "8642"
+            # Web dashboard.
+            - name: HERMES_DASHBOARD
+              value: "1"
+            - name: HERMES_DASHBOARD_HOST
+              value: "0.0.0.0"
+          envFrom:
+            - secretRef:
+                name: hermes-env
+          ports:
+            - containerPort: 8642
+              name: api
+            - containerPort: 9119
+              name: dashboard
+          volumeMounts:
+            - name: data
+              mountPath: /opt/data
+            - name: config
+              mountPath: /config
+              readOnly: true
+            - name: tmp
+              mountPath: /tmp
+          resources:
+            requests:
+              cpu: 250m
+              memory: 512Mi
+            limits:
+              cpu: "2"
+              memory: 4Gi
+          # Gateway has no HTTP health endpoint; process-level probes.
+          livenessProbe:
+            exec:
+              command:
+                - pgrep
+                - -f
+                - hermes
+            initialDelaySeconds: 30
+            periodSeconds: 30
+            failureThreshold: 3
+          readinessProbe:
+            exec:
+              command:
+                - pgrep
+                - -f
+                - hermes
+            initialDelaySeconds: 15
+            periodSeconds: 10
+            failureThreshold: 3
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: hermes-data
+        - name: config
+          configMap:
+            name: hermes-config
+        - name: tmp
+          emptyDir: {}

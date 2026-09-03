@@ -1,0 +1,45 @@
+# Non-secret Hermes config, mounted read-only at /config/config.yaml
+# (HERMES_CONFIG). Change provider/model here in GitOps; secrets (API keys,
+# telemetry tokens, dashboard auth, API_SERVER_KEY) come from the
+# `hermes-env` Secret provisioned by ESO (see external-secret.yaml).
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: hermes-config
+  namespace: hermes
+  labels:
+    app: hermes
+data:
+  config.yaml: |
+    # Primary model / provider. Mirrors the existing homelab Hermes install:
+    # an OpenAI-compatible endpoint (opencode-go) keyed by OPENCODE_GO_API_KEY.
+    model:
+      default: deepseek-v4-flash
+      provider: opencode-go
+      base_url: https://opencode.ai/zen/go/v1
+      api_mode: chat_completions
+
+    # Unattended gateway guards (recommended by Hermes docs for server deploys).
+    tool_loop_guardrails:
+      warnings_enabled: true
+      hard_stop_enabled: true
+      warn_after:
+        exact_failure: 3
+        same_tool_failure: 5
+        idempotent_no_progress: 5
+      hard_stop_after:
+        exact_failure: 3
+        same_tool_failure: 5
+        idempotent_no_progress: 5
+
+    # Chat platforms. Telegram is ENABLED (bot token / allowed users / home
+    # channel come from the `k3s/hermes-env` Vaultwarden item via ESO).
+    # IMPORTANT: the cluster gateway and the node's NATIVE Hermes gateway must
+    # not poll the same bot token simultaneously — they fight for updates.
+    # Stop the native gateway (`sudo systemctl stop hermes-agent` on the node,
+    # or `hermes gateway stop`) once this instance is up, so only the cluster
+    # one consumes the bot. Hermes polls Telegram outbound (long-polling, no
+    # inbound port), so the pod needs egress to api.telegram.org.
+    platforms:
+      telegram:
+        enabled: true

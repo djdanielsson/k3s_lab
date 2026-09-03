@@ -1,17 +1,17 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: sealed-secrets
+  name: hermes
   namespace: argocd
 spec:
   project: k3s-lab
   source:
     repoURL: https://github.com/djdanielsson/k3s_lab
     targetRevision: main
-    path: apps/sealed-secrets
+    path: apps/hermes
   destination:
     server: https://kubernetes.default.svc
-    namespace: kube-system
+    namespace: hermes
   syncPolicy:
     automated:
       prune: true

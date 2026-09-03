@@ -49,6 +49,7 @@ the Vaultwarden API credential setup.
 | `apps/rustfs`         | RustFS S3 object storage (deploy/10Gi PVC/console)         |
 | `apps/cert-manager`   | **Let's Encrypt ClusterIssuer — DISABLED** (commented)     |
 | `apps/ingress`        | **All apps' Traefik IngressRoutes — DISABLED** (commented) |
+| `apps/hermes`         | Hermes Agent gateway (official `nousresearch/hermes-agent` image) |
 
 ## Running apps (ArgoCD)
 
@@ -62,6 +63,7 @@ the Vaultwarden API credential setup.
 | glance       | `glanceapp/glance` | `glance.glance.svc:8080` (NodePort 31080)      |
 | netalertx    | `netalertx/netalertx` | `netalertx.netalertx.svc:20211` (hostNetwork) |
 | netdata      | `netdata/netdata` | `netdata.netdata.svc:19999` (hostNetwork)      |
+| hermes       | `nousresearch/hermes-agent` | `hermes.hermes.svc:8642/:9119` (+ Tailscale) |
 
 Radar's chart creates a **ClusterRole** to read the cluster; the AppProject
 whitelists `ClusterRole`/`ClusterRoleBinding` for that. Cert-manager is pinned
@@ -91,3 +93,10 @@ Point these to the k3s node (`192.168.1.116`): `argocd`, `registry`,
   to issue real certs for `*.k3s.lab.danielsson.us.com`.
 - Radar's chart has **auth mode `none`** by default — do not expose it outside
   the cluster until auth (proxy/OIDC) is configured.
+- **Hermes** (`apps/hermes`) exposes an OpenAI-compatible API (8642) +
+  dashboard (9119) over Tailscale and runs the **Telegram** gateway in-cluster
+  (bot days from the `k3s/hermes-env` Vaultwarden item). Telegram polling is
+  outbound, so the pod needs egress to `api.telegram.org`. The node's **native**
+  Hermes gateway must be stopped once the cluster one is up — two gateways on
+  the same bot token conflict. Image pinned to tag `v2026.8.31` (update the
+  `image:` in the deployment to upgrade).
