@@ -20,6 +20,9 @@ spec:
     metadata:
       labels:
         app: hermes
+      annotations:
+        # Changes when hermes-config changes => ArgoCD rolls the pod on config edits.
+        checksum/hermes-config: e148b31a4eecf69cfb2eba47b63069b9be811b365a92b8f159f783ec2003996c
     spec:
       securityContext:
         # Align the local-path volume group with the runtime hermes uid.

@@ -43,3 +43,11 @@ data:
     platforms:
       telegram:
         enabled: true
+
+    # Web dashboard. Auth via basic_auth. password_hash is a one-way hash of
+    # the HERMES_DASHBOARD_BASIC_AUTH_PASSWORD from the k3s/hermes-env item.
+    dashboard:
+      public_url: https://hermes-hermes-dashboard-ts-ingress.tail7f3c08.ts.net
+      basic_auth:
+        username: welcome
+        password_hash: scrypt$16384$8$1$0R0IYYl5HcUya+yJB6utPA==$Hpzvv1OlWPy6zNa7AFTz4cJQqcIq8gSGHafCOAIX7Z0=
