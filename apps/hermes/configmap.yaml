@@ -27,6 +27,11 @@ data:
         - basic
       disabled: []
 
+    # Telemetry: explicit opt-out of anonymous shared-metric reporting.
+    telemetry:
+      shared_metrics:
+        enabled: false
+
     # Unattended gateway guards (recommended by Hermes docs for server deploys).
     tool_loop_guardrails:
       warnings_enabled: true

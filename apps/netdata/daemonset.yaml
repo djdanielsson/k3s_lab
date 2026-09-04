@@ -35,6 +35,11 @@ spec:
               value: unix:///host/run/docker.sock
             - name: PGID
               value: "0"
+            # Opt out of netdata Cloud connectivity + anonymous usage telemetry.
+            - name: NETDATA_DISABLE_CLOUD
+              value: "1"
+            - name: NETDATA_DISABLE_TELEMETRY
+              value: "1"
           resources:
             requests:
               cpu: 100m
