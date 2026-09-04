@@ -14,6 +14,10 @@ spec:
     targetRevision: 58.7.2
     helm:
       values: |
+        # CRDs are applied OUT-OF-BAND (server-side kubectl) — ArgoCD's Helm
+        # render can't apply the >256KB monitoring CRDs (annotation limit).
+        crds:
+          enabled: false
         # Minimal monitoring footprint: Prometheus + operator + node-exporter
         # only (what Radar needs for node/apiserver metrics). No grafana /
         # alertmanager / kube-state-metrics / default alert rules.
