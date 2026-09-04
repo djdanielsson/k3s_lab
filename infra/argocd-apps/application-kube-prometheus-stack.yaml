@@ -1,0 +1,76 @@
+# kube-prometheus-stack — Prometheus + monitoring CRDs. Provides the metrics
+# source for Radar (radar's traffic.prometheusUrl points here). Pinned to 58.x
+# (broadly compatible with this cluster's k8s 1.26; 59+ targets newer k8s).
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: kube-prometheus-stack
+  namespace: argocd
+spec:
+  project: k3s-lab
+  source:
+    repoURL: https://prometheus-community.github.io/helm-charts
+    chart: kube-prometheus-stack
+    targetRevision: 58.7.2
+    helm:
+      values: |
+        # Minimal monitoring footprint: Prometheus + operator + node-exporter
+        # only (what Radar needs for node/apiserver metrics). No grafana /
+        # alertmanager / kube-state-metrics / default alert rules.
+        defaultRules:
+          enabled: false
+        windowsMonitoring:
+          enabled: false
+        grafana:
+          enabled: false
+        alertmanager:
+          enabled: false
+        kubeStateMetrics:
+          enabled: false
+        # Keep only the scrape targets Radar's node/metrics panels use.
+        kubernetesServiceMonitors:
+          enabled: true
+        kubeApiServer:
+          enabled: true
+        kubelet:
+          enabled: true
+        kubeProxy:
+          enabled: false
+        kubeEtcd:
+          enabled: false
+        kubeScheduler:
+          enabled: false
+        kubeControllerManager:
+          enabled: false
+        coreDns:
+          enabled: false
+        prometheusOperator:
+          resources:
+            requests: {cpu: 50m, memory: 64Mi}
+            limits: {cpu: 500m, memory: 512Mi}
+        nodeExporter:
+          enabled: true
+        prometheus:
+          prometheusSpec:
+            retention: 24h
+            scrapeInterval: 60s
+            resources:
+              requests: {cpu: 100m, memory: 512Mi}
+              limits: {cpu: "1", memory: 1Gi}
+            storageSpec:
+              volumeClaimTemplate:
+                spec:
+                  storageClassName: local-path
+                  accessModes: ["ReadWriteOnce"]
+                  resources:
+                    requests:
+                      storage: 5Gi
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: monitoring
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
