@@ -14,13 +14,49 @@ spec:
     targetRevision: 58.7.2
     helm:
       values: |
-        # Grafana + Alertmanager not required by Radar -> keep the footprint light.
+        # Minimal monitoring footprint: Prometheus + operator + node-exporter
+        # only (what Radar needs for node/apiserver metrics). No grafana /
+        # alertmanager / kube-state-metrics / default alert rules.
+        defaultRules:
+          enabled: false
+        windowsMonitoring:
+          enabled: false
         grafana:
           enabled: false
         alertmanager:
           enabled: false
+        kubeStateMetrics:
+          enabled: false
+        # Keep only the scrape targets Radar's node/metrics panels use.
+        kubernetesServiceMonitors:
+          enabled: true
+        kubeApiServer:
+          enabled: true
+        kubelet:
+          enabled: true
+        kubeProxy:
+          enabled: false
+        kubeEtcd:
+          enabled: false
+        kubeScheduler:
+          enabled: false
+        kubeControllerManager:
+          enabled: false
+        coreDns:
+          enabled: false
+        prometheusOperator:
+          resources:
+            requests: {cpu: 50m, memory: 64Mi}
+            limits: {cpu: 500m, memory: 512Mi}
+        nodeExporter:
+          enabled: true
         prometheus:
           prometheusSpec:
+            retention: 24h
+            scrapeInterval: 60s
+            resources:
+              requests: {cpu: 100m, memory: 512Mi}
+              limits: {cpu: "1", memory: 1Gi}
             storageSpec:
               volumeClaimTemplate:
                 spec:
@@ -28,7 +64,7 @@ spec:
                   accessModes: ["ReadWriteOnce"]
                   resources:
                     requests:
-                      storage: 10Gi
+                      storage: 5Gi
   destination:
     server: https://kubernetes.default.svc
     namespace: monitoring
