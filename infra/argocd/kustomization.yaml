@@ -7,6 +7,7 @@ resources:
   # Official ArgoCD manifests for this install. Pinned for reproducibility.
   - https://raw.githubusercontent.com/argoproj/argo-cd/v2.10.7/manifests/install.yaml
   - ingressroute.yaml
+  - tailscale-ingress.yaml
 
 # Merge server.insecure=true into ArgoCD's built-in cmd-params ConfigMap so the
 # UI/API are served over HTTP through the Traefik IngressRoute above.

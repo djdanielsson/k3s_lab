@@ -1,0 +1,16 @@
+# Expose the ArgoCD UI on the Tailscale tailnet (like the other apps).
+# Backend argocd-server serves HTTP (server.insecure=true); TLS terminates on
+# the tailnet side. FQDN: argocd-argocd-ts-ingress.tail7f3c08.ts.net
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: argocd-ts
+  labels:
+    app.kubernetes.io/instance: tailscale-ingress
+spec:
+  ingressClassName: tailscale
+  defaultBackend:
+    service:
+      name: argocd-server
+      port:
+        number: 80
