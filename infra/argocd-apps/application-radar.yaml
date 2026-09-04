@@ -9,6 +9,22 @@ spec:
     repoURL: https://skyhook-io.github.io/helm-charts
     chart: radar
     targetRevision: 1.11.0
+    helm:
+      values: |
+        # Metrics source -> kube-prometheus-stack's Prometheus (monitoring ns).
+        traffic:
+          prometheusUrl: http://kube-prometheus-stack-prometheus.monitoring.svc:9090
+        # ArgoCD panel: uncomment once you've minted a token and created the
+        # `radar-argocd-token` Secret in the radar ns (see SECRETS notes):
+        #   argocd account login ... --admin --password <...>
+        #   argocd account create radar
+        #   argocd account generate-token --account radar
+        #   kubectl -n radar create secret generic radar-argocd-token \
+        #     --from-literal=token=<TOKEN>
+        # argocd:
+        #   existingSecret: radar-argocd-token
+        #   existingSecretKey: token
+        #   url: http://argocd-server.argocd.svc:80
   destination:
     server: https://kubernetes.default.svc
     namespace: radar
