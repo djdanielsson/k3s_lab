@@ -8,7 +8,7 @@ spec:
   source:
     repoURL: https://skyhook-io.github.io/helm-charts
     chart: radar
-    targetRevision: 1.11.0
+    targetRevision: 1.12.2
     helm:
       values: |
         # Metrics source -> kube-prometheus-stack's Prometheus (monitoring ns).
