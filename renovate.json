@@ -7,30 +7,26 @@
   "platformAutomerge": true,
   "minimumReleaseAge": "3 days",
   "kubernetes": {
-    "fileMatch": [
-      "(^|/)deployment\\.ya?ml$",
-      "(^|/)daemonset\\.ya?ml$",
-      "(^|/)statefulset\\.ya?ml$",
-      "(^|/)job\\.ya?ml$",
-      "(^|/)cronjob\\.ya?ml$",
-      "(^|/)controller\\.ya?ml$"
+    "managerFilePatterns": [
+      "/(^|/)deployment\\.ya?ml$/",
+      "/(^|/)daemonset\\.ya?ml$/",
+      "/(^|/)statefulset\\.ya?ml$/",
+      "/(^|/)job\\.ya?ml$/",
+      "/(^|/)cronjob\\.ya?ml$/",
+      "/(^|/)controller\\.ya?ml$/"
     ]
   },
   "argocd": {
-    "fileMatch": [
-      "infra/argocd-apps/application-[^/]*\\.ya?ml$"
+    "managerFilePatterns": [
+      "/infra/argocd-apps/application-[^/]*\\.ya?ml$/"
     ]
   },
-  "regexManagers": [
+  "customManagers": [
     {
+      "customType": "regex",
       "description": "tailscale-operator: bump the git chart targetRevision and the operator image.tag in lockstep",
-      "fileMatch": [
-        "infra/argocd-apps/application-tailscale-operator\\.ya?ml$"
-      ],
-      "matchStrings": [
-        "targetRevision: v(?<currentValue>\\d+\\.\\d+\\.\\d+)",
-        "tag: v(?<currentValue>\\d+\\.\\d+\\.\\d+)"
-      ],
+      "managerFilePatterns": ["/infra/argocd-apps/application-tailscale-operator\\.ya?ml$/"],
+      "matchStrings": ["targetRevision: v(?<currentValue>\\d+\\.\\d+\\.\\d+)", "tag: v(?<currentValue>\\d+\\.\\d+\\.\\d+)"],
       "datasourceTemplate": "github-releases",
       "depNameTemplate": "tailscale/tailscale",
       "versioningTemplate": "semver"
@@ -52,10 +48,10 @@
       "matchDatasources": [
         "docker"
       ],
-      "matchPackagePrefixes": [
-        "registry.registry.svc:5000/"
-      ],
-      "enabled": false
+      "enabled": false,
+      "matchPackageNames": [
+        "registry.registry.svc:5000/{/,}**"
+      ]
     },
     {
       "description": "kube-prometheus-stack capped at <59: 59+ targets newer k8s than this cluster (see the chart comment in the Application)",
