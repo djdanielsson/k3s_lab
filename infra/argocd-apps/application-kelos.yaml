@@ -6,15 +6,23 @@ metadata:
 spec:
   project: k3s-lab
   source:
-    repoURL: https://github.com/djdanielsson/k3s_lab
-    targetRevision: main
-    path: apps/kelos
+    repoURL: https://github.com/kelos-dev/kelos
+    targetRevision: v0.55.0
+    path: internal/manifests/charts/kelos
+    helm:
+      values: |
+        # First-time install: render CRDs so the controller can start its
+        # Kelos resource watches (chart default is controller-only).
+        crds:
+          install: true
+          keep: true
   destination:
     server: https://kubernetes.default.svc
-    namespace: kelos
+    namespace: kelos-system
   syncPolicy:
     automated:
       prune: true
       selfHeal: true
     syncOptions:
-      - CreateNamespace=false
+      - CreateNamespace=true
+      - ServerSideApply=true
