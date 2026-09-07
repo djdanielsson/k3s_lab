@@ -1,0 +1,8 @@
+# Kelos - Kubernetes-native framework for autonomous AI coding agents
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - namespace.yaml
+  - deployment.yaml
+  - service.yaml
+  - tailscale-ingress.yaml
