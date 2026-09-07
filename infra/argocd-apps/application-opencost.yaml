@@ -26,6 +26,10 @@ spec:
             serviceMonitor:
               enabled: true
               scrapeInterval: 1m
+              # kube-prometheus-stack only selects monitors labeled
+              # release=kube-prometheus-stack.
+              additionalLabels:
+                release: kube-prometheus-stack
   destination:
     server: https://kubernetes.default.svc
     namespace: opencost
