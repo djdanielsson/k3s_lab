@@ -98,5 +98,7 @@ Point these to the k3s node (`192.168.1.116`): `argocd`, `registry`,
   (bot days from the `k3s/hermes-env` Vaultwarden item). Telegram polling is
   outbound, so the pod needs egress to `api.telegram.org`. The node's **native**
   Hermes gateway must be stopped once the cluster one is up — two gateways on
-  the same bot token conflict. Image pinned to tag `v2026.8.31` (update the
-  `image:` in the deployment to upgrade).
+  the same bot token conflict. Image tracks the floating `latest` build via a
+  digest pin (`nousresearch/hermes-agent:latest@sha256:...`); Renovate opens
+  digest-update PRs as builds move, or version PRs when a newer `v20YY.M.D`
+  tag gets cut.
