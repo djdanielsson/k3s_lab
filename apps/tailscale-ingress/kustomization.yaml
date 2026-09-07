@@ -7,3 +7,4 @@ resources:
   - radar-ts-ingress.yaml
   - argocd-server-ts-ingress.yaml
   - prometheus-ts-ingress.yaml
+  - kelos-console-ts-ingress.yaml

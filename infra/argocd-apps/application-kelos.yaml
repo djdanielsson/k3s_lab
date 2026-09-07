@@ -7,8 +7,7 @@ spec:
   project: k3s-lab
   source:
     repoURL: https://github.com/kelos-dev/kelos
-    targetRevision: v0.43.0 # newest Kelos whose CRDs apply on k8s 1.26:
-    # v0.44+ CRDs use CEL quantity() validation (needs k8s >= 1.29)
+    targetRevision: v0.55.0
     path: internal/manifests/charts/kelos
     helm:
       values: |
@@ -17,11 +16,12 @@ spec:
         crds:
           install: true
           keep: true
-        # Chart defaults image.tag to "latest", which drifts ahead of the
-        # pinned chart (controller v0.55 expects v1alpha2 APIs while v0.43
-        # CRDs serve v1alpha1) -> CrashLoopBackOff. Pin to match.
-        image:
-          tag: "v0.43.0"
+        # Web console (token in kelos-console-auth Secret, kelos-auth app).
+        # TLS terminates at the Tailscale proxy, so secure cookies are safe.
+        consoleServer:
+          enabled: true
+          secretName: kelos-console-auth
+          secureCookie: true
   destination:
     server: https://kubernetes.default.svc
     namespace: kelos-system
