@@ -14,6 +14,10 @@ spec:
         # Metrics source -> kube-prometheus-stack's Prometheus (monitoring ns).
         traffic:
           prometheusUrl: http://kube-prometheus-stack-prometheus.monitoring.svc:9090
+        # Helm write ops (install/upgrade/rollback) + secrets read for
+        # release storage.
+        rbac:
+          helm: true
         # ArgoCD panel: uncomment once you've minted a token and created the
         # `radar-argocd-token` Secret in the radar ns (see SECRETS notes):
         #   argocd account login ... --admin --password <...>

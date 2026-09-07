@@ -1,0 +1,20 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: caretta
+  namespace: argocd
+spec:
+  project: k3s-lab
+  source:
+    repoURL: https://helm.groundcover.com
+    chart: caretta
+    targetRevision: 0.0.16
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: caretta
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
