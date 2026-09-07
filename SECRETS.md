@@ -72,3 +72,7 @@ Item names must be unique (the bridge searches by exact name).
 | `k3s/radar-auth`      | Custom fields| `oidcSecret`, `clientId`       |
 | `k3s/registry-htpasswd` | Secure Note | Notes = the htpasswd string  |
 | `k3s/hermes-env`       | Custom fields| `OPENCODE_GO_API_KEY`, `GITHUB_TOKEN`, `API_SERVER_KEY`, `HERMES_DASHBOARD_BASIC_AUTH_USERNAME`, `HERMES_DASHBOARD_BASIC_AUTH_PASSWORD`, `HERMES_DASHBOARD_BASIC_AUTH_SECRET`, and (if running Telegram in-cluster) `TELEGRAM_BOT_TOKEN`, `TELEGRAM_ALLOWED_USERS`, `TELEGRAM_HOME_CHANNEL` |
+| `k3s/kelos-console`   | Custom field | field `token` — Kelos console login token (any long random string, e.g. 32 hex chars) |
+| `k3s/radar-argocd-token` | Custom field | field `token` — ArgoCD API token for account `radar` (mint after install, see §1 note) |
+| `k3s/forgejo-secrets` | Custom fields| `db-name`, `db-user`, `db-password` — **must match the live `forgejo-secrets` Secret** or Forgejo loses its database on redeploy |
+| `k3s/pantrywise-secrets` | Custom fields | `database-url`, `jwt-secret`, `postgres-db`, `postgres-user`, `postgres-password` — **must match the live `pantrywise-secrets` Secret** |
