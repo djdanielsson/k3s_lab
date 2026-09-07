@@ -20,4 +20,5 @@ resources:
   - application-tailscale-operator.yaml
   - application-tailscale-ingress.yaml
   - application-hermes.yaml
+  - application-kelos.yaml
   - application-kube-prometheus-stack.yaml
