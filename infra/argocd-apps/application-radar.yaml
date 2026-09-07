@@ -11,9 +11,10 @@ spec:
     targetRevision: 1.12.2
     helm:
       values: |
-        # Metrics source -> kube-prometheus-stack's Prometheus (monitoring ns).
+        # Traffic source -> Caretta's own VictoriaMetrics store (caretta-vm),
+        # which holds the eBPF flow metrics (kube-prometheus has none).
         traffic:
-          prometheusUrl: http://kube-prometheus-stack-prometheus.monitoring.svc:9090
+          prometheusUrl: http://caretta-vm.caretta.svc:8428
         # Helm write ops (install/upgrade/rollback) + secrets read for
         # release storage.
         rbac:
