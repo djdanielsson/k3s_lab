@@ -87,12 +87,17 @@ Point these to the k3s node (`192.168.1.116`): `argocd`, `registry`,
   instead, and `apps/ingress` (Traefik IngressRoutes) stays staged/disabled.
   The ArgoCD Traefik route was removed from `infra/argocd` (CRDs gone at the
   time); do not re-add it without verifying the CRDs exist.
-- **metrics-server** (k3s-bundled) is intentionally **scaled to 0**: pods
-  have no route to host IPs (`192.168.1.116`), so it can never scrape the
-  kubelet and its APIService stays unavailable. Same root cause takes down
-  the node/kubelet targets in Prometheus. Fixing needs host access to
-  agent47 (CNI/routes/firewall) — not fixable via gitops.
-  `kubectl -n kube-system scale deploy metrics-server --replicas=1` to retry.
+- **metrics-server** (k3s-bundled): if the `v1beta1.metrics.k8s.io`
+  APIService goes unavailable and pods can't reach host IPs (`No route to
+  host` to `192.168.1.116`), the cause is firewalld putting the CNI
+  interfaces in the `public` zone. k3s requires them in `trusted`
+  (host-level fix, not gitops — run via a debug pod or on the node):
+  ```bash
+  kubectl debug node/agent47.lab.danielsson.us.com --image=busybox:1.38 --profile=sysadmin -- \
+    chroot /host sh -c "firewall-cmd --permanent --zone=trusted --change-interface=cni0 && firewall-cmd --permanent --zone=trusted --change-interface=flannel.1 && firewall-cmd --reload"
+  ```
+  Then `kubectl -n kube-system scale deploy metrics-server --replicas=1`.
+  Same root cause takes down the node/kubelet Prometheus targets.
 - **TLS** not configured yet (Traefik serves HTTP on the `web` entrypoint).
   cert-manager is installed and ready; a **Let's Encrypt ClusterIssuer is
   staged (commented)** in `apps/cert-manager` — uncomment it once Traefik is up
