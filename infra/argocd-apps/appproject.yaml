@@ -27,6 +27,10 @@ spec:
       kind: ClusterIssuer
     - group: "networking.k8s.io"
       kind: IngressClass
+    - group: "tailscale.com"
+      kind: Connector
+    - group: "external-secrets.io"
+      kind: ClusterSecretStore
   # No cluster-resource blacklist: operators (cert-manager, etc.) may create CRDs.
   orphanedResources:
     warn: true
