@@ -22,9 +22,10 @@ spec:
               enabled: true
               url: http://kube-prometheus-stack-prometheus.monitoring.svc:9090
           # Let kube-prometheus-stack scrape OpenCost's cost/exporter metrics.
-          serviceMonitor:
-            enabled: true
-            scrapeInterval: 1m
+          metrics:
+            serviceMonitor:
+              enabled: true
+              scrapeInterval: 1m
   destination:
     server: https://kubernetes.default.svc
     namespace: opencost
