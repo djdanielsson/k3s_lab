@@ -17,3 +17,15 @@ configMapGenerator:
     behavior: merge
     literals:
       - server.insecure="true"
+  # Local API account for Radar's ArgoCD panel (token minted via API,
+  # stored as SealedSecret in apps/radar-auth).
+  - name: argocd-cm
+    behavior: merge
+    literals:
+      - accounts.radar="apiKey"
+  # Radar gets full ArgoCD access so in-cluster actions (sync, etc.) work.
+  # Tailnet-only exposure; downgrade to `role:readonly` here if preferred.
+  - name: argocd-rbac-cm
+    behavior: merge
+    literals:
+      - policy.csv="g, radar, role:admin"
