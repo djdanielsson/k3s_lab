@@ -24,6 +24,14 @@ spec:
             pspEnabled: false
           podDisruptionBudget:
             enabled: false
+        # eBPF agent OOMs under the chart's 300Mi default during startup.
+        resources:
+          limits:
+            cpu: 500m
+            memory: 1Gi
+          requests:
+            cpu: 50m
+            memory: 128Mi
   destination:
     server: https://kubernetes.default.svc
     namespace: caretta
