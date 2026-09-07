@@ -7,7 +7,8 @@ spec:
   project: k3s-lab
   source:
     repoURL: https://github.com/kelos-dev/kelos
-    targetRevision: v0.55.0
+    targetRevision: v0.43.0 # newest Kelos whose CRDs apply on k8s 1.26:
+    # v0.44+ CRDs use CEL quantity() validation (needs k8s >= 1.29)
     path: internal/manifests/charts/kelos
     helm:
       values: |
