@@ -21,5 +21,6 @@ resources:
   - application-tailscale-ingress.yaml
   - application-hermes.yaml
   - application-kelos.yaml
+  - application-kelos-auth.yaml
   - application-argocd-apps.yaml
   - application-kube-prometheus-stack.yaml
