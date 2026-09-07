@@ -34,7 +34,7 @@ spec:
         # First-boot only: make the fresh PVC writeable by the hermes user
         # (10000). Idempotent; harmless on restarts.
         - name: fix-perms
-          image: busybox:1.36
+          image: busybox:1.38
           command:
             - sh
             - -ec
