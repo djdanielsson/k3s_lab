@@ -6,10 +6,12 @@ resources:
   - namespace.yaml
   # Official ArgoCD manifests for this install. Pinned for reproducibility.
   - https://raw.githubusercontent.com/argoproj/argo-cd/v3.5.2/manifests/install.yaml
-  - ingressroute.yaml
+  # ingressroute.yaml NOT included: Traefik is removed/disabled and its CRDs
+  # are gone; the ArgoCD UI is served via the Tailscale ingress instead
+  # (apps/tailscale-ingress/argocd-server-ts-ingress.yaml).
 
 # Merge server.insecure=true into ArgoCD's built-in cmd-params ConfigMap so the
-# UI/API are served over HTTP through the Traefik IngressRoute above.
+# UI/API are served over HTTP through the Tailscale Ingress above.
 configMapGenerator:
   - name: argocd-cmd-params-cm
     behavior: merge
