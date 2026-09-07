@@ -5,3 +5,5 @@ kind: Kustomization
 resources:
   - connector.yaml
   - radar-ts-ingress.yaml
+  - argocd-server-ts-ingress.yaml
+  - prometheus-ts-ingress.yaml
