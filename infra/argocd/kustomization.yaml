@@ -5,7 +5,7 @@ namespace: argocd
 resources:
   - namespace.yaml
   # Official ArgoCD manifests for this install. Pinned for reproducibility.
-  - https://raw.githubusercontent.com/argoproj/argo-cd/v2.10.7/manifests/install.yaml
+  - https://raw.githubusercontent.com/argoproj/argo-cd/v3.5.2/manifests/install.yaml
   - ingressroute.yaml
 
 # Merge server.insecure=true into ArgoCD's built-in cmd-params ConfigMap so the
