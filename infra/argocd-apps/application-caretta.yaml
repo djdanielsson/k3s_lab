@@ -9,6 +9,21 @@ spec:
     repoURL: https://helm.groundcover.com
     chart: caretta
     targetRevision: 0.0.16
+    helm:
+      values: |
+        # PodSecurityPolicies were removed in k8s 1.25; force-disable all
+        # legacy PSP/PDB render paths (cluster capability discovery is
+        # unreliable here, which otherwise renders policy/v1beta1 objects).
+        rbac:
+          pspEnabled: false
+        grafana:
+          rbac:
+            pspEnabled: false
+        victoria-metrics-single:
+          rbac:
+            pspEnabled: false
+          podDisruptionBudget:
+            enabled: false
   destination:
     server: https://kubernetes.default.svc
     namespace: caretta
