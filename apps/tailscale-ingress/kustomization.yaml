@@ -1,5 +1,7 @@
-# Tailscale connector (subnet router + exit node) for the k3s LAN.
+# Tailscale connector (subnet router + exit node) for the k3s LAN,
+# plus tailnet Ingresses for Helm-only apps (radar has no local app dir).
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
   - connector.yaml
+  - radar-ts-ingress.yaml
