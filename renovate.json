@@ -33,11 +33,20 @@
       ],
       "datasourceTemplate": "github-releases",
       "depNameTemplate": "tailscale/tailscale",
-      "versioningTemplate": "semver",
-      "groupName": "tailscale-operator"
+      "versioningTemplate": "semver"
     }
   ],
   "packageRules": [
+    {
+      "description": "tailscale-operator: keep the git chart ref and the operator image.tag in a single PR",
+      "matchDatasources": [
+        "github-releases"
+      ],
+      "matchPackageNames": [
+        "tailscale/tailscale"
+      ],
+      "groupName": "tailscale-operator"
+    },
     {
       "description": "Images built and pushed to the in-cluster registry (pantrywise-web/server) cannot be resolved by Renovate",
       "matchDatasources": [
