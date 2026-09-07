@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: kelos
+  namespace: kelos
+  labels:
+    app.kubernetes.io/name: kelos
+    app.kubernetes.io/instance: kelos
+spec:
+  selector:
+    app: kelos
+  ports:
+    - name: api
+      protocol: TCP
+      port: 80
+      targetPort: 8642
