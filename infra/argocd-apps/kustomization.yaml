@@ -9,6 +9,7 @@ resources:
   - application-radar-rbac.yaml
   - application-radar-auth.yaml
   - application-caretta.yaml
+  - application-opencost.yaml
   - application-cert-manager.yaml
   - application-sealed-secrets.yaml
   - application-forgejo.yaml

@@ -1,0 +1,32 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: opencost
+  namespace: argocd
+spec:
+  project: k3s-lab
+  source:
+    repoURL: https://opencost.github.io/opencost-helm-chart
+    chart: opencost
+    targetRevision: 2.5.30
+    helm:
+      values: |
+        # Use the in-cluster kube-prometheus-stack Prometheus instead of
+        # deploying OpenCost's bundled one; cost metrics land in the same
+        # store Radar already reads.
+        opencost:
+          prometheus:
+            internal:
+              enabled: false
+            external:
+              enabled: true
+              url: http://kube-prometheus-stack-prometheus.monitoring.svc:9090
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: opencost
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
