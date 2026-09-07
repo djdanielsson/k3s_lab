@@ -1,0 +1,62 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended",
+    ":automergeMinor"
+  ],
+  "platformAutomerge": true,
+  "minimumReleaseAge": "3 days",
+  "kubernetes": {
+    "fileMatch": [
+      "(^|/)deployment\\.ya?ml$",
+      "(^|/)daemonset\\.ya?ml$",
+      "(^|/)statefulset\\.ya?ml$",
+      "(^|/)job\\.ya?ml$",
+      "(^|/)cronjob\\.ya?ml$",
+      "(^|/)controller\\.ya?ml$"
+    ]
+  },
+  "argocd": {
+    "fileMatch": [
+      "infra/argocd-apps/application-[^/]*\\.ya?ml$"
+    ]
+  },
+  "regexManagers": [
+    {
+      "description": "tailscale-operator: bump the git chart targetRevision and the operator image.tag in lockstep",
+      "fileMatch": [
+        "infra/argocd-apps/application-tailscale-operator\\.ya?ml$"
+      ],
+      "matchStrings": [
+        "targetRevision: v(?<currentValue>\\d+\\.\\d+\\.\\d+)",
+        "tag: v(?<currentValue>\\d+\\.\\d+\\.\\d+)"
+      ],
+      "datasourceTemplate": "github-releases",
+      "depNameTemplate": "tailscale/tailscale",
+      "versioningTemplate": "semver",
+      "groupName": "tailscale-operator"
+    }
+  ],
+  "packageRules": [
+    {
+      "description": "Images built and pushed to the in-cluster registry (pantrywise-web/server) cannot be resolved by Renovate",
+      "matchDatasources": [
+        "docker"
+      ],
+      "matchPackagePrefixes": [
+        "registry.registry.svc:5000/"
+      ],
+      "enabled": false
+    },
+    {
+      "description": "kube-prometheus-stack capped at <59: 59+ targets newer k8s than this cluster (see the chart comment in the Application)",
+      "matchDatasources": [
+        "helm"
+      ],
+      "matchPackageNames": [
+        "kube-prometheus-stack"
+      ],
+      "allowedVersions": "<59.0.0"
+    }
+  ]
+}
