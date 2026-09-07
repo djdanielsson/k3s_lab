@@ -5,8 +5,8 @@ Tailscale devices at a MagicDNS hostname (no public exposure).
 
 ## How it works
 
-The Tailscale operator (pinned to **v1.80.0** — see
-[`../tailscale-operator/README.md`](../tailscale-operator/README.md)) watches
+The Tailscale operator (currently **v1.102.3** — the old v1.80 pin was lifted
+with the k3s 1.36 upgrade) watches
 `Ingress` resources with **`ingressClassName: tailscale`**. For each one it:
 
 1. creates a Tailscale proxy device (`tailscale` StatefulSet + headless Service in
@@ -59,12 +59,15 @@ Proxies are created in `tailscale` ns; remove the Ingress to tear the proxy down
 | rustfs | `rustfs:9001` (console) | rustfs-ts |
 | registry | `registry:5000` | registry-ts |
 | radar | `radar:9280` | radar-ts |
+| argocd | `argocd-server:80` | argocd-server-ts |
+| prometheus | `kube-prometheus-stack-prometheus:9090` | prometheus-ts |
+| kelos-console | `kelos-console-server:80` | kelos-console-ts |
 | spiritual-gifts | `web:80` | spiritual-gifts-ts |
 
 ## Prerequisites / notes
 
-- Operator must be **v1.80.0** (k8s 1.26). Do not upgrade it until the cluster hits
-  k8s ≥ 1.31 (see the operator README).
+- Operator tracks the latest release (Renovate-managed, chart + `image.tag`
+  in lockstep).
 - Every app's proxy device is tagged `tag:k3s` (ACL must allow the operator to own
   that tag — already the case for the Connector).
 - This replaces the old, now-broken `tailscale.com/ingress: "true"` annotation

@@ -9,6 +9,24 @@ are prefixed **`k3s/`**.
 These are the auth the bridge/operator use; they're the only things in
 `SECRETS.md` that don't come from a Vaultwarden item.
 
+> **Redeploy backup (do this once, store offline):** SealedSecrets can only
+> be decrypted by THIS cluster's key. Back it up or a fresh cluster cannot
+> unseal `apps/*/sealed-secret.yaml` (kelos-console-auth, radar-argocd-token…):
+> ```bash
+> kubectl -n kube-system get secret sealed-secrets-key -o yaml > sealed-secrets-key.backup.yaml
+> # restore on the new cluster BEFORE ArgoCD syncs sealed apps:
+> kubectl apply -f sealed-secrets-key.backup.yaml -n kube-system
+> ```
+> Also re-mint the Radar→ArgoCD token on a fresh install (account `radar`
+> is declarative in `infra/argocd`, but tokens don't transfer):
+> ```bash
+> # login as admin, then:
+> curl -sk -X POST https://<argocd-ts-host>/api/v1/account/radar/token \
+>   -H "Authorization: Bearer $ADMIN_TOKEN" -H 'Content-Type: application/json' \
+>   -d '{"id":"radar-ui"}'
+> # reseal into apps/radar-auth/sealed-secret.yaml with kubeseal
+> ```
+
 ### Vaultwarden API (ESO/bitwarden-cli)
 1. Vaultwarden vault → **Settings → Security → Keys → New API Key**.
 2. Copy the **Client ID** + **Client Secret** (`BW_HOST = https://truenas-scale`).

@@ -64,12 +64,15 @@ the Vaultwarden API credential setup.
 | netalertx    | `netalertx/netalertx` | `netalertx.netalertx.svc:20211` (hostNetwork) |
 | netdata      | `netdata/netdata` | `netdata.netdata.svc:19999` (hostNetwork)      |
 | hermes       | `nousresearch/hermes-agent` | `hermes.hermes.svc:8642/:9119` (+ Tailscale) |
+| kelos        | Helm chart `kelos-dev/kelos` v0.55.0 (+ console) | controller + console in `kelos-system` (+ Tailscale) |
+| caretta      | Helm chart `groundcover/caretta` 0.0.16 (eBPF net map + Grafana) | `caretta.caretta.svc` |
+| radar        | Helm chart `skyhook/radar` | `radar.radar.svc:9280` (+ Tailscale) |
 
 Radar's chart creates a **ClusterRole** to read the cluster; the AppProject
-whitelists `ClusterRole`/`ClusterRoleBinding` for that. Cert-manager is pinned
-to **v1.15.3** (newer needs Kubernetes ≥1.30; this is k3s 1.26) and its **CRDs
-are applied out-of-band** (ArgoCD's chart render doesn't manage them reliably;
-`prune` is disabled on that app to protect them).
+whitelists `ClusterRole`/`ClusterRoleBinding` (plus `tailscale.com Connector`
+and `external-secrets.io ClusterSecretStore`) for that. Cert-manager tracks
+the latest release with Helm-managed CRDs (`installCRDs=true` so controller
+and CRDs move together).
 
 ## DNS
 
@@ -79,14 +82,17 @@ Point these to the k3s node (`192.168.1.116`): `argocd`, `registry`,
 
 ## Notes
 
-- **Traefik is DISABLED** (controller scaled to 0) because the cluster's
-  pod-to-pod networking is broken and ingress 502s. All app IngressRoutes are
-  staged (commented) in `apps/ingress`. To enable ingress:
-  1. Fix the host CNI + `kubectl -n kube-system scale deploy traefik --replicas=1`.
-  2. Uncomment `apps/ingress/ingressroute.yaml`, its resource in
-     `apps/ingress/kustomization.yaml`, and `application-ingress.yaml` +
-     its line in `infra/argocd-apps/kustomization.yaml`.
-  3. `kubectl apply -k .`
+- **Traefik**: k3s-bundled, currently running (reinstalled by the k3s
+  upgrade) but **unused** — all UIs are served via Tailscale Ingresses
+  instead, and `apps/ingress` (Traefik IngressRoutes) stays staged/disabled.
+  The ArgoCD Traefik route was removed from `infra/argocd` (CRDs gone at the
+  time); do not re-add it without verifying the CRDs exist.
+- **metrics-server** (k3s-bundled) is intentionally **scaled to 0**: pods
+  have no route to host IPs (`192.168.1.116`), so it can never scrape the
+  kubelet and its APIService stays unavailable. Same root cause takes down
+  the node/kubelet targets in Prometheus. Fixing needs host access to
+  agent47 (CNI/routes/firewall) — not fixable via gitops.
+  `kubectl -n kube-system scale deploy metrics-server --replicas=1` to retry.
 - **TLS** not configured yet (Traefik serves HTTP on the `web` entrypoint).
   cert-manager is installed and ready; a **Let's Encrypt ClusterIssuer is
   staged (commented)** in `apps/cert-manager` — uncomment it once Traefik is up
