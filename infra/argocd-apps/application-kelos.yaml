@@ -17,6 +17,11 @@ spec:
         crds:
           install: true
           keep: true
+        # Chart defaults image.tag to "latest", which drifts ahead of the
+        # pinned chart (controller v0.55 expects v1alpha2 APIs while v0.43
+        # CRDs serve v1alpha1) -> CrashLoopBackOff. Pin to match.
+        image:
+          tag: "v0.43.0"
   destination:
     server: https://kubernetes.default.svc
     namespace: kelos-system
