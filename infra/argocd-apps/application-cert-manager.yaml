@@ -8,7 +8,7 @@ spec:
   source:
     repoURL: https://charts.jetstack.io
     chart: cert-manager
-    targetRevision: v1.15.3
+    targetRevision: v1.21.1
     # CRDs are applied out-of-band (see README) because ArgoCD's chart render
     # does not reliably emit cert-manager's CRDs, and newer cert-manager needs
     # Kubernetes >= 1.30 (this cluster is k3s 1.26 -> use v1.15.x).
