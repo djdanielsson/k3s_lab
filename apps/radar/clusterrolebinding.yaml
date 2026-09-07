@@ -1,0 +1,18 @@
+# Radar admin access: bind the chart's ServiceAccount to cluster-admin so
+# in-cluster actions (Helm ops, resource management) work from the UI.
+# Tailnet-only exposure; narrow this if Radar is ever exposed publicly.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: radar-admin
+  labels:
+    app.kubernetes.io/name: radar
+    app.kubernetes.io/instance: radar
+subjects:
+  - kind: ServiceAccount
+    name: radar
+    namespace: radar
+roleRef:
+  kind: ClusterRole
+  name: cluster-admin
+  apiGroup: rbac.authorization.k8s.io

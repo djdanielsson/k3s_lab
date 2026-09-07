@@ -1,0 +1,5 @@
+# Radar extras that don't belong in the upstream Helm values: RBAC.
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - clusterrolebinding.yaml

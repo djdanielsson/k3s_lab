@@ -1,0 +1,5 @@
+# Radar ArgoCD panel token (SealedSecret; unsealed by cluster controller).
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - sealed-secret.yaml

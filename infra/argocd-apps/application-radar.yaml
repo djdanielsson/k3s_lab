@@ -18,17 +18,11 @@ spec:
         # release storage.
         rbac:
           helm: true
-        # ArgoCD panel: uncomment once you've minted a token and created the
-        # `radar-argocd-token` Secret in the radar ns (see SECRETS notes):
-        #   argocd account login ... --admin --password <...>
-        #   argocd account create radar
-        #   argocd account generate-token --account radar
-        #   kubectl -n radar create secret generic radar-argocd-token \
-        #     --from-literal=token=<TOKEN>
-        # argocd:
-        #   existingSecret: radar-argocd-token
-        #   existingSecretKey: token
-        #   url: http://argocd-server.argocd.svc:80
+        # ArgoCD panel: token stored as SealedSecret (radar-auth app).
+        argocd:
+          existingSecret: radar-argocd-token
+          existingSecretKey: token
+          url: http://argocd-server.argocd.svc:80
   destination:
     server: https://kubernetes.default.svc
     namespace: radar

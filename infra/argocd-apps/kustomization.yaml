@@ -6,6 +6,8 @@ resources:
   - application-pantrywise.yaml
   - application-rustfs.yaml
   - application-radar.yaml
+  - application-radar-rbac.yaml
+  - application-radar-auth.yaml
   - application-caretta.yaml
   - application-cert-manager.yaml
   - application-sealed-secrets.yaml
