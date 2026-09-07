@@ -6,4 +6,3 @@ kind: Kustomization
 resources:
   - infra/argocd
   - infra/argocd-apps
-  - apps/kelos
