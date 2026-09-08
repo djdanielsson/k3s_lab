@@ -11,6 +11,6 @@ resources:
   - postgres-pvc.yaml
   - redis-deployment.yaml
   - redis-service.yaml
-  - sealed-secret.yaml
+  - external-secret.yaml
   - tailscale-ingress.yaml
   # NOTE: Traefik ingress for pantrywise lives in ../ingress (disabled).
