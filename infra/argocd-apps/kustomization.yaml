@@ -26,5 +26,6 @@ resources:
   - application-hermes.yaml
   - application-kelos.yaml
   - application-kelos-auth.yaml
+  - application-kelos-sessions.yaml
   - application-argocd-apps.yaml
   - application-kube-prometheus-stack.yaml

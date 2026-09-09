@@ -1,0 +1,28 @@
+# Interactive opencode Session pinned to deepseek-v4-flash (opencode-go
+# provider key reused from k3s/hermes-env via the credentials ExternalSecret).
+# No Workspace is pre-wired: connect and give it a repo URL to clone.
+apiVersion: kelos.dev/v1alpha2
+kind: Session
+metadata:
+  name: deepseek-v4-flash
+  namespace: kelos
+  labels:
+    app.kubernetes.io/part-of: kelos
+spec:
+  initialPrompt: |
+    What would you like to work on? Give me a git repository URL to clone
+    and I'll get started.
+  # 10Gi durable workspace; default storage class (local-path).
+  volumeClaimTemplate:
+    accessModes:
+      - ReadWriteOnce
+    resources:
+      requests:
+        storage: 10Gi
+  worker:
+    type: opencode
+    model: deepseek-v4-flash
+    credentials:
+      type: api-key
+      secretRef:
+        name: opencode-credentials
