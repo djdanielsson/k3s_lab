@@ -7,4 +7,3 @@ resources:
   - namespace.yaml
   - credentials.yaml
   - session-deepseek.yaml
-  - session-muse.yaml
