@@ -1,18 +1,15 @@
-# Interactive opencode Session pinned to deepseek-v4-flash (opencode-go
-# provider key reused from k3s/hermes-env via the credentials ExternalSecret).
-# No Workspace is pre-wired: connect and give it a repo URL to clone.
+# Session: bowlingrolling (PRIVATE, opencode-go/deepseek-v4-flash)
 apiVersion: kelos.dev/v1alpha2
 kind: Session
 metadata:
-  name: deepseek-v4-flash
+  name: bowlingrolling
   namespace: kelos
   labels:
     app.kubernetes.io/part-of: kelos
+    kelos.dev/repo: bowlingrolling
 spec:
   initialPrompt: |
-    What would you like to work on? Give me a git repository URL to clone
-    and I'll get started.
-  # 10Gi durable workspace; default storage class (local-path).
+    Ready to work on bowlingrolling. Ask what you should do or give me a task.
   volumeClaimTemplate:
     accessModes:
       - ReadWriteOnce
@@ -26,3 +23,5 @@ spec:
       type: api-key
       secretRef:
         name: opencode-credentials
+    workspaceRef:
+      name: workspace-bowlingrolling

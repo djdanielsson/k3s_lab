@@ -1,0 +1,13 @@
+# Workspace: book_project (PRIVATE)
+apiVersion: kelos.dev/v1alpha2
+kind: Workspace
+metadata:
+  name: workspace-book-project
+  namespace: kelos
+  labels:
+    app.kubernetes.io/part-of: kelos
+    kelos.dev/repo: book_project
+spec:
+  repo: https://github.com/kernel-konsulting/book_project.git
+  secretRef:
+    name: github-token

@@ -1,0 +1,27 @@
+# Session: book_project (PRIVATE, opencode-go/deepseek-v4-flash)
+apiVersion: kelos.dev/v1alpha2
+kind: Session
+metadata:
+  name: book-project
+  namespace: kelos
+  labels:
+    app.kubernetes.io/part-of: kelos
+    kelos.dev/repo: book_project
+spec:
+  initialPrompt: |
+    Ready to work on book_project. Ask what you should do or give me a task.
+  volumeClaimTemplate:
+    accessModes:
+      - ReadWriteOnce
+    resources:
+      requests:
+        storage: 10Gi
+  worker:
+    type: opencode
+    model: opencode-go/deepseek-v4-flash
+    credentials:
+      type: api-key
+      secretRef:
+        name: opencode-credentials
+    workspaceRef:
+      name: workspace-book-project

@@ -1,0 +1,13 @@
+# Workspace: pantrywise (PRIVATE)
+apiVersion: kelos.dev/v1alpha2
+kind: Workspace
+metadata:
+  name: workspace-pantrywise
+  namespace: kelos
+  labels:
+    app.kubernetes.io/part-of: kelos
+    kelos.dev/repo: pantrywise
+spec:
+  repo: https://github.com/kernel-konsulting/pantrywise.git
+  secretRef:
+    name: github-token

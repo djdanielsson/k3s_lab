@@ -1,0 +1,27 @@
+# Session: temp_website (PUBLIC, opencode-go/muse-spark-1.3-contributor)
+apiVersion: kelos.dev/v1alpha2
+kind: Session
+metadata:
+  name: temp-website
+  namespace: kelos
+  labels:
+    app.kubernetes.io/part-of: kelos
+    kelos.dev/repo: temp_website
+spec:
+  initialPrompt: |
+    Ready to work on temp_website. Ask what you should do or give me a task.
+  volumeClaimTemplate:
+    accessModes:
+      - ReadWriteOnce
+    resources:
+      requests:
+        storage: 10Gi
+  worker:
+    type: opencode
+    model: opencode-go/muse-spark-1.3-contributor
+    credentials:
+      type: api-key
+      secretRef:
+        name: opencode-credentials
+    workspaceRef:
+      name: workspace-temp-website

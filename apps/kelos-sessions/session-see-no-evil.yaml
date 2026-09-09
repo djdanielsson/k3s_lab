@@ -1,18 +1,15 @@
-# Interactive opencode Session pinned to muse-spark-1.3-contributor
-# (paid tier on the opencode-go provider, same key as deepseek session).
-# No Workspace is pre-wired: connect and give it a repo URL to clone.
+# Session: see-no-evil (PUBLIC, opencode-go/muse-spark-1.3-contributor)
 apiVersion: kelos.dev/v1alpha2
 kind: Session
 metadata:
-  name: muse-spark-1-3
+  name: see-no-evil
   namespace: kelos
   labels:
     app.kubernetes.io/part-of: kelos
+    kelos.dev/repo: see-no-evil
 spec:
   initialPrompt: |
-    What would you like to work on? Give me a git repository URL to clone
-    and I'll get started.
-  # 10Gi durable workspace; default storage class (local-path).
+    Ready to work on see-no-evil. Ask what you should do or give me a task.
   volumeClaimTemplate:
     accessModes:
       - ReadWriteOnce
@@ -26,3 +23,5 @@ spec:
       type: api-key
       secretRef:
         name: opencode-credentials
+    workspaceRef:
+      name: workspace-see-no-evil

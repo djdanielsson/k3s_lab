@@ -1,0 +1,13 @@
+# Workspace: learning (PRIVATE)
+apiVersion: kelos.dev/v1alpha2
+kind: Workspace
+metadata:
+  name: workspace-learning
+  namespace: kelos
+  labels:
+    app.kubernetes.io/part-of: kelos
+    kelos.dev/repo: learning
+spec:
+  repo: https://github.com/kernel-konsulting/learning.git
+  secretRef:
+    name: github-token

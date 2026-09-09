@@ -1,0 +1,13 @@
+# Workspace: bible_project (PRIVATE)
+apiVersion: kelos.dev/v1alpha2
+kind: Workspace
+metadata:
+  name: workspace-bible-project
+  namespace: kelos
+  labels:
+    app.kubernetes.io/part-of: kelos
+    kelos.dev/repo: bible_project
+spec:
+  repo: https://github.com/kernel-konsulting/bible_project.git
+  secretRef:
+    name: github-token

@@ -1,0 +1,13 @@
+# Workspace: OSB (PRIVATE)
+apiVersion: kelos.dev/v1alpha2
+kind: Workspace
+metadata:
+  name: workspace-osb
+  namespace: kelos
+  labels:
+    app.kubernetes.io/part-of: kelos
+    kelos.dev/repo: OSB
+spec:
+  repo: https://github.com/kernel-konsulting/OSB.git
+  secretRef:
+    name: github-token

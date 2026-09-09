@@ -1,0 +1,13 @@
+# Workspace: fb_messages (PRIVATE)
+apiVersion: kelos.dev/v1alpha2
+kind: Workspace
+metadata:
+  name: workspace-fb-messages
+  namespace: kelos
+  labels:
+    app.kubernetes.io/part-of: kelos
+    kelos.dev/repo: fb_messages
+spec:
+  repo: https://github.com/kernel-konsulting/fb_messages.git
+  secretRef:
+    name: github-token

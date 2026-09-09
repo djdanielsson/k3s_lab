@@ -1,0 +1,20 @@
+# Populates `github-token` used by private Workspaces for clone + gh auth.
+# Item: k3s/github-tokens, Custom Field token1 (see SECRETS.md).
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  name: github-token
+  namespace: kelos
+spec:
+  refreshInterval: 1h
+  secretStoreRef:
+    name: bitwarden-fields
+    kind: ClusterSecretStore
+  target:
+    name: github-token
+    creationPolicy: Owner
+  data:
+    - secretKey: GITHUB_TOKEN
+      remoteRef:
+        key: k3s/github-tokens
+        property: token1

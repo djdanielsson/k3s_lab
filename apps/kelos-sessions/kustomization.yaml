@@ -1,10 +1,50 @@
-# Preconfigured Kelos opencode Sessions (models pinned, durable workspaces,
-# creds from Vaultwarden) + the kelos namespace they live in.
+# Preconfigured Kelos sessions: one Workspace + Session per repo.
+# Private repos (deepseek-v4-flash) need github-token; public (muse-spark)
+# clone unauthenticated. Credentials from Vaultwarden.
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 namespace: kelos
 resources:
   - namespace.yaml
   - credentials.yaml
-  - session-deepseek.yaml
-  - session-muse-spark.yaml
+  - github-token.yaml
+  - workspace-bible-project.yaml
+  - workspace-book-project.yaml
+  - workspace-bowlingrolling.yaml
+  - workspace-complianceflow.yaml
+  - workspace-fb-messages.yaml
+  - workspace-fragmentsofthesoulwar.yaml
+  - workspace-language-trainer.yaml
+  - workspace-learning.yaml
+  - workspace-money-management.yaml
+  - workspace-osb.yaml
+  - workspace-pantrywise.yaml
+  - workspace-prayer-app.yaml
+  - workspace-ruling.yaml
+  - workspace-securepics.yaml
+  - workspace-see-no-evil-app.yaml
+  - workspace-see-no-evil.yaml
+  - workspace-spiritual-gifts.yaml
+  - workspace-tbrpg.yaml
+  - workspace-temp-website.yaml
+  - workspace-website.yaml
+  - session-bible-project.yaml
+  - session-book-project.yaml
+  - session-bowlingrolling.yaml
+  - session-complianceflow.yaml
+  - session-fb-messages.yaml
+  - session-fragmentsofthesoulwar.yaml
+  - session-language-trainer.yaml
+  - session-learning.yaml
+  - session-money-management.yaml
+  - session-osb.yaml
+  - session-pantrywise.yaml
+  - session-prayer-app.yaml
+  - session-ruling.yaml
+  - session-securepics.yaml
+  - session-see-no-evil-app.yaml
+  - session-see-no-evil.yaml
+  - session-spiritual-gifts.yaml
+  - session-tbrpg.yaml
+  - session-temp-website.yaml
+  - session-website.yaml

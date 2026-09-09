@@ -1,0 +1,13 @@
+# Workspace: tbrpg (PRIVATE)
+apiVersion: kelos.dev/v1alpha2
+kind: Workspace
+metadata:
+  name: workspace-tbrpg
+  namespace: kelos
+  labels:
+    app.kubernetes.io/part-of: kelos
+    kelos.dev/repo: tbrpg
+spec:
+  repo: https://github.com/kernel-konsulting/tbrpg.git
+  secretRef:
+    name: github-token

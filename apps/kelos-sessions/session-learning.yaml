@@ -1,0 +1,27 @@
+# Session: learning (PRIVATE, opencode-go/deepseek-v4-flash)
+apiVersion: kelos.dev/v1alpha2
+kind: Session
+metadata:
+  name: learning
+  namespace: kelos
+  labels:
+    app.kubernetes.io/part-of: kelos
+    kelos.dev/repo: learning
+spec:
+  initialPrompt: |
+    Ready to work on learning. Ask what you should do or give me a task.
+  volumeClaimTemplate:
+    accessModes:
+      - ReadWriteOnce
+    resources:
+      requests:
+        storage: 10Gi
+  worker:
+    type: opencode
+    model: opencode-go/deepseek-v4-flash
+    credentials:
+      type: api-key
+      secretRef:
+        name: opencode-credentials
+    workspaceRef:
+      name: workspace-learning

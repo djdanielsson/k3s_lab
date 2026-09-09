@@ -1,0 +1,13 @@
+# Workspace: prayer_app (PRIVATE)
+apiVersion: kelos.dev/v1alpha2
+kind: Workspace
+metadata:
+  name: workspace-prayer-app
+  namespace: kelos
+  labels:
+    app.kubernetes.io/part-of: kelos
+    kelos.dev/repo: prayer_app
+spec:
+  repo: https://github.com/kernel-konsulting/prayer_app.git
+  secretRef:
+    name: github-token

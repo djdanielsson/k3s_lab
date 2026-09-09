@@ -1,0 +1,13 @@
+# Workspace: FragmentsOfTheSoulWar (PRIVATE)
+apiVersion: kelos.dev/v1alpha2
+kind: Workspace
+metadata:
+  name: workspace-fragmentsofthesoulwar
+  namespace: kelos
+  labels:
+    app.kubernetes.io/part-of: kelos
+    kelos.dev/repo: FragmentsOfTheSoulWar
+spec:
+  repo: https://github.com/kernel-konsulting/FragmentsOfTheSoulWar.git
+  secretRef:
+    name: github-token

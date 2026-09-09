@@ -1,0 +1,13 @@
+# Workspace: complianceflow (PRIVATE)
+apiVersion: kelos.dev/v1alpha2
+kind: Workspace
+metadata:
+  name: workspace-complianceflow
+  namespace: kelos
+  labels:
+    app.kubernetes.io/part-of: kelos
+    kelos.dev/repo: complianceflow
+spec:
+  repo: https://github.com/kernel-konsulting/complianceflow.git
+  secretRef:
+    name: github-token

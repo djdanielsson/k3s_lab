@@ -1,0 +1,13 @@
+# Workspace: bowlingrolling (PRIVATE)
+apiVersion: kelos.dev/v1alpha2
+kind: Workspace
+metadata:
+  name: workspace-bowlingrolling
+  namespace: kelos
+  labels:
+    app.kubernetes.io/part-of: kelos
+    kelos.dev/repo: bowlingrolling
+spec:
+  repo: https://github.com/kernel-konsulting/bowlingrolling.git
+  secretRef:
+    name: github-token

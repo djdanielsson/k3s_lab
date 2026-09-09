@@ -1,0 +1,13 @@
+# Workspace: see-no-evil-app (PRIVATE)
+apiVersion: kelos.dev/v1alpha2
+kind: Workspace
+metadata:
+  name: workspace-see-no-evil-app
+  namespace: kelos
+  labels:
+    app.kubernetes.io/part-of: kelos
+    kelos.dev/repo: see-no-evil-app
+spec:
+  repo: https://github.com/kernel-konsulting/see-no-evil-app.git
+  secretRef:
+    name: github-token

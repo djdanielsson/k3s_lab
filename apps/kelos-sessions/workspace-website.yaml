@@ -1,0 +1,13 @@
+# Workspace: website (PRIVATE)
+apiVersion: kelos.dev/v1alpha2
+kind: Workspace
+metadata:
+  name: workspace-website
+  namespace: kelos
+  labels:
+    app.kubernetes.io/part-of: kelos
+    kelos.dev/repo: website
+spec:
+  repo: https://github.com/kernel-konsulting/website.git
+  secretRef:
+    name: github-token

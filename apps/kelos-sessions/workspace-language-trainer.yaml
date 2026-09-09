@@ -1,0 +1,13 @@
+# Workspace: language_trainer (PRIVATE)
+apiVersion: kelos.dev/v1alpha2
+kind: Workspace
+metadata:
+  name: workspace-language-trainer
+  namespace: kelos
+  labels:
+    app.kubernetes.io/part-of: kelos
+    kelos.dev/repo: language_trainer
+spec:
+  repo: https://github.com/kernel-konsulting/language_trainer.git
+  secretRef:
+    name: github-token
