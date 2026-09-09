@@ -21,7 +21,7 @@ spec:
         storage: 10Gi
   worker:
     type: opencode
-    model: deepseek-v4-flash
+    model: opencode-go/deepseek-v4-flash
     credentials:
       type: api-key
       secretRef:
