@@ -61,7 +61,7 @@ spec:
           # digest-update PR whenever the build moves (no newer versioned tag is
           # cut between releases; e.g. v2026.8.31 was the newest tag while the
           # Sep 7 opencode-go fix lived only on `latest`).
-          image: nousresearch/hermes-agent:latest@sha256:7cfea470ba7f6b52f063edad57c98683f0442ec0a613a084841414e731263670
+          image: nousresearch/hermes-agent:latest@sha256:244d854456487aaa6d74a869c38df23ae368d45a7d21635084a26aa58e96e1f8
           imagePullPolicy: IfNotPresent
           # Pass subcommand via args so the image entrypoint stays PID 1 and
           # s6 supervision stays active (do NOT override `command:`).
