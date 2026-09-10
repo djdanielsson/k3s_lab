@@ -27,7 +27,7 @@ spec:
             - "truenas-scale"
       containers:
         - name: bitwarden-cli
-          image: ghcr.io/morey-tech/bitwarden-cli:2025.12.1
+          image: ghcr.io/morey-tech/bitwarden-cli:2026.8.0
           env:
             - name: NODE_TLS_REJECT_UNAUTHORIZED
               value: "0"
