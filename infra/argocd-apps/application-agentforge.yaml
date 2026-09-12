@@ -1,0 +1,70 @@
+# AgentForge control plane.
+#
+# The chart lives in the private djdanielsson/agentforge repository, which
+# ArgoCD reaches through the `repo-agentforge` credential in the argocd
+# namespace. Deliberately not vendored here, so the chart has one source of
+# truth.
+#
+# There are no credentials in this file: this repository is public. The
+# database Secret is created out of band and named by
+# `postgres.auth.existingSecret`. It must contain `database-url` and
+# `postgres-password` and must exist before the first sync.
+#
+# Images are built into the in-cluster registry by a Kaniko Job. The tag is the
+# AgentForge commit they were built from, which makes a rollback a one-line
+# change here.
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: agentforge
+  namespace: argocd
+spec:
+  project: k3s-lab
+  source:
+    repoURL: https://github.com/djdanielsson/agentforge
+    targetRevision: main
+    path: deploy/helm/agentforge
+    helm:
+      releaseName: agentforge
+      values: |
+        api:
+          image:
+            repository: registry.registry.svc:5000/agentforge-api
+            tag: "1e8d63f"
+        orchestrator:
+          image:
+            repository: registry.registry.svc:5000/agentforge-orchestrator
+            tag: "1e8d63f"
+        web:
+          image:
+            repository: registry.registry.svc:5000/agentforge-web
+            tag: "1e8d63f"
+
+        # The chart does not own the database credentials; the
+        # agentforge/agentforge-db Secret does.
+        postgres:
+          auth:
+            existingSecret: agentforge-db
+
+        config:
+          environment: production
+          workspaceProvider: kubernetes
+          # Workspace pods pull the same images the control plane uses for the
+          # agent runtime. Left at the upstream defaults for the first run so a
+          # failure there is unambiguous.
+          workspaceNamespacePrefix: af
+
+        # The dashboard has no way to supply an API key yet, and nothing
+        # exposes this API outside the cluster. Turn this on before adding an
+        # Ingress.
+        auth:
+          enabled: false
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: agentforge
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

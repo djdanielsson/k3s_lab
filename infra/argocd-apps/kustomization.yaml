@@ -29,3 +29,4 @@ resources:
   - application-kelos-sessions.yaml
   - application-argocd-apps.yaml
   - application-kube-prometheus-stack.yaml
+  - application-agentforge.yaml
