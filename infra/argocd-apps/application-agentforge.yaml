@@ -59,6 +59,14 @@ spec:
         # Ingress.
         auth:
           enabled: false
+
+        # Reachable on the tailnet at
+        # https://agentforge-agentforge-ts-ingress.tail7f3c08.ts.net (the
+        # operator derives the name from the namespace and the object name).
+        # This is the only exposure: there is no LAN ingress and no public
+        # route, so the tailnet ACLs are the boundary while auth stays off.
+        tailscaleIngress:
+          enabled: true
   destination:
     server: https://kubernetes.default.svc
     namespace: agentforge
