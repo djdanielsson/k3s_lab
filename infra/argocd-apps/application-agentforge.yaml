@@ -54,6 +54,15 @@ spec:
           # failure there is unambiguous.
           workspaceNamespacePrefix: af
 
+        # The gateway is what turns an agent's `model` alias into a real call,
+        # so it ships with the app. `local-coder` runs on the bundled Ollama;
+        # `fast`/`smart` start working as soon as their keys are filled into the
+        # k3s/litellm Vaultwarden item (see apps/agentforge/external-secret.yaml).
+        llm:
+          enabled: true
+          ollama:
+            enabled: true
+
         # The dashboard has no way to supply an API key yet, and nothing
         # exposes this API outside the cluster. Turn this on before adding an
         # Ingress.

@@ -30,3 +30,4 @@ resources:
   - application-argocd-apps.yaml
   - application-kube-prometheus-stack.yaml
   - application-agentforge.yaml
+  - application-agentforge-secrets.yaml
