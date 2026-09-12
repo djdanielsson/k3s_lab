@@ -34,7 +34,7 @@ spec:
         orchestrator:
           image:
             repository: registry.registry.svc:5000/agentforge-orchestrator
-            tag: "761bfe6"
+            tag: "8694c68"
         web:
           image:
             repository: registry.registry.svc:5000/agentforge-web
