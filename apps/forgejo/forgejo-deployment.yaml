@@ -30,9 +30,9 @@ spec:
             - name: TZ
               value: UTC
             - name: FORGEJO__server__ROOT_URL
-              value: http://forgejo.k3s.lab.danielsson.us.com/
+              value: https://forgejo-forgejo-ts-ingress.tail7f3c08.ts.net/
             - name: FORGEJO__server__DOMAIN
-              value: forgejo.k3s.lab.danielsson.us.com
+              value: forgejo-forgejo-ts-ingress.tail7f3c08.ts.net
             - name: FORGEJO__server__DISABLE_SSH
               value: "true"
             - name: FORGEJO__database__DB_TYPE
