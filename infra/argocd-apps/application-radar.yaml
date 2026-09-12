@@ -8,7 +8,7 @@ spec:
   source:
     repoURL: https://skyhook-io.github.io/helm-charts
     chart: radar
-    targetRevision: 1.12.2
+    targetRevision: 1.13.0
     helm:
       values: |
         # Traffic source -> Caretta's own VictoriaMetrics store (caretta-vm),
