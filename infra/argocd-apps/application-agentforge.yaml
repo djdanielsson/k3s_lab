@@ -30,15 +30,15 @@ spec:
         api:
           image:
             repository: registry.registry.svc:5000/agentforge-api
-            tag: "72430ae"
+            tag: "ab45afd"
         orchestrator:
           image:
             repository: registry.registry.svc:5000/agentforge-orchestrator
-            tag: "72430ae"
+            tag: "ab45afd"
         web:
           image:
             repository: registry.registry.svc:5000/agentforge-web
-            tag: "72430ae"
+            tag: "ab45afd"
 
         # The chart does not own the database credentials; the
         # agentforge/agentforge-db Secret does.
