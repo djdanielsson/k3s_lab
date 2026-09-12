@@ -30,7 +30,7 @@ spec:
         api:
           image:
             repository: registry.registry.svc:5000/agentforge-api
-            tag: "dd9b6e7"
+            tag: "fc832d8"
         orchestrator:
           image:
             repository: registry.registry.svc:5000/agentforge-orchestrator
