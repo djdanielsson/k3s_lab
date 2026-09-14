@@ -30,15 +30,15 @@ spec:
         api:
           image:
             repository: registry.registry.svc:5000/agentforge-api
-            tag: "6f5005c"
+            tag: "c5517f4"
         orchestrator:
           image:
             repository: registry.registry.svc:5000/agentforge-orchestrator
-            tag: "6f5005c"
+            tag: "c5517f4"
         web:
           image:
             repository: registry.registry.svc:5000/agentforge-web
-            tag: "6f5005c"
+            tag: "c5517f4"
 
         # The chart does not own the database credentials; the
         # agentforge/agentforge-db Secret does.
@@ -49,15 +49,19 @@ spec:
         config:
           environment: production
           workspaceProvider: kubernetes
-          # Workspace pods pull the same images the control plane uses for the
-          # agent runtime. Left at the upstream defaults for the first run so a
-          # failure there is unambiguous.
           workspaceNamespacePrefix: af
+          # The stock OpenHands image cannot run its agent in-pod: the local
+          # runtime wants tmux and a browser. This is the image built from
+          # deploy/images/openhands/ by the in-cluster Kaniko pipeline.
+          workspaceAgentImage: registry.registry.svc:5000/agentforge-openhands:c5517f4
+          # Patched to the tag below by the release process; the chart default is
+          # the upstream image, which is only useful once the gaps are closed.
+          workspaceAgentRuntime: local
 
-        # The gateway is what turns an agent's `model` alias into a real call,
-        # so it ships with the app. `local-coder` runs on the bundled Ollama;
-        # `fast`/`smart` start working as soon as their keys are filled into the
-        # k3s/litellm Vaultwarden item (see apps/agentforge/external-secret.yaml).
+        # The gateway is what turns an agent's `model` alias into a real call, so
+        # it ships with the app: `local-coder` on the bundled Ollama, and `fast`
+        # /`smart` through OpenCode Go, whose key this cluster already holds for
+        # Hermes. See apps/agentforge/external-secret.yaml for the field names.
         llm:
           enabled: true
           ollama:
