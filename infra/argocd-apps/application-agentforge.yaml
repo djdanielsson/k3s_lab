@@ -30,15 +30,15 @@ spec:
         api:
           image:
             repository: registry.registry.svc:5000/agentforge-api
-            tag: "83d7e59"
+            tag: "6f832b3"
         orchestrator:
           image:
             repository: registry.registry.svc:5000/agentforge-orchestrator
-            tag: "83d7e59"
+            tag: "6f832b3"
         web:
           image:
             repository: registry.registry.svc:5000/agentforge-web
-            tag: "83d7e59"
+            tag: "6f832b3"
 
         # The chart does not own the database credentials; the
         # agentforge/agentforge-db Secret does.
@@ -53,7 +53,7 @@ spec:
           # The stock OpenHands image cannot run its agent in-pod: the local
           # runtime wants tmux and a browser. This is the image built from
           # deploy/images/openhands/ by the in-cluster Kaniko pipeline.
-          workspaceAgentImage: registry.registry.svc:5000/agentforge-openhands:83d7e59
+          workspaceAgentImage: registry.registry.svc:5000/agentforge-openhands:6f832b3
           # Patched to the tag below by the release process; the chart default is
           # the upstream image, which is only useful once the gaps are closed.
           workspaceAgentRuntime: local
