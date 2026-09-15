@@ -8,7 +8,7 @@ spec:
   source:
     repoURL: https://opencost.github.io/opencost-helm-chart
     chart: opencost
-    targetRevision: 2.5.30
+    targetRevision: 2.5.31
     helm:
       values: |
         # Use the in-cluster kube-prometheus-stack Prometheus instead of
