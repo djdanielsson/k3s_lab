@@ -76,3 +76,16 @@ Item names must be unique (the bridge searches by exact name).
 | `k3s/radar-argocd-token` | Custom field | field `token` — ArgoCD API token for account `radar` (mint after install, see §1 note) |
 | `k3s/forgejo-secrets` | Custom fields| `db-name`, `db-user`, `db-password` — **must match the live `forgejo-secrets` Secret** or Forgejo loses its database on redeploy |
 | `k3s/pantrywise-secrets` | Custom fields | `database-url`, `jwt-secret`, `postgres-db`, `postgres-user`, `postgres-password` — **must match the live `pantrywise-secrets` Secret** |
+| `k3s/admin-kubeconfig` | Secure Note | **Notes** = a complete kubeconfig for the operator's own kubectl access over Tailscale; also fields `token` and `server`. Subject: ServiceAccount `david` in ns `admin-access` (cluster-admin). Tokens expire — re-mint and update the note when it stops working (see below). |
+
+### Rotating the admin kubeconfig (`k3s/admin-kubeconfig`)
+
+```bash
+# mint a fresh token (any workload with cluster access, e.g. the hermes pod)
+kubectl -n admin-access create token david --duration=8760h
+# build a kubeconfig with server https://100.93.49.21:6443 and the cluster CA,
+# paste into the vault item's Notes; client certs are NOT used (token auth).
+```
+
+The token is a bearer credential with no separate Secret object — nothing to
+delete on rotation; the old one simply expires.
