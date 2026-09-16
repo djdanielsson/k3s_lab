@@ -1,0 +1,6 @@
+# Cluster-admin ServiceAccount for the operator's own kubectl access.
+# Token is minted on demand (never committed) — see README.
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - admin.yaml

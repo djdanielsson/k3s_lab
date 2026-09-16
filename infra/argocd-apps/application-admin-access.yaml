@@ -1,0 +1,20 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: admin-access
+  namespace: argocd
+spec:
+  project: k3s-lab
+  source:
+    repoURL: https://github.com/djdanielsson/k3s_lab
+    targetRevision: main
+    path: apps/admin-access
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: admin-access
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

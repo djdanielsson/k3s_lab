@@ -24,6 +24,7 @@ resources:
   - application-tailscale-operator.yaml
   - application-tailscale-ingress.yaml
   - application-hermes.yaml
+  - application-admin-access.yaml
   - application-kelos.yaml
   - application-kelos-auth.yaml
   - application-kelos-sessions.yaml

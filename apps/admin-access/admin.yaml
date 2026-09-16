@@ -1,0 +1,34 @@
+# Dedicated cluster-admin identity for the operator's own kubectl use.
+# Deliberately separate from the hermes SA (revoking/rotating this one must
+# not break the in-cluster agent). No token Secret is committed — mint
+# short-lived tokens on demand:
+#   kubectl -n admin-access create token david --duration=24h
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: admin-access
+  labels:
+    app.kubernetes.io/name: admin-access
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: david
+  namespace: admin-access
+  labels:
+    app.kubernetes.io/name: admin-access
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: david-cluster-admin
+  labels:
+    app.kubernetes.io/name: admin-access
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cluster-admin
+subjects:
+  - kind: ServiceAccount
+    name: david
+    namespace: admin-access
