@@ -80,6 +80,42 @@ Point these to the k3s node (`192.168.1.116`): `argocd`, `registry`,
 `pantrywise`, `rustfs` (console), `radar` — all as
 `<name>.k3s.lab.danielsson.us.com`.
 
+## Remote kubectl access (over Tailscale)
+
+The k3s API server is reachable from any tailnet device — **no extra route
+needed**. The node `agent47` is itself a tailnet device (`100.93.49.21`), and
+the API server cert already carries both that IP and the LAN IP in its SAN:
+
+```
+DNS: agent47, agent47.lab.danielsson.us.com
+IP:  100.93.49.21 (tailnet), 192.168.1.116 (LAN)
+```
+
+Two paths, both already working (`curl -k https://<addr>:6443/version` → 401):
+
+| Path | Address | Needs |
+|------|---------|-------|
+| Node's own tailnet IP | `https://100.93.49.21:6443` | just Tailscale up (peer-to-peer) |
+| LAN IP via subnet router | `https://192.168.1.116:6443` | client must accept subnet routes (`192.168.1.0/24`) |
+
+Make a laptop kubeconfig by rewriting only the server line of the node's
+`/etc/rancher/k3s/k3s.yaml` (client certs are location-independent):
+
+```bash
+cp /etc/rancher/k3s/k3s.yaml ~/.kube/k3s-tailnet.yaml   # on the node
+sed -i 's#https://127.0.0.1:6443#https://100.93.49.21:6443#' ~/.kube/k3s-tailnet.yaml
+# then on the laptop:
+export KUBECONFIG=~/.kube/k3s-tailnet.yaml && kubectl get nodes
+```
+
+`100.93.49.21` is preferred over the LAN IP: it works off-LAN too and needs no
+subnet-route acceptance. The bundled client cert is **cluster-admin** — carry
+it only on trusted devices. For per-identity access instead, the Tailscale
+operator can expose the API server as a `ProxyGroup` (`type: kube-apiserver`,
+`mode: auth`) so kubectl authenticates by tailnet identity against normal k8s
+RBAC — that path needs `apiServerProxyConfig.allowImpersonation=true` on the
+operator plus a tailnet grant + service auto-approver.
+
 ## Notes
 
 - **Traefik**: k3s-bundled, currently running (reinstalled by the k3s
