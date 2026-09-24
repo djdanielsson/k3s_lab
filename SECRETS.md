@@ -76,6 +76,7 @@ Item names must be unique (the bridge searches by exact name).
 | `k3s/radar-argocd-token` | Custom field | field `token` — ArgoCD API token for account `radar` (mint after install, see §1 note) |
 | `k3s/forgejo-secrets` | Custom fields| `db-name`, `db-user`, `db-password` — **must match the live `forgejo-secrets` Secret** or Forgejo loses its database on redeploy |
 | `k3s/pantrywise-secrets` | Custom fields | `database-url`, `jwt-secret`, `postgres-db`, `postgres-user`, `postgres-password` — **must match the live `pantrywise-secrets` Secret** |
+| `k3s/omnigent`        | Custom fields | `POSTGRES_PASSWORD` — postgres superuser password, and the value the server's `DATABASE_URL` is composed from; `OMNIGENT_ACCOUNTS_COOKIE_SECRET` — **must be a hex string** (the server refuses to start on anything else). Omnigent's *model* credential is not here: it comes from `k3s/litellm` field `LITELLM_MASTER_KEY`, because every model call goes to the in-cluster LiteLLM, whose master key is its only valid credential. |
 | `k3s/admin-kubeconfig` | Secure Note | **Notes** = a complete kubeconfig for the operator's own kubectl access over Tailscale; also fields `token` and `server`. Subject: ServiceAccount `david` in ns `admin-access` (cluster-admin). Tokens expire — re-mint and update the note when it stops working (see below). |
 
 ### Rotating the admin kubeconfig (`k3s/admin-kubeconfig`)

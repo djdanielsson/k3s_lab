@@ -24,6 +24,17 @@ spec:
         app: omnigent
     spec:
       serviceAccountName: omnigent
+      initContainers:
+        # The server's entrypoint runs DB migrations and exits if postgres is not
+        # accepting yet, so without this a from-scratch deploy costs one
+        # CrashLoop-restart cycle before it comes up. Pod restarts hide it; a
+        # clean install should not need them.
+        - name: wait-for-postgres
+          image: docker.io/library/postgres:17-alpine
+          command:
+            - sh
+            - -c
+            - until pg_isready -h omnigent-postgres -p 5432 -U omnigent -d omnigent; do echo waiting for postgres; sleep 2; done
       containers:
         - name: omnigent
           # Upstream publishes this image as a rolling tag; pinning a digest here
