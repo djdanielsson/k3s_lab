@@ -1,5 +1,11 @@
 # The server. Also the namespace the tailscale Ingress binds its node from.
+#
+# Wave -1: this app spans two namespaces, and ArgoCD does not order namespaced
+# resources behind a Namespace object that is merely part of the same app. The
+# sync fails with `namespaces "omnigent-sandboxes" not found` without this.
 apiVersion: v1
 kind: Namespace
 metadata:
   name: omnigent
+  annotations:
+    argocd.argoproj.io/sync-wave: "-1"
