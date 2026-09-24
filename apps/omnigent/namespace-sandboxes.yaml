@@ -1,0 +1,8 @@
+# Runner Pods land here, NOT in the server's namespace. The provider's own
+# default, and the reason it is a separate namespace is blast radius: the
+# server's ServiceAccount is granted pod/job/secret rights in *this* namespace
+# only (see sandbox-rbac.yaml), never in its own.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: omnigent-sandboxes

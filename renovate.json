@@ -55,6 +55,16 @@
       ]
     },
     {
+      "description": "bitwarden-cli: pinned — the 2026.x CLI breaks the ESO webhook bridge (Host allowlist on `bw serve --hostname`, and crashes on URL-encoded search terms), which silently fails every ExternalSecret. See apps/eso-bitwarden/deployment.yaml.",
+      "matchDatasources": [
+        "docker"
+      ],
+      "matchPackageNames": [
+        "ghcr.io/morey-tech/bitwarden-cli"
+      ],
+      "enabled": false
+    },
+    {
       "description": "kube-prometheus-stack capped at <59: 59+ targets newer k8s than this cluster (see the chart comment in the Application)",
       "matchDatasources": [
         "helm"

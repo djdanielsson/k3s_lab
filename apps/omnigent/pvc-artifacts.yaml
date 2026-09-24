@@ -1,0 +1,13 @@
+# Session artifacts and the admin credentials file the server writes on first
+# boot.
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: omnigent-artifacts
+  namespace: omnigent
+spec:
+  accessModes: [ReadWriteOnce]
+  storageClassName: local-path
+  resources:
+    requests:
+      storage: 10Gi

@@ -1,0 +1,51 @@
+# The server config, mounted at /data/server-config.yaml and pointed at by
+# OMNIGENT_CONFIG. Three things in here were established the hard way; they are
+# load-bearing, not stylistic:
+#
+#   1. `provider: kubernetes` with a runner namespace and a credentials Secret
+#      name, rather than the (also supported) OpenShell provider. OpenShell's
+#      Kubernetes sandbox runtime publishes a synthetic DNS view to the sandbox
+#      and needs an upgraded, incompatible gateway to do it, so the host's
+#      websocket tunnel to the server never connected. Plain runner Pods have
+#      ordinary cluster networking and connect on the first try.
+#   2. Each provider family lane needs `models.default`. Pi's credential
+#      resolver silently drops a family whose default model is unset, then
+#      "Pi will use its own login" and 401s against whatever it defaults to.
+#   3. There is no `anthropic` lane on purpose (see external-secret-runner.yaml).
+#      `default:` names the families the provider serves, not harnesses, and the
+#      key must be `api_key_ref` — the server rejects an inline `api_key:`.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: omnigent-server-config
+  namespace: omnigent
+data:
+  config.yaml: |
+    sandbox:
+      provider: kubernetes
+      server_url: http://omnigent.omnigent.svc.cluster.local
+      kubernetes:
+        namespace: omnigent-sandboxes
+        secret_name: omnigent-runner-llm
+      host_config:
+        providers:
+          litellm:
+            kind: gateway
+            default: [openai]
+            openai:
+              base_url: http://agentforge-llm.agentforge.svc.cluster.local:4000/v1
+              api_key_ref: env:OPENAI_API_KEY
+              wire_api: chat
+              models:
+                default: smart
+        inference:
+          harnesses:
+            pi:
+              provider: litellm
+              default_model: smart
+            codex-native:
+              provider: litellm
+              default_model: smart
+            opencode-native:
+              provider: litellm
+              default_model: smart

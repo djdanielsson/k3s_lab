@@ -1,0 +1,74 @@
+# The Omnigent server. The kubernetes-provider image (not the default one): the
+# stock server image ships no Kubernetes client, so it cannot launch sandboxes.
+#
+# The ServiceAccount matters: with the default SA the sandbox launcher gets 403
+# on every create in the runner namespace, and the failure surfaces only as
+# "Host refused runner launch" in the server log.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: omnigent
+  namespace: omnigent
+  labels:
+    app: omnigent
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: omnigent
+  template:
+    metadata:
+      labels:
+        app: omnigent
+    spec:
+      serviceAccountName: omnigent
+      containers:
+        - name: omnigent
+          # Upstream publishes this image as a rolling tag; pinning a digest here
+          # would fight the project's release cadence, so this is the one place a
+          # mutable tag is tolerated. Roll a restart after a pull to use it.
+          image: ghcr.io/omnigent-ai/omnigent-server-kubernetes:latest
+          imagePullPolicy: Always
+          env:
+            - name: OMNIGENT_CONFIG
+              value: /data/server-config.yaml
+          envFrom:
+            - configMapRef:
+                name: omnigent-config
+            - secretRef:
+                name: omnigent-secrets
+          ports:
+            - name: http
+              containerPort: 8000
+              protocol: TCP
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 20
+            periodSeconds: 30
+          resources:
+            limits: { memory: 2Gi }
+            requests: { cpu: 250m, memory: 512Mi }
+          volumeMounts:
+            - name: server-config
+              mountPath: /data/server-config.yaml
+              subPath: config.yaml
+              readOnly: true
+            - name: artifacts
+              mountPath: /data/artifacts
+      volumes:
+        - name: server-config
+          configMap:
+            name: omnigent-server-config
+        - name: artifacts
+          persistentVolumeClaim:
+            claimName: omnigent-artifacts

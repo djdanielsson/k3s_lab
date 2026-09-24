@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: omnigent-postgres
+  namespace: omnigent
+  labels:
+    app: omnigent-postgres
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: omnigent-postgres
+  template:
+    metadata:
+      labels:
+        app: omnigent-postgres
+    spec:
+      containers:
+        - name: postgres
+          image: docker.io/library/postgres:17-alpine
+          env:
+            - name: POSTGRES_USER
+              value: omnigent
+            - name: POSTGRES_DB
+              value: omnigent
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: omnigent-pg
+                  key: POSTGRES_PASSWORD
+            - name: PGDATA
+              value: /var/lib/postgresql/data/pgdata
+          ports:
+            - name: pg
+              containerPort: 5432
+              protocol: TCP
+          readinessProbe:
+            exec:
+              command: [pg_isready, -U, omnigent, -d, omnigent]
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          resources:
+            limits: { memory: 1Gi }
+            requests: { cpu: 100m, memory: 256Mi }
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/postgresql/data
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: omnigent-pg-data

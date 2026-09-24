@@ -1,0 +1,17 @@
+# Publishes the server on the tailnet as
+# omnigent-omnigent-ingress.tail7f3c08.ts.net (the name the config ConfigMap's
+# two URLs must match).
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: omnigent
+  namespace: omnigent
+  labels:
+    app: omnigent
+spec:
+  ingressClassName: tailscale
+  defaultBackend:
+    service:
+      name: omnigent
+      port:
+        number: 80

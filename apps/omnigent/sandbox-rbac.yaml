@@ -1,0 +1,41 @@
+# What the Omnigent server may do inside the runner namespace, and nothing
+# more. Scoped to exactly the calls its kubernetes provider makes
+# (list/read/delete runner Pods and their logs, create/delete the per-runner
+# token Secret, create/get/delete the runner Job, read events).
+#
+# Note the subject: the server's ServiceAccount, cross-namespace. It is bound
+# here rather than in the omnigent namespace, so a compromised server cannot
+# touch anything but runners.
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: omnigent-runner
+  namespace: omnigent-sandboxes
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: omnigent-sandbox-manager
+  namespace: omnigent-sandboxes
+rules:
+  - apiGroups: [""]
+    resources: [pods, pods/log, events, secrets]
+    verbs: [get, list, watch, create, delete]
+  - apiGroups: [batch]
+    resources: [jobs]
+    verbs: [get, list, create, delete]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: omnigent-sandbox-manager
+  namespace: omnigent-sandboxes
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: omnigent-sandbox-manager
+subjects:
+  - kind: ServiceAccount
+    name: omnigent
+    namespace: omnigent

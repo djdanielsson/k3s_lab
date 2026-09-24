@@ -1,0 +1,5 @@
+# The server. Also the namespace the tailscale Ingress binds its node from.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: omnigent

@@ -1,0 +1,25 @@
+# Omnigent: self-hosted agent harness server, one runner Pod per session in a
+# separate namespace. Secrets come from Vaultwarden (k3s/omnigent + k3s/litellm)
+# via ExternalSecrets owned by this Application, so nothing here is sensitive.
+#
+# Add to infra/argocd-apps/kustomization.yaml when adding this app.
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: omnigent
+  namespace: argocd
+spec:
+  project: k3s-lab
+  source:
+    repoURL: https://github.com/djdanielsson/k3s_lab
+    targetRevision: main
+    path: apps/omnigent
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: omnigent
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

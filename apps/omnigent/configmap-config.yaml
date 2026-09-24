@@ -1,0 +1,19 @@
+# Server process environment. The two URLs must match the tailscale Ingress
+# name (omnigent-omnigent-ingress): they are what the browser is redirected to
+# and what the WebSocket upgrade is checked against.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: omnigent-config
+  namespace: omnigent
+data:
+  HOST: 0.0.0.0
+  PORT: "8000"
+  ARTIFACT_DIR: /data/artifacts
+  OMNIGENT_ADMIN_CREDENTIALS_PATH: /data/admin-credentials
+  OMNIGENT_AUTH_ENABLED: "1"
+  OMNIGENT_AUTH_PROVIDER: accounts
+  OMNIGENT_ACCOUNTS_AUTO_OPEN: "0"
+  OMNIGENT_ACCOUNTS_BASE_URL: https://omnigent-omnigent-ingress.tail7f3c08.ts.net
+  OMNIGENT_WS_ALLOWED_ORIGINS: https://omnigent-omnigent-ingress.tail7f3c08.ts.net
+  OMNIGENT_FEATURES: ""

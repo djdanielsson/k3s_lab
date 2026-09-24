@@ -1,0 +1,19 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - namespace.yaml
+  - namespace-sandboxes.yaml
+  - serviceaccount.yaml
+  - sandbox-rbac.yaml
+  - external-secret-pg.yaml
+  - external-secret-omnigent.yaml
+  - external-secret-runner.yaml
+  - configmap-config.yaml
+  - configmap-server-config.yaml
+  - pvc-artifacts.yaml
+  - pvc-pg-data.yaml
+  - deployment-postgres.yaml
+  - deployment-omnigent.yaml
+  - service-postgres.yaml
+  - service-omnigent.yaml
+  - tailscale-ingress.yaml
