@@ -1,0 +1,41 @@
+# LiteLLM gateway: one OpenAI-compatible endpoint that turns a model alias into
+# a real call. Extracted from the AgentForge chart, which used to host it inside
+# the agentforge namespace — omnigent routes every model call through here, so
+# the gateway outlives the app it was born in.
+#
+# Aliases:
+#   fast  -> deepseek-v4-flash    via OpenCode Go
+#   smart -> deepseek-v4.1-flash  via OpenCode Go
+#
+# The `local-coder` alias (agentforge-ollama) is deliberately gone: the Ollama
+# instance it pointed at was deleted with AgentForge, so keeping the alias would
+# only turn a missing backend into a confusing 500. Re-add it here, with the
+# model, if a local model comes back.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: litellm
+  namespace: litellm
+data:
+  config.yaml: |
+    model_list:
+      - model_name: fast
+        litellm_params:
+          model: openai/deepseek-v4-flash
+          api_base: https://opencode.ai/zen/go/v1
+          api_key: os.environ/OPENCODE_GO_API_KEY
+          extra_headers: {"x-opencode-session":"litellm"}
+      - model_name: smart
+        litellm_params:
+          model: openai/deepseek-v4.1-flash
+          api_base: https://opencode.ai/zen/go/v1
+          api_key: os.environ/OPENCODE_GO_API_KEY
+          extra_headers: {"x-opencode-session":"litellm"}
+
+    litellm_settings:
+      drop_params: true
+
+    general_settings:
+      # Clients authenticate with this. It is the only valid credential: there
+      # is no key database behind the gateway.
+      master_key: os.environ/LITELLM_MASTER_KEY

@@ -33,7 +33,7 @@ data:
             kind: gateway
             default: [openai]
             openai:
-              base_url: http://agentforge-llm.agentforge.svc.cluster.local:4000/v1
+              base_url: http://litellm.litellm.svc.cluster.local:4000/v1
               api_key_ref: env:OPENAI_API_KEY
               wire_api: chat
               models:

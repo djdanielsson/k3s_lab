@@ -33,3 +33,4 @@ resources:
   - application-agentforge.yaml
   - application-omnigent.yaml
   - application-agentforge-secrets.yaml
+  - application-litellm.yaml
