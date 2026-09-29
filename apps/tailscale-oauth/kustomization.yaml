@@ -1,0 +1,8 @@
+# The operator's OAuth credential, kept in Vaultwarden instead of applied by
+# hand. Separate from apps/tailscale-operator because that Application sources
+# the upstream Helm chart straight from github.com/tailscale/tailscale and has no
+# path in this repo to add a manifest to.
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - external-secret.yaml

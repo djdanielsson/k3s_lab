@@ -20,5 +20,8 @@ signature of this class of breakage.
 - Namespace: `tailscale`
 - Connector `k3s` (subnet router + exit node, `tag:k3s`) advertises:
   `192.168.1.0/24`, `10.42.0.0/16`, `10.43.0.0/16`.
-- OAuth creds: `operator-oauth` / `tailscale-oauth` SealedSecrets.
+- OAuth creds: `operator-oauth`, synced from the `k3s/tailscale` Vaultwarden item
+  by the `tailscale-oauth` Application in this repo (`apps/tailscale-oauth`).
+  The `tailscale-oauth` Secret was a dead hand-applied duplicate and has been
+  deleted; `operator-oauth` is the one the Deployment mounts at `/oauth/`.
 - Tailnet: `tail7f3c08.ts.net`

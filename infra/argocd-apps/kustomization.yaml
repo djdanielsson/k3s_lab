@@ -22,6 +22,7 @@ resources:
   - application-external-secrets.yaml
   - application-eso-bitwarden.yaml
   - application-tailscale-operator.yaml
+  - application-tailscale-oauth.yaml
   - application-tailscale-ingress.yaml
   - application-hermes.yaml
   - application-admin-access.yaml

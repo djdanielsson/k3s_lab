@@ -1,0 +1,24 @@
+# The operator's OAuth client. Kept as its own Application because
+# application-tailscale-operator sources the upstream Helm chart directly
+# (repoURL tailscale/tailscale) and therefore cannot carry extra manifests from
+# this repo.
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: tailscale-oauth
+  namespace: argocd
+spec:
+  project: k3s-lab
+  source:
+    repoURL: https://github.com/djdanielsson/k3s_lab
+    targetRevision: main
+    path: apps/tailscale-oauth
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: tailscale
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=false
