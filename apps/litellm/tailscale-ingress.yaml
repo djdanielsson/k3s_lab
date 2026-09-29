@@ -1,0 +1,23 @@
+# Publishes the gateway (its admin UI, and the OpenAI-compatible API) on the
+# tailnet as litellm-litellm-ingress.tail7f3c08.ts.net.
+#
+# The Ingress name is the hostname and the hostname is the Let's Encrypt
+# identity, so renaming this object spends a new certificate against a
+# five-per-week cap. Leave it alone.
+#
+# A single defaultBackend is deliberate: LiteLLM serves its own UI at /ui/ and
+# its API at /v1/* from the same port, so there is nothing to split by path.
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: litellm
+  namespace: litellm
+  labels:
+    app: litellm
+spec:
+  ingressClassName: tailscale
+  defaultBackend:
+    service:
+      name: litellm
+      port:
+        number: 4000

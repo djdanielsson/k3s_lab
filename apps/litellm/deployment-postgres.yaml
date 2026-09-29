@@ -1,0 +1,61 @@
+# Postgres for the gateway's own bookkeeping: spend logs, token counts, virtual
+# keys and the UI's usage pages. Nothing here is on the request path — LiteLLM
+# keeps serving completions if this is down, it just stops recording them
+# (and the UI's Usage pages go empty until it is back).
+#
+# Not a shared instance: the cluster runs one Postgres per app (omnigent,
+# forgejo, pantrywise) rather than a single server with several databases, and
+# this follows that.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: litellm-postgres
+  namespace: litellm
+  labels:
+    app: litellm-postgres
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: litellm-postgres
+  template:
+    metadata:
+      labels:
+        app: litellm-postgres
+    spec:
+      containers:
+        - name: postgres
+          image: docker.io/library/postgres:17-alpine
+          env:
+            - name: POSTGRES_USER
+              value: litellm
+            - name: POSTGRES_DB
+              value: litellm
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: litellm-pg
+                  key: POSTGRES_PASSWORD
+            - name: PGDATA
+              value: /var/lib/postgresql/data/pgdata
+          ports:
+            - name: pg
+              containerPort: 5432
+              protocol: TCP
+          readinessProbe:
+            exec:
+              command: [pg_isready, -U, litellm, -d, litellm]
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          resources:
+            limits: { memory: 1Gi }
+            requests: { cpu: 100m, memory: 256Mi }
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/postgresql/data
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: litellm-pg-data

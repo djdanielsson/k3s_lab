@@ -5,5 +5,10 @@ resources:
   - namespace.yaml
   - configmap.yaml
   - external-secret.yaml
+  - external-secret-pg.yaml
+  - pvc-postgres.yaml
+  - deployment-postgres.yaml
+  - service-postgres.yaml
   - deployment.yaml
   - service.yaml
+  - tailscale-ingress.yaml

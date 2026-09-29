@@ -3,9 +3,19 @@
 # the agentforge namespace — omnigent routes every model call through here, so
 # the gateway outlives the app it was born in.
 #
-# Aliases:
-#   fast  -> deepseek-v4-flash    via OpenCode Go
-#   smart -> deepseek-v4.1-flash  via OpenCode Go
+# Aliases (both served from OpenCode Go, a flat $10/month subscription tier):
+#   fast  -> deepseek-v4-flash    list $0.14 /M in, $0.28 /M out, $0.028 /M cached
+#   smart -> deepseek-v4.1-flash  list $0.15 /M in, $0.60 /M out (off-peak)
+#
+# The per-token costs below are what LiteLLM multiplies tokens by to fill the
+# spend tables — they are NOT what this cluster gets billed. Go is a
+# subscription, so the dollar totals in the UI are the value of the usage
+# consumed, not money leaving the account. V4.1 Flash's list price doubles in
+# peak hours (01:00-04:00 and 06:00-10:00 UTC, Mon-Fri) and LiteLLM has no
+# time-of-day rate, so the off-peak number is the one encoded here: peak-hour
+# usage is undercounted by 2x, which is the honest direction to be wrong in.
+# Written as plain decimals on purpose — `1.4e-7` is YAML-1.1 float territory
+# and this file's contents are parsed a second time by LiteLLM itself.
 #
 # The `local-coder` alias (agentforge-ollama) is deliberately gone: the Ollama
 # instance it pointed at was deleted with AgentForge, so keeping the alias would
@@ -25,17 +35,27 @@ data:
           api_base: https://opencode.ai/zen/go/v1
           api_key: os.environ/OPENCODE_GO_API_KEY
           extra_headers: {"x-opencode-session":"litellm"}
+          input_cost_per_token: 0.00000014        # $0.14 / 1M
+          output_cost_per_token: 0.00000028       # $0.28 / 1M
+          cache_read_input_token_cost: 0.000000028  # $0.028 / 1M
       - model_name: smart
         litellm_params:
           model: openai/deepseek-v4.1-flash
           api_base: https://opencode.ai/zen/go/v1
           api_key: os.environ/OPENCODE_GO_API_KEY
           extra_headers: {"x-opencode-session":"litellm"}
+          input_cost_per_token: 0.00000015        # $0.15 / 1M
+          output_cost_per_token: 0.0000006        # $0.60 / 1M
+          cache_read_input_token_cost: 0.000000003  # $0.003 / 1M
 
     litellm_settings:
       drop_params: true
 
     general_settings:
-      # Clients authenticate with this. It is the only valid credential: there
-      # is no key database behind the gateway.
+      # Clients authenticate with this. Master key only: there are no virtual
+      # keys issued yet, so this is still the single valid credential.
       master_key: os.environ/LITELLM_MASTER_KEY
+      # DATABASE_URL arrives from the `litellm-env` Secret and is read straight
+      # from the environment. It is what makes the UI's Usage pages and
+      # /spend/logs work at all: with no database they answer
+      # "Database not connected" and the models page reports cost 0.

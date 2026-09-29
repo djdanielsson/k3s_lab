@@ -1,5 +1,7 @@
-# LiteLLM gateway. Stateless: the model list is the ConfigMap, the credentials
-# are the `litellm-env` Secret.
+# LiteLLM gateway. The model list is the ConfigMap, the credentials and
+# DATABASE_URL are the `litellm-env` Secret. Postgres is where spend is
+# recorded, not a dependency of serving: if `litellm-postgres` is down the
+# gateway still answers completions.
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -22,6 +24,17 @@ spec:
         runAsGroup: 1000
         runAsNonRoot: true
         fsGroup: 1000
+      initContainers:
+        # On first boot with a DATABASE_URL the gateway runs prisma migrations
+        # and exits if postgres is not accepting yet, so a from-scratch deploy
+        # costs a CrashLoop-restart cycle without this. Same reason as the
+        # identical initContainer on the omnigent server.
+        - name: wait-for-postgres
+          image: docker.io/library/postgres:17-alpine
+          command:
+            - sh
+            - -c
+            - until pg_isready -h litellm-postgres -p 5432 -U litellm -d litellm; do echo waiting for postgres; sleep 2; done
       containers:
         - name: litellm
           image: ghcr.io/berriai/litellm:main-stable
