@@ -18,6 +18,13 @@ spec:
     metadata:
       labels:
         app: litellm
+      annotations:
+        # Bump this when `litellm-env` changes. The gateway reads its
+        # environment once at start and there is no reloader in this cluster, so
+        # a new Secret value — a rotated master key, a new UI password — reaches
+        # nothing until the pod is replaced. This string is the only thing that
+        # has to change to force that.
+        litellm.io/restart-nonce: "2026-09-29T15:38Z"
     spec:
       securityContext:
         runAsUser: 1000
