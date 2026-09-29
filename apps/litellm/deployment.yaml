@@ -70,12 +70,18 @@ spec:
             periodSeconds: 10
             failureThreshold: 3
           resources:
+            # Measured, not guessed: a boot that runs the prisma migrate/sanity
+            # check peaks at ~988 MiB of working set and the process settles at
+            # ~930 MiB, so the 1Gi limit this ran under until now was a coin
+            # flip — the container was SIGKILLed (exit 137) mid-migration with
+            # no log output at all, which reads like a crash, not like OOM.
+            # There is a task's worth of headroom now.
             requests:
               cpu: 100m
-              memory: 256Mi
+              memory: 512Mi
             limits:
               cpu: "1"
-              memory: 1Gi
+              memory: 2Gi
       volumes:
         - name: config
           configMap:
