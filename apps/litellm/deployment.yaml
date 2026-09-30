@@ -37,7 +37,7 @@ spec:
         # costs a CrashLoop-restart cycle without this. Same reason as the
         # identical initContainer on the omnigent server.
         - name: wait-for-postgres
-          image: docker.io/library/postgres:17-alpine
+          image: docker.io/library/postgres:18-alpine
           command:
             - sh
             - -c
