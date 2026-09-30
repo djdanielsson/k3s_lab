@@ -61,7 +61,6 @@ Proxies are created in `tailscale` ns; remove the Ingress to tear the proxy down
 | radar | `radar:9280` | radar-ts |
 | argocd | `argocd-server:80` | argocd-server-ts |
 | prometheus | `kube-prometheus-stack-prometheus:9090` | prometheus-ts |
-| kelos-console | `kelos-console-server:80` | kelos-console-ts |
 | spiritual-gifts | `web:80` | spiritual-gifts-ts |
 
 ## Prerequisites / notes
