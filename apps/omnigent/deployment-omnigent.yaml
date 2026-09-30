@@ -22,6 +22,12 @@ spec:
     metadata:
       labels:
         app: omnigent
+      annotations:
+        # Bump this when `omnigent-secrets` changes. The server reads its
+        # environment once at start and nothing in this cluster watches Secrets,
+        # so a new credential reaches nothing until the pod is replaced. This
+        # string is the only thing that has to change to force that.
+        omnigent.io/restart-nonce: "2026-09-30T23:20Z"
     spec:
       serviceAccountName: omnigent
       initContainers:

@@ -75,6 +75,16 @@ three places (pick what fits):
 
 Item names must be unique (the bridge searches by exact name).
 
+**The bridge does not sync on its own.** `bw serve` holds a local copy of the
+vault and only refreshes it when told to; ESO reads through that copy, so an item
+added in the web vault can be invisible to every ExternalSecret for days without
+anything looking broken. If a newly created item cannot be found, force a sync
+before concluding it is missing or misnamed:
+
+```bash
+curl -X POST http://bitwarden-cli.external-secrets.svc.cluster.local:8087/sync
+```
+
 | Item name             | Type         | Inputs (fields / notes)        |
 |-----------------------|--------------|--------------------------------|
 | `k3s/pantrywise-jwt`  | Custom field | field `jwt`                    |
@@ -90,6 +100,7 @@ Item names must be unique (the bridge searches by exact name).
 | `k3s/litellm` | Custom fields | `LITELLM_MASTER_KEY` — the gateway's only credential (every agent talks to it, and it authenticates to nothing else); `OPENCODE_GO_API_KEY` — the OpenCode Go subscription key behind the `fast` / `smart` aliases; `POSTGRES_PASSWORD` — the `litellm-postgres` superuser password, from which `DATABASE_URL` is composed for spend logging; `UI_PASSWORD` — the admin UI's login password (username `admin`; the UI rejects the master key). Fields `OPENAI_API_KEY`, `ANTHROPIC_API_KEY` and `LAN_LLM_API_KEY` on this item are empty leftovers from the AgentForge era and are read by nothing. |
 | `k3s/omnigent`        | Custom fields | `POSTGRES_PASSWORD` — postgres superuser password, and the value the server's `DATABASE_URL` is composed from; `OMNIGENT_ACCOUNTS_COOKIE_SECRET` — **must be a hex string** (the server refuses to start on anything else). Omnigent's *model* credential is not here: it comes from `k3s/litellm` field `LITELLM_MASTER_KEY`, because every model call goes to the in-cluster LiteLLM, whose master key is its only valid credential. |
 | `k3s/tailscale` | Custom fields | `CLIENT_ID`, `CLIENT_SECRET` — the Tailscale operator's OAuth client (`tag:k3s`, scope `all`), which mints an auth key for every tailnet Ingress proxy. Source of truth for the `operator-oauth` Secret; see §1 note on rotating it. |
+| `k3s/omnigent-github-app` | Custom fields | `client-id`, `client-secret` — the GitHub App behind Omnigent's per-user Connect GitHub (Settings → Sandbox Integrations). Wire-only: the connect flow also needs a credential-store cipher (see below), so the env being present is not enough to switch the feature on. |
 | `k3s/admin-kubeconfig` | Secure Note | **Notes** = a complete kubeconfig for the operator's own kubectl access over Tailscale; also fields `token` and `server`. Subject: ServiceAccount `david` in ns `admin-access` (cluster-admin). Tokens expire — re-mint and update the note when it stops working (see below). |
 
 ### Rotating the admin kubeconfig (`k3s/admin-kubeconfig`)
