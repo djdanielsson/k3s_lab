@@ -18,10 +18,13 @@ spec:
     spec:
       hostNetwork: true
       hostPID: true
-      securityContext:
-        privileged: true
       containers:
         - name: netdata
+          # `privileged` is a CONTAINER-level securityContext field. At the pod
+          # level the API server prunes it as unknown, so Git and the live
+          # DaemonSet could never agree and ArgoCD sat OutOfSync forever.
+          securityContext:
+            privileged: true
           image: netdata/netdata:stable
           imagePullPolicy: Always
           terminationMessagePath: /dev/termination-log
