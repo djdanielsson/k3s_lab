@@ -20,8 +20,22 @@ spec:
         operatorConfig:
           defaultTags:
             - tag:k3s
+          # Radar's audit: no resource block on the operator container, and it
+          # allows privilege escalation.
+          resources:
+            requests: {cpu: 50m, memory: 64Mi}
+            limits: {cpu: 500m, memory: 512Mi}
+          podSecurityContext:
+            seccompProfile:
+              type: RuntimeDefault
+          securityContext:
+            allowPrivilegeEscalation: false
         proxyConfig:
           defaultTags: tag:k3s
+          # Every ts-* proxy StatefulSet inherits this ProxyClass: resources
+          # limits and allowPrivilegeEscalation=false. Probes, SA-token
+          # automount and read-only rootfs are not expressible in a ProxyClass.
+          defaultProxyClass: tailscale-proxy-hardened
   destination:
     server: https://kubernetes.default.svc
     namespace: tailscale

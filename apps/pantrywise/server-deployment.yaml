@@ -15,9 +15,13 @@ spec:
       labels:
         app: pantrywise-server
     spec:
+      automountServiceAccountToken: false
       containers:
         - name: server
           image: registry.registry.svc:5000/pantrywise-server:2ce0da2
+          imagePullPolicy: IfNotPresent
+          securityContext:
+            allowPrivilegeEscalation: false
           command: ["/bin/sh", "-c"]
           args:
             - >-
@@ -54,6 +58,18 @@ spec:
               value: http://firecrawl:3002
             - name: FIRECRAWL_API_KEY
               value: self-hosted
+          readinessProbe:
+            httpGet:
+              path: /api/health
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            failureThreshold: 3
+          livenessProbe:
+            tcpSocket:
+              port: http
+            initialDelaySeconds: 30
+            periodSeconds: 30
           resources:
             requests:
               cpu: 100m

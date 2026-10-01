@@ -12,6 +12,21 @@ spec:
     # CRDs are applied out-of-band (see README) because ArgoCD's chart render
     # does not reliably emit cert-manager's CRDs, and newer cert-manager needs
     # Kubernetes >= 1.30 (this cluster is k3s 1.26 -> use v1.15.x).
+    helm:
+      values: |
+        # Radar's audit flags missing CPU/memory requests+limits on all three
+        # cert-manager components (the chart ships resources: {} for each).
+        resources:
+          requests: {cpu: 10m, memory: 32Mi}
+          limits: {cpu: 200m, memory: 256Mi}
+        webhook:
+          resources:
+            requests: {cpu: 10m, memory: 32Mi}
+            limits: {cpu: 200m, memory: 256Mi}
+        cainjector:
+          resources:
+            requests: {cpu: 10m, memory: 32Mi}
+            limits: {cpu: 200m, memory: 256Mi}
   destination:
     server: https://kubernetes.default.svc
     namespace: cert-manager

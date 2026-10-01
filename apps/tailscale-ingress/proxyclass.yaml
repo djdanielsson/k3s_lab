@@ -1,0 +1,25 @@
+# Default ProxyClass for every ts-* proxy StatefulSet the Tailscale operator
+# creates (set via proxyConfig.defaultProxyClass in the operator's Helm values).
+#
+# Radar's audit flagged all 16 proxies for missing CPU/memory limits and for
+# allowing privilege escalation. A ProxyClass is the only supported way to
+# change what the operator generates; the remaining proxy findings (probes,
+# SA-token automount, read-only rootfs, running as root) have no ProxyClass
+# field and stay as they are.
+apiVersion: tailscale.com/v1alpha1
+kind: ProxyClass
+metadata:
+  name: tailscale-proxy-hardened
+spec:
+  statefulSet:
+    pod:
+      tailscaleContainer:
+        securityContext:
+          allowPrivilegeEscalation: false
+        resources:
+          requests:
+            cpu: 10m
+            memory: 64Mi
+          limits:
+            cpu: 500m
+            memory: 512Mi

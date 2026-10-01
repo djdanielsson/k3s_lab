@@ -15,11 +15,14 @@ spec:
       labels:
         app: pantrywise-postgres
     spec:
+      automountServiceAccountToken: false
       containers:
         - name: postgres
           # PGDATA lives in a subdirectory so the 17 -> 18 upgrade could init a
           # fresh cluster beside the old one (old data left untouched for rollback).
           image: docker.io/library/postgres:18-alpine
+          securityContext:
+            allowPrivilegeEscalation: false
           ports:
             - containerPort: 5432
               name: postgres
@@ -44,6 +47,16 @@ spec:
           volumeMounts:
             - name: data
               mountPath: /var/lib/postgresql/data
+          readinessProbe:
+            exec:
+              command: [pg_isready, -U, pantrywise]
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          livenessProbe:
+            exec:
+              command: [pg_isready, -U, pantrywise]
+            initialDelaySeconds: 30
+            periodSeconds: 30
           resources:
             requests:
               cpu: 100m
