@@ -22,6 +22,7 @@ spec:
         app: netalertx
     spec:
       hostNetwork: true
+      automountServiceAccountToken: false
       containers:
         - name: netalertx
           image: ghcr.io/netalertx/netalertx:latest
@@ -34,6 +35,7 @@ spec:
           securityContext:
             runAsUser: 0
             runAsGroup: 0
+            allowPrivilegeEscalation: false
             capabilities:
               drop: ["ALL"]
               add:
@@ -61,6 +63,17 @@ spec:
               mountPath: /data
             - name: tmp
               mountPath: /tmp
+          readinessProbe:
+            httpGet:
+              path: /
+              port: web
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          livenessProbe:
+            tcpSocket:
+              port: web
+            initialDelaySeconds: 60
+            periodSeconds: 30
           resources:
             requests:
               cpu: 200m

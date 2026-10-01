@@ -29,6 +29,8 @@ spec:
       kind: IngressClass
     - group: "tailscale.com"
       kind: Connector
+    - group: "tailscale.com"
+      kind: ProxyClass
     - group: "external-secrets.io"
       kind: ClusterSecretStore
   # No cluster-resource blacklist: operators (cert-manager, etc.) may create CRDs.

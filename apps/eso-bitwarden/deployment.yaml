@@ -38,6 +38,7 @@ spec:
         app.kubernetes.io/name: bitwarden-cli
     spec:
       hostNetwork: true
+      automountServiceAccountToken: false
       hostAliases:
         - ip: "100.126.222.105"
           hostnames:
@@ -45,6 +46,8 @@ spec:
       containers:
         - name: bitwarden-cli
           image: ghcr.io/morey-tech/bitwarden-cli:2025.12.1
+          securityContext:
+            allowPrivilegeEscalation: false
           env:
             - name: NODE_TLS_REJECT_UNAUTHORIZED
               value: "0"
@@ -64,6 +67,18 @@ spec:
             - name: http
               containerPort: 8087
               protocol: TCP
+          readinessProbe:
+            httpGet:
+              path: /status
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 15
+          livenessProbe:
+            httpGet:
+              path: /status
+              port: http
+            initialDelaySeconds: 30
+            periodSeconds: 30
           resources:
             requests: { cpu: 100m, memory: 256Mi }
             limits: { cpu: 500m, memory: 512Mi }

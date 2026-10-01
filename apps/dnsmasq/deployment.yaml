@@ -20,10 +20,13 @@ spec:
         app: dnsmasq
     spec:
       hostNetwork: true
+      automountServiceAccountToken: false
       containers:
         - name: dnsmasq
           image: andyshinn/dnsmasq:2.83
           imagePullPolicy: IfNotPresent
+          securityContext:
+            allowPrivilegeEscalation: false
           ports:
             - containerPort: 53
               name: dns
@@ -35,6 +38,16 @@ spec:
             - name: config
               mountPath: /etc/dnsmasq.conf
               subPath: dnsmasq.conf
+          readinessProbe:
+            tcpSocket:
+              port: dns-tcp
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            tcpSocket:
+              port: dns-tcp
+            initialDelaySeconds: 20
+            periodSeconds: 30
           resources:
             requests:
               cpu: 50m

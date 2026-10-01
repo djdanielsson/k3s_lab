@@ -68,6 +68,7 @@ spec:
               readOnly: true
           securityContext:
             runAsUser: 0
+            allowPrivilegeEscalation: false
         - name: configure-dashboard-sso
           image: nousresearch/hermes-agent:latest@sha256:d6746a084e9341baada483e3d6210444d3c1aeb7c130f0915150065fb2851459
           command:
@@ -104,6 +105,8 @@ spec:
           # Sep 7 opencode-go fix lived only on `latest`).
           image: nousresearch/hermes-agent:latest@sha256:d6746a084e9341baada483e3d6210444d3c1aeb7c130f0915150065fb2851459
           imagePullPolicy: IfNotPresent
+          securityContext:
+            allowPrivilegeEscalation: false
           # Pass subcommand via args so the image entrypoint stays PID 1 and
           # s6 supervision stays active (do NOT override `command:`).
           args:

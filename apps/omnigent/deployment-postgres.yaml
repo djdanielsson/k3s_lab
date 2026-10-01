@@ -17,9 +17,12 @@ spec:
       labels:
         app: omnigent-postgres
     spec:
+      automountServiceAccountToken: false
       containers:
         - name: postgres
           image: docker.io/library/postgres:17-alpine
+          securityContext:
+            allowPrivilegeEscalation: false
           env:
             - name: POSTGRES_USER
               value: omnigent
@@ -41,8 +44,13 @@ spec:
               command: [pg_isready, -U, omnigent, -d, omnigent]
             initialDelaySeconds: 5
             periodSeconds: 5
+          livenessProbe:
+            exec:
+              command: [pg_isready, -U, omnigent, -d, omnigent]
+            initialDelaySeconds: 30
+            periodSeconds: 30
           resources:
-            limits: { memory: 1Gi }
+            limits: { cpu: 1000m, memory: 1Gi }
             requests: { cpu: 100m, memory: 256Mi }
           volumeMounts:
             - name: data

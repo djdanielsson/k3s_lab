@@ -1,0 +1,21 @@
+# Default ProxyClass for every ts-* proxy StatefulSet the Tailscale operator
+# creates (set via proxyConfig.defaultProxyClass in the operator's Helm values).
+#
+# Set the resource budget here. The operator replaces the entire container
+# security context if one is provided. Kernel-mode proxies, including the
+# subnet router, require their generated privileged context.
+apiVersion: tailscale.com/v1alpha1
+kind: ProxyClass
+metadata:
+  name: tailscale-proxy-hardened
+spec:
+  statefulSet:
+    pod:
+      tailscaleContainer:
+        resources:
+          requests:
+            cpu: 10m
+            memory: 64Mi
+          limits:
+            cpu: 500m
+            memory: 512Mi

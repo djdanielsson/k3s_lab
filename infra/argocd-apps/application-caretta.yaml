@@ -19,6 +19,9 @@ spec:
         grafana:
           rbac:
             pspEnabled: false
+          # Radar's audit: the grafana container allows privilege escalation.
+          containerSecurityContext:
+            allowPrivilegeEscalation: false
         victoria-metrics-single:
           rbac:
             pspEnabled: false
