@@ -19,9 +19,15 @@ spec:
         grafana:
           rbac:
             pspEnabled: false
+          # Radar's audit: the grafana container allows privilege escalation.
+          containerSecurityContext:
+            allowPrivilegeEscalation: false
         victoria-metrics-single:
           rbac:
             pspEnabled: false
+          server:
+            securityContext:
+              allowPrivilegeEscalation: false
           podDisruptionBudget:
             enabled: false
         # eBPF agent OOMs under the chart's 300Mi default during startup.

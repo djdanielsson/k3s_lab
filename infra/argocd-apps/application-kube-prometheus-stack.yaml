@@ -52,8 +52,21 @@ spec:
           resources:
             requests: {cpu: 50m, memory: 64Mi}
             limits: {cpu: 500m, memory: 512Mi}
+          # Radar's audit: the config-reloader sidecar had no resources and no
+          # probes. The operator hard-codes its container, so these two knobs
+          # (chart -> operator flags) are the only way to set them.
+          prometheusConfigReloader:
+            resources:
+              requests: {cpu: 10m, memory: 25Mi}
+              limits: {cpu: 100m, memory: 100Mi}
+            enableProbe: true
         nodeExporter:
           enabled: true
+          resources:
+            requests: {cpu: 10m, memory: 32Mi}
+            limits: {cpu: 200m, memory: 128Mi}
+          containerSecurityContext:
+            allowPrivilegeEscalation: false
         prometheus:
           prometheusSpec:
             retention: 24h

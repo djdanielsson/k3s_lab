@@ -15,9 +15,12 @@ spec:
       labels:
         app: forgejo-postgres
     spec:
+      automountServiceAccountToken: false
       containers:
         - name: postgres
           image: docker.io/library/postgres:17-alpine
+          securityContext:
+            allowPrivilegeEscalation: false
           ports:
             - containerPort: 5432
               name: postgres
@@ -40,6 +43,16 @@ spec:
           volumeMounts:
             - name: data
               mountPath: /var/lib/postgresql/data
+          readinessProbe:
+            exec:
+              command: [pg_isready]
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          livenessProbe:
+            exec:
+              command: [pg_isready]
+            initialDelaySeconds: 30
+            periodSeconds: 30
           resources:
             requests:
               cpu: 100m

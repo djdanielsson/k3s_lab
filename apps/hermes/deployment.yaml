@@ -35,6 +35,9 @@ spec:
         # (10000). Idempotent; harmless on restarts.
         - name: fix-perms
           image: busybox:1.38
+          securityContext:
+            runAsUser: 0
+            allowPrivilegeEscalation: false
           command:
             - sh
             - -ec
@@ -53,8 +56,6 @@ spec:
               mountPath: /opt/data
             - name: config
               mountPath: /config
-          securityContext:
-            runAsUser: 0
       containers:
         - name: hermes
           # Tracks the floating `latest` build via digest pin: Renovate opens a
@@ -63,6 +64,8 @@ spec:
           # Sep 7 opencode-go fix lived only on `latest`).
           image: nousresearch/hermes-agent:latest@sha256:244d854456487aaa6d74a869c38df23ae368d45a7d21635084a26aa58e96e1f8
           imagePullPolicy: IfNotPresent
+          securityContext:
+            allowPrivilegeEscalation: false
           # Pass subcommand via args so the image entrypoint stays PID 1 and
           # s6 supervision stays active (do NOT override `command:`).
           args:

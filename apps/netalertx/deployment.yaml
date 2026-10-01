@@ -22,10 +22,12 @@ spec:
         app: netalertx
     spec:
       hostNetwork: true
+      automountServiceAccountToken: false
       containers:
         - name: netalertx
-          image: ghcr.io/netalertx/netalertx:latest
-          imagePullPolicy: Always
+          # Pinned to the digest of the running build; Renovate bumps the digest.
+          image: ghcr.io/netalertx/netalertx:latest@sha256:0ee5cdcaa8a84bfd2f31354b4b30e603804d124821055b9942dcffb52d2ce4bc
+          imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 20211
               name: web
@@ -34,6 +36,7 @@ spec:
           securityContext:
             runAsUser: 0
             runAsGroup: 0
+            allowPrivilegeEscalation: false
             capabilities:
               drop: ["ALL"]
               add:
@@ -61,6 +64,17 @@ spec:
               mountPath: /data
             - name: tmp
               mountPath: /tmp
+          readinessProbe:
+            httpGet:
+              path: /
+              port: web
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          livenessProbe:
+            tcpSocket:
+              port: web
+            initialDelaySeconds: 60
+            periodSeconds: 30
           resources:
             requests:
               cpu: 200m

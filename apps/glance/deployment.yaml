@@ -16,13 +16,29 @@ spec:
       labels:
         app: glance
     spec:
+      automountServiceAccountToken: false
       containers:
         - name: glance
-          image: docker.io/glanceapp/glance:latest
-          imagePullPolicy: Always
+          # Pinned to the digest of the running build; Renovate bumps the digest.
+          image: docker.io/glanceapp/glance:latest@sha256:9dfb09470b207dcb67ac715994bdb1929374ba3f9c0d7df7462c24adf10fd073
+          imagePullPolicy: IfNotPresent
+          securityContext:
+            allowPrivilegeEscalation: false
           ports:
             - containerPort: 8080
               name: http
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+            initialDelaySeconds: 15
+            periodSeconds: 20
           env:
             - name: GLANCE_CONFIG
               value: /app/config/glance.yml

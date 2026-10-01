@@ -15,13 +15,26 @@ spec:
       labels:
         app: pantrywise-redis
     spec:
+      automountServiceAccountToken: false
       containers:
         - name: redis
           image: docker.io/library/redis:7-alpine
           command: ["redis-server", "--appendonly", "yes"]
+          securityContext:
+            allowPrivilegeEscalation: false
           ports:
             - containerPort: 6379
               name: redis
+          readinessProbe:
+            exec:
+              command: [redis-cli, ping]
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            exec:
+              command: [redis-cli, ping]
+            initialDelaySeconds: 15
+            periodSeconds: 20
           resources:
             requests:
               cpu: 50m
