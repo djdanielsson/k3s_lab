@@ -26,6 +26,7 @@ spec:
         # has to change to force that.
         litellm.io/restart-nonce: "2026-09-29T15:38Z"
     spec:
+      automountServiceAccountToken: false
       securityContext:
         runAsUser: 1000
         runAsGroup: 1000
@@ -38,6 +39,8 @@ spec:
         # identical initContainer on the omnigent server.
         - name: wait-for-postgres
           image: docker.io/library/postgres:18-alpine
+          securityContext:
+            allowPrivilegeEscalation: false
           command:
             - sh
             - -c
@@ -46,6 +49,8 @@ spec:
         - name: litellm
           image: ghcr.io/berriai/litellm:main-stable
           imagePullPolicy: IfNotPresent
+          securityContext:
+            allowPrivilegeEscalation: false
           args:
             - --config
             - /etc/litellm/config.yaml

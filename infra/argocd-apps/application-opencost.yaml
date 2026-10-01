@@ -30,6 +30,21 @@ spec:
               # release=kube-prometheus-stack.
               additionalLabels:
                 release: kube-prometheus-stack
+          # Radar's audit: neither container sets allowPrivilegeEscalation and
+          # the chart only ships a memory limit. The main container's values
+          # live under `exporter` (rendered container name: opencost).
+          exporter:
+            securityContext:
+              allowPrivilegeEscalation: false
+            resources:
+              requests: {cpu: 10m, memory: 55Mi}
+              limits: {cpu: 500m, memory: 1Gi}
+        ui:
+          securityContext:
+            allowPrivilegeEscalation: false
+          resources:
+            requests: {cpu: 10m, memory: 55Mi}
+            limits: {cpu: 200m, memory: 1Gi}
   destination:
     server: https://kubernetes.default.svc
     namespace: opencost

@@ -15,9 +15,13 @@ spec:
       labels:
         app: pantrywise-server
     spec:
+      automountServiceAccountToken: false
       containers:
         - name: server
           image: registry.registry.svc:5000/pantrywise-server:5873801
+          imagePullPolicy: IfNotPresent
+          securityContext:
+            allowPrivilegeEscalation: false
           command: ["/bin/sh", "-c"]
           args:
             - >-
@@ -47,6 +51,18 @@ spec:
               value: production
             - name: WEB_URL
               value: http://pantrywise.k3s.lab.danielsson.us.com
+          readinessProbe:
+            httpGet:
+              path: /api/health
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            failureThreshold: 3
+          livenessProbe:
+            tcpSocket:
+              port: http
+            initialDelaySeconds: 30
+            periodSeconds: 30
           resources:
             requests:
               cpu: 100m

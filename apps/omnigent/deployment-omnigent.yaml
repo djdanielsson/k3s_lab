@@ -37,6 +37,8 @@ spec:
         # clean install should not need them.
         - name: wait-for-postgres
           image: docker.io/library/postgres:17-alpine
+          securityContext:
+            allowPrivilegeEscalation: false
           command:
             - sh
             - -c
@@ -48,6 +50,8 @@ spec:
           # mutable tag is tolerated. Roll a restart after a pull to use it.
           image: ghcr.io/omnigent-ai/omnigent-server-kubernetes:latest
           imagePullPolicy: Always
+          securityContext:
+            allowPrivilegeEscalation: false
           env:
             - name: OMNIGENT_CONFIG
               value: /data/server-config.yaml
@@ -73,7 +77,7 @@ spec:
             initialDelaySeconds: 20
             periodSeconds: 30
           resources:
-            limits: { memory: 2Gi }
+            limits: { cpu: 2000m, memory: 2Gi }
             requests: { cpu: 250m, memory: 512Mi }
           volumeMounts:
             - name: server-config
