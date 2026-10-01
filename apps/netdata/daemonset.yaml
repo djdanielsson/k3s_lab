@@ -45,7 +45,9 @@ spec:
               cpu: 100m
               memory: 128Mi
             limits:
-              cpu: 1000m
+              # Canonical form: the API server stores 1000m as "1", and ArgoCD
+              # compares the stored value, so "1000m" here is permanent drift.
+              cpu: "1"
               memory: 768Mi
           volumeMounts:
             - name: proc
