@@ -61,6 +61,12 @@ spec:
               value: "3"
             - name: BROWSER_POOL_SIZE
               value: "3"
+            # Headless Chromium is in the playwright image; without explicit
+            # browser scraping Firecrawl only does the plain HTTP fetch, which
+            # anti-bot stores (Walmart/Target) answer with a bot wall or an
+            # empty search page.
+            - name: SCRAPE_USE_BROWSER
+              value: "true"
           readinessProbe:
             tcpSocket:
               port: http
