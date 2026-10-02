@@ -108,7 +108,6 @@ non-Kubernetes link) goes in `apps/homepage/config/services.yaml` instead.
 | omnigent | `omnigent:80` | `https://omnigent.tail7f3c08.ts.net` |
 | hermes | `hermes:9119` | `https://hermes.tail7f3c08.ts.net` |
 | hermes (API) | `hermes:8642` | `https://hermes-api.tail7f3c08.ts.net` |
-| glance | `glance:8080` | `https://glance.tail7f3c08.ts.net` (not a Homepage tile) |
 | homepage | `homepage:80` | `https://homepage.tail7f3c08.ts.net` |
 
 ## Prerequisites / notes

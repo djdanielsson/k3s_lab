@@ -60,7 +60,6 @@ the Vaultwarden API credential setup.
 | rustfs     | `rustfs/rustfs` (Helm-less) | `rustfs.rustfs.svc:9000/:9001`  |
 | radar      | Helm chart `skyhook/radar` | `radar.radar.svc:9280`           |
 | cert-manager | Helm chart `jetstack/cert-manager` v1.15.3 | issuer CRDs, controllers |
-| glance       | `glanceapp/glance` | `glance.glance.svc:8080` (NodePort 31080)      |
 | netalertx    | `netalertx/netalertx` | `netalertx.netalertx.svc:20211` (hostNetwork) |
 | netdata      | `netdata/netdata` | `netdata.netdata.svc:19999` (hostNetwork)      |
 | hermes       | `nousresearch/hermes-agent` | `hermes.hermes.svc:8642/:9119` (+ Tailscale) |

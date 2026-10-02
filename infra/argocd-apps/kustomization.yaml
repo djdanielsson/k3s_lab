@@ -15,7 +15,6 @@ resources:
   - application-forgejo.yaml
   - application-netdata.yaml
   - application-netalertx.yaml
-  - application-glance.yaml
   - application-cert-manager-issuers.yaml
   - application-ingress.yaml
   - application-dnsmasq.yaml

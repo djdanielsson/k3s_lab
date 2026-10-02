@@ -23,11 +23,13 @@ spec:
       labels:
         app: omnigent
       annotations:
-        # Bump this when `omnigent-secrets` changes. The server reads its
-        # environment once at start and nothing in this cluster watches Secrets,
-        # so a new credential reaches nothing until the pod is replaced. This
-        # string is the only thing that has to change to force that.
-        omnigent.io/restart-nonce: "2026-09-30T23:20Z"
+        # The server reads its environment once at start and nothing in this
+        # cluster watches ConfigMaps or Secrets, so a new value reaches nothing
+        # until the pod is replaced. One annotation per source: rebase the
+        # checksum on configmap-config.yaml for a config edit, bump the nonce
+        # for a Secret edit (a rotated credential, a new redirect URI).
+        checksum/omnigent-config: 634f8d4cf1ea8dae0142de4d5f7945ec1c2c880035fd9d08f4664fe80d358056
+        omnigent.io/restart-nonce: "2026-10-02T20:53Z"
     spec:
       serviceAccountName: omnigent
       initContainers:
