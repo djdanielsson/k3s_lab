@@ -1,3 +1,5 @@
+# Superseded by apps/homepage as the lab dashboard, but still exposed:
+# it is a tailnet bookmark, not a Homepage tile (no gethomepage.dev annotations).
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
@@ -7,6 +9,11 @@ metadata:
     app.kubernetes.io/instance: tailscale-ingress
 spec:
   ingressClassName: tailscale
+  # The operator takes the first label of spec.tls[0].hosts[0] as the
+  # device name, which is what the MagicDNS record is built from.
+  tls:
+    - hosts:
+        - glance.tail7f3c08.ts.net
   defaultBackend:
     service:
       name: glance

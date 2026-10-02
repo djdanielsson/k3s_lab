@@ -1,12 +1,14 @@
-# Publishes the gateway (its admin UI, and the OpenAI-compatible API) on the
-# tailnet as litellm-litellm-ingress.tail7f3c08.ts.net.
+# Publishes the gateway (admin UI at /ui/, OpenAI-compatible API at /v1/*) on
+# the tailnet as litellm.tail7f3c08.ts.net.
 #
-# The Ingress name is the hostname and the hostname is the Let's Encrypt
-# identity, so renaming this object spends a new certificate against a
-# five-per-week cap. Leave it alone.
+# The hostname comes from spec.tls[0].hosts[0] below; with no TLS host the
+# operator would instead derive <namespace>-<ingress-name>-ingress from this
+# object's name, which is why the Ingress is simply called litellm.
 #
-# A single defaultBackend is deliberate: LiteLLM serves its own UI at /ui/ and
-# its API at /v1/* from the same port, so there is nothing to split by path.
+# Let's Encrypt caps certificate issuance per tailnet domain (50/week by
+# default), so renaming several Ingresses in one change is fine - the old
+# "five per week" note here was a misreading of the duplicate-certificate
+# limit, which only applies to re-requesting the same name.
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
@@ -14,8 +16,20 @@ metadata:
   namespace: litellm
   labels:
     app: litellm
+  annotations:
+    gethomepage.dev/enabled: "true"
+    gethomepage.dev/name: LiteLLM
+    gethomepage.dev/group: Platform
+    gethomepage.dev/icon: sh-litellm
+    gethomepage.dev/description: Model gateway, admin UI and OpenAI-compatible API
+    gethomepage.dev/href: https://litellm.tail7f3c08.ts.net
 spec:
   ingressClassName: tailscale
+  # The operator takes the first label of spec.tls[0].hosts[0] as the
+  # device name, which is what the MagicDNS record is built from.
+  tls:
+    - hosts:
+        - litellm.tail7f3c08.ts.net
   defaultBackend:
     service:
       name: litellm

@@ -5,8 +5,20 @@ metadata:
   namespace: forgejo
   labels:
     app.kubernetes.io/instance: tailscale-ingress
+  annotations:
+    gethomepage.dev/enabled: "true"
+    gethomepage.dev/name: Forgejo
+    gethomepage.dev/group: Applications
+    gethomepage.dev/icon: forgejo.png
+    gethomepage.dev/description: Git forge, issues and pull requests
+    gethomepage.dev/href: https://forgejo.tail7f3c08.ts.net
 spec:
   ingressClassName: tailscale
+  # The operator takes the first label of spec.tls[0].hosts[0] as the
+  # device name, which is what the MagicDNS record is built from.
+  tls:
+    - hosts:
+        - forgejo.tail7f3c08.ts.net
   defaultBackend:
     service:
       name: forgejo

@@ -5,8 +5,20 @@ metadata:
   namespace: pantrywise
   labels:
     app.kubernetes.io/instance: tailscale-ingress
+  annotations:
+    gethomepage.dev/enabled: "true"
+    gethomepage.dev/name: Pantrywise
+    gethomepage.dev/group: Applications
+    gethomepage.dev/icon: mdi-silverware-fork-knife
+    gethomepage.dev/description: Pantry and shopping inventory
+    gethomepage.dev/href: https://pantrywise.tail7f3c08.ts.net
 spec:
   ingressClassName: tailscale
+  # The operator takes the first label of spec.tls[0].hosts[0] as the
+  # device name, which is what the MagicDNS record is built from.
+  tls:
+    - hosts:
+        - pantrywise.tail7f3c08.ts.net
   defaultBackend:
     service:
       name: web

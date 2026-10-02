@@ -1,6 +1,5 @@
-# Publishes the server on the tailnet as
-# omnigent-omnigent-ingress.tail7f3c08.ts.net (the name the config ConfigMap's
-# two URLs must match).
+# Publishes the server on the tailnet as omnigent.tail7f3c08.ts.net (the name the
+# config ConfigMap's two URLs must match).
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
@@ -8,8 +7,18 @@ metadata:
   namespace: omnigent
   labels:
     app: omnigent
+  annotations:
+    gethomepage.dev/enabled: "true"
+    gethomepage.dev/name: Omnigent
+    gethomepage.dev/group: Agents
+    gethomepage.dev/icon: mdi-robot
+    gethomepage.dev/description: Agent sessions and activity
+    gethomepage.dev/href: https://omnigent.tail7f3c08.ts.net
 spec:
   ingressClassName: tailscale
+  tls:
+    - hosts:
+        - omnigent.tail7f3c08.ts.net
   defaultBackend:
     service:
       name: omnigent

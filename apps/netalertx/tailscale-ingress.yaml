@@ -5,8 +5,20 @@ metadata:
   namespace: netalertx
   labels:
     app.kubernetes.io/instance: tailscale-ingress
+  annotations:
+    gethomepage.dev/enabled: "true"
+    gethomepage.dev/name: NetAlertX
+    gethomepage.dev/group: Applications
+    gethomepage.dev/icon: netalertx.png
+    gethomepage.dev/description: Network device presence and new-device alerts
+    gethomepage.dev/href: https://netalertx.tail7f3c08.ts.net
 spec:
   ingressClassName: tailscale
+  # The operator takes the first label of spec.tls[0].hosts[0] as the
+  # device name, which is what the MagicDNS record is built from.
+  tls:
+    - hosts:
+        - netalertx.tail7f3c08.ts.net
   defaultBackend:
     service:
       name: netalertx

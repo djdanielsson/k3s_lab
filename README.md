@@ -64,6 +64,7 @@ the Vaultwarden API credential setup.
 | netalertx    | `netalertx/netalertx` | `netalertx.netalertx.svc:20211` (hostNetwork) |
 | netdata      | `netdata/netdata` | `netdata.netdata.svc:19999` (hostNetwork)      |
 | hermes       | `nousresearch/hermes-agent` | `hermes.hermes.svc:8642/:9119` (+ Tailscale) |
+| homepage     | `gethomepage/homepage` v2.4.0 | `homepage.homepage.svc` (+ Tailscale) |
 | caretta      | Helm chart `groundcover/caretta` 0.0.16 (eBPF net map + Grafana) | `caretta.caretta.svc` |
 | radar        | Helm chart `skyhook/radar` | `radar.radar.svc:9280` (+ Tailscale) |
 

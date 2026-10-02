@@ -1,5 +1,5 @@
 # Expose the Hermes dashboard + OpenAI API over the Tailscale tailnet.
-# Each Ingress gets its own MagicDNS name (hermes-dashboard-ts / hermes-api-ts).
+# spec.tls[0].hosts[0] sets the MagicDNS names: hermes / hermes-api.
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
@@ -8,8 +8,18 @@ metadata:
   namespace: hermes
   labels:
     app.kubernetes.io/instance: tailscale-ingress
+  annotations:
+    gethomepage.dev/enabled: "true"
+    gethomepage.dev/name: Hermes
+    gethomepage.dev/group: Agents
+    gethomepage.dev/icon: mdi-robot-happy
+    gethomepage.dev/description: Agent dashboard (basic auth)
+    gethomepage.dev/href: https://hermes.tail7f3c08.ts.net
 spec:
   ingressClassName: tailscale
+  tls:
+    - hosts:
+        - hermes.tail7f3c08.ts.net
   defaultBackend:
     service:
       name: hermes
@@ -23,8 +33,18 @@ metadata:
   namespace: hermes
   labels:
     app.kubernetes.io/instance: tailscale-ingress
+  annotations:
+    gethomepage.dev/enabled: "true"
+    gethomepage.dev/name: Hermes API
+    gethomepage.dev/group: Agents
+    gethomepage.dev/icon: mdi-api
+    gethomepage.dev/description: OpenAI-compatible API endpoint
+    gethomepage.dev/href: https://hermes-api.tail7f3c08.ts.net
 spec:
   ingressClassName: tailscale
+  tls:
+    - hosts:
+        - hermes-api.tail7f3c08.ts.net
   defaultBackend:
     service:
       name: hermes
