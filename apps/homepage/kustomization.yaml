@@ -1,0 +1,25 @@
+# Homepage - the lab dashboard. Tiles come from Ingress annotations, so this
+# directory holds only the app itself.
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: homepage
+resources:
+  - namespace.yaml
+  - deployment.yaml
+  - service.yaml
+  - tailscale-ingress.yaml
+  - rbac.yaml
+configMapGenerator:
+  - name: homepage-config
+    options:
+      disableNameSuffixHash: false
+    files:
+      - config/settings.yaml
+      - config/services.yaml
+      - config/widgets.yaml
+      - config/bookmarks.yaml
+      - config/kubernetes.yaml
+      - config/docker.yaml
+      - config/proxmox.yaml
+      - config/custom.css
+      - config/custom.js

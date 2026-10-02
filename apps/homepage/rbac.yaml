@@ -1,0 +1,50 @@
+# Homepage reads Ingresses cluster-wide to build its tiles, plus node/pod
+# metrics for the cluster widget. Nothing here can write.
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: homepage
+  namespace: homepage
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: homepage
+rules:
+  - apiGroups:
+      - networking.k8s.io
+    resources:
+      - ingresses
+    verbs:
+      - get
+      - list
+  - apiGroups:
+      - ""
+    resources:
+      - namespaces
+      - nodes
+      - pods
+    verbs:
+      - get
+      - list
+  - apiGroups:
+      - metrics.k8s.io
+    resources:
+      - nodes
+      - pods
+    verbs:
+      - get
+      - list
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: homepage
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: homepage
+subjects:
+  - kind: ServiceAccount
+    name: homepage
+    namespace: homepage

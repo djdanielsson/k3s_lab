@@ -1,0 +1,134 @@
+# Homepage - the lab dashboard (ghcr.io/gethomepage/homepage).
+#
+# Tiles are not declared here: the app lists Ingresses cluster-wide and renders
+# one tile per Ingress annotated gethomepage.dev/enabled. See
+# apps/tailscale-ingress/README.md.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: homepage
+  namespace: homepage
+  labels:
+    app: homepage
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: homepage
+  template:
+    metadata:
+      labels:
+        app: homepage
+    spec:
+      serviceAccountName: homepage
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+        seccompProfile:
+          type: RuntimeDefault
+      initContainers:
+        # The image ships a prerendered page built from its skeleton config and
+        # /app belongs to root, so copy the build into a writable volume for the
+        # non-root process to regenerate in place.
+        - name: page-cache
+          image: ghcr.io/gethomepage/homepage:v2.4.0@sha256:643bd0be730d40f69d58028a55d1a896739333e8815786df42bc97f109ecbe61
+          command:
+            - sh
+            - -c
+            - cp -R /app/.next/. /cache/
+          volumeMounts:
+            - name: page-cache
+              mountPath: /cache
+          resources:
+            requests:
+              cpu: 10m
+              memory: 32Mi
+            limits:
+              memory: 256Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
+      containers:
+        - name: homepage
+          image: ghcr.io/gethomepage/homepage:v2.4.0@sha256:643bd0be730d40f69d58028a55d1a896739333e8815786df42bc97f109ecbe61
+          env:
+            - name: HOMEPAGE_ALLOWED_HOSTS
+              value: homepage.tail7f3c08.ts.net
+            - name: TZ
+              value: America/Chicago
+          ports:
+            - name: http
+              containerPort: 3000
+          lifecycle:
+            postStart:
+              exec:
+                command:
+                  - node
+                  - -e
+                  - |
+                    // The shipped page cache was built from the skeleton config;
+                    // rebuild it from the mounted config on every start.
+                    (async () => {
+                      for (let attempt = 0; attempt < 60; attempt++) {
+                        try {
+                          const response = await fetch('http://127.0.0.1:3000/api/revalidate', {
+                            headers: { Host: process.env.HOMEPAGE_ALLOWED_HOSTS },
+                            signal: AbortSignal.timeout(5000),
+                          });
+                          if (response.ok) return;
+                        } catch {}
+                        await new Promise((resolve) => setTimeout(resolve, 2000));
+                      }
+                      console.error('Homepage could not load its mounted configuration.');
+                      process.exit(1);
+                    })();
+          volumeMounts:
+            - name: config
+              mountPath: /app/config
+              readOnly: true
+            - name: logs
+              mountPath: /app/config/logs
+            - name: page-cache
+              mountPath: /app/.next
+            - name: tmp
+              mountPath: /tmp
+          readinessProbe:
+            tcpSocket:
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            tcpSocket:
+              port: http
+            initialDelaySeconds: 30
+            periodSeconds: 20
+          resources:
+            requests:
+              cpu: 20m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
+      volumes:
+        - name: config
+          projected:
+            sources:
+              - configMap:
+                  name: homepage-config
+        - name: logs
+          emptyDir: {}
+        - name: page-cache
+          emptyDir: {}
+        - name: tmp
+          emptyDir: {}

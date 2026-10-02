@@ -30,3 +30,4 @@ resources:
   - application-kube-prometheus-stack.yaml
   - application-omnigent.yaml
   - application-litellm.yaml
+  - application-homepage.yaml

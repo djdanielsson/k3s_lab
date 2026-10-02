@@ -1,0 +1,4 @@
+# Cluster mode uses the pod's own service account; ingress discovery turns
+# annotated Ingresses into tiles (see apps/*/tailscale-ingress.yaml).
+mode: cluster
+ingress: true

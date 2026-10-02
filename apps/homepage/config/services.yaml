@@ -1,0 +1,4 @@
+# Only services that cannot be discovered from an Ingress belong here.
+# Everything else is built from gethomepage.dev/* annotations on the
+# ingressClassName: tailscale Ingresses in each app directory.
+[]

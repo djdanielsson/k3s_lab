@@ -1,0 +1,14 @@
+- greeting:
+    text: k3s.lab
+- datetime:
+    text_size: xl
+    format:
+      dateStyle: long
+      timeStyle: short
+- kubernetes:
+    cluster:
+      show: true
+      cpu: true
+      memory: true
+      showLabel: true
+      label: Cluster

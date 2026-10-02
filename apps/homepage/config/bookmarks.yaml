@@ -1,0 +1,4 @@
+- Homelab:
+    - GitOps source:
+        - abbr: GH
+          href: https://github.com/djdanielsson/k3s_lab
