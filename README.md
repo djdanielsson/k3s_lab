@@ -45,7 +45,7 @@ the Vaultwarden API credential setup.
 | `infra/argocd`        | ArgoCD install + its Traefik IngressRoute                  |
 | `infra/argocd-apps`   | AppProject + ArgoCD `Application` resources (incl. Radar via Helm) |
 | `apps/registry`       | Container registry (deploy/svc/**50Gi** PVC, NodePort 30500)|
-| `apps/pantrywise`     | PantryWise (server/web + postgres + redis)                 |
+| `apps/pantrywise`     | PantryWise (server/web + postgres + redis + Firecrawl)      |
 | `apps/rustfs`         | RustFS S3 object storage (deploy/10Gi PVC/console)         |
 | `apps/cert-manager`   | **Let's Encrypt ClusterIssuer — DISABLED** (commented)     |
 | `apps/ingress`        | **All apps' Traefik IngressRoutes — DISABLED** (commented) |

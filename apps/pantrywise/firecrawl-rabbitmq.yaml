@@ -1,0 +1,59 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: firecrawl-rabbitmq
+  namespace: pantrywise
+  labels:
+    app: pantrywise-firecrawl-rabbitmq
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: pantrywise-firecrawl-rabbitmq
+  template:
+    metadata:
+      labels:
+        app: pantrywise-firecrawl-rabbitmq
+    spec:
+      containers:
+        - name: rabbitmq
+          image: docker.io/library/rabbitmq:3-management
+          command: ["rabbitmq-server"]
+          ports:
+            - containerPort: 5672
+              name: amqp
+          readinessProbe:
+            exec:
+              command: ["rabbitmq-diagnostics", "-q", "check_running"]
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            failureThreshold: 12
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: 1000m
+              memory: 1Gi
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/rabbitmq
+      volumes:
+        - name: data
+          emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: firecrawl-rabbitmq
+  namespace: pantrywise
+  labels:
+    app: pantrywise-firecrawl-rabbitmq
+spec:
+  type: ClusterIP
+  selector:
+    app: pantrywise-firecrawl-rabbitmq
+  ports:
+    - name: amqp
+      port: 5672
+      targetPort: 5672

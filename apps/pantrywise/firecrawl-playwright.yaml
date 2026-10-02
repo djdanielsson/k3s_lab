@@ -1,0 +1,80 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: firecrawl-playwright
+  namespace: pantrywise
+  labels:
+    app: pantrywise-firecrawl-playwright
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: pantrywise-firecrawl-playwright
+  template:
+    metadata:
+      labels:
+        app: pantrywise-firecrawl-playwright
+    spec:
+      containers:
+        - name: playwright
+          image: ghcr.io/firecrawl/playwright-service:latest
+          ports:
+            - containerPort: 3000
+              name: http
+          env:
+            - name: PORT
+              value: "3000"
+            - name: MAX_CONCURRENT_PAGES
+              value: "5"
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            failureThreshold: 12
+          resources:
+            requests:
+              cpu: 250m
+              memory: 512Mi
+            limits:
+              cpu: 2000m
+              memory: 4Gi
+          securityContext:
+            allowPrivilegeEscalation: false
+            runAsNonRoot: true
+            runAsUser: 1000
+            capabilities:
+              drop: ["ALL"]
+            seccompProfile:
+              type: RuntimeDefault
+          volumeMounts:
+            - name: shm
+              mountPath: /dev/shm
+            - name: tmpcache
+              mountPath: /tmp/.cache
+      volumes:
+        - name: shm
+          emptyDir:
+            medium: Memory
+            sizeLimit: 2Gi
+        - name: tmpcache
+          emptyDir:
+            medium: Memory
+            sizeLimit: 1Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: firecrawl-playwright
+  namespace: pantrywise
+  labels:
+    app: pantrywise-firecrawl-playwright
+spec:
+  type: ClusterIP
+  selector:
+    app: pantrywise-firecrawl-playwright
+  ports:
+    - name: http
+      port: 3000
+      targetPort: 3000

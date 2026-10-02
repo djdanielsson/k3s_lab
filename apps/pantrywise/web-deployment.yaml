@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
         - name: web
-          image: registry.registry.svc:5000/pantrywise-web:5873801
+          image: registry.registry.svc:5000/pantrywise-web:2ce0da2
           ports:
             - containerPort: 80
               name: http

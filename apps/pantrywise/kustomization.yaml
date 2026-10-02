@@ -12,5 +12,11 @@ resources:
   - redis-deployment.yaml
   - redis-service.yaml
   - external-secret.yaml
+  - firecrawl.yaml
+  - firecrawl-playwright.yaml
+  - firecrawl-redis.yaml
+  - firecrawl-rabbitmq.yaml
+  - firecrawl-postgres.yaml
+  - firecrawl-postgres-pvc.yaml
   - tailscale-ingress.yaml
   # NOTE: Traefik ingress for pantrywise lives in ../ingress (disabled).

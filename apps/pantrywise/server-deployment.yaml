@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
         - name: server
-          image: registry.registry.svc:5000/pantrywise-server:5873801
+          image: registry.registry.svc:5000/pantrywise-server:2ce0da2
           command: ["/bin/sh", "-c"]
           args:
             - >-
@@ -47,6 +47,13 @@ spec:
               value: production
             - name: WEB_URL
               value: http://pantrywise.k3s.lab.danielsson.us.com
+            # Self-hosted Firecrawl (apps/pantrywise/firecrawl.yaml). With
+            # USE_DB_AUTHENTICATION=false any non-empty bearer token is accepted,
+            # so this is a placeholder, not a credential.
+            - name: FIRECRAWL_URL
+              value: http://firecrawl:3002
+            - name: FIRECRAWL_API_KEY
+              value: self-hosted
           resources:
             requests:
               cpu: 100m

@@ -1,0 +1,76 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: firecrawl-postgres
+  namespace: pantrywise
+  labels:
+    app: pantrywise-firecrawl-postgres
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: pantrywise-firecrawl-postgres
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: pantrywise-firecrawl-postgres
+    spec:
+      containers:
+        - name: postgres
+          image: ghcr.io/firecrawl/nuq-postgres:latest
+          ports:
+            - containerPort: 5432
+              name: postgres
+          env:
+            # NOTE: the nuq-postgres image pins cron.database_name=postgres, and
+            # pg_cron refuses to be created in any other database, so the DB name
+            # must stay "postgres" (this is also the upstream default).
+            - name: POSTGRES_USER
+              value: firecrawl
+            - name: POSTGRES_PASSWORD
+              value: firecrawl
+            - name: POSTGRES_DB
+              value: postgres
+            # Fresh cluster directory: the first initialisation ran against a
+            # DB named "firecrawl", which made the image's pg_cron bootstrap
+            # fail and left the nuq schema uncreated. A new PGDATA re-runs the
+            # init scripts without deleting the old data.
+            - name: PGDATA
+              value: /var/lib/postgresql/data/pgdata
+          readinessProbe:
+            exec:
+              command: ["sh", "-c", "pg_isready -U firecrawl -d postgres"]
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 1000m
+              memory: 768Mi
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/postgresql/data
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: firecrawl-postgres-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: firecrawl-postgres
+  namespace: pantrywise
+  labels:
+    app: pantrywise-firecrawl-postgres
+spec:
+  type: ClusterIP
+  selector:
+    app: pantrywise-firecrawl-postgres
+  ports:
+    - name: postgres
+      port: 5432
+      targetPort: 5432

@@ -1,0 +1,92 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: firecrawl
+  namespace: pantrywise
+  labels:
+    app: pantrywise-firecrawl
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: pantrywise-firecrawl
+  template:
+    metadata:
+      labels:
+        app: pantrywise-firecrawl
+    spec:
+      containers:
+        - name: firecrawl
+          image: ghcr.io/firecrawl/firecrawl:2.10.19
+          command: ["node", "dist/src/harness.js", "--start-docker"]
+          ports:
+            - containerPort: 3002
+              name: http
+          env:
+            - name: HOST
+              value: "0.0.0.0"
+            - name: PORT
+              value: "3002"
+            - name: ENV
+              value: local
+            - name: USE_DB_AUTHENTICATION
+              value: "false"
+            - name: LOGGING_LEVEL
+              value: info
+            - name: REDIS_URL
+              value: redis://firecrawl-redis:6379
+            - name: REDIS_RATE_LIMIT_URL
+              value: redis://firecrawl-redis:6379
+            - name: PLAYWRIGHT_MICROSERVICE_URL
+              value: http://firecrawl-playwright:3000/scrape
+            - name: POSTGRES_USER
+              value: firecrawl
+            - name: POSTGRES_PASSWORD
+              value: firecrawl
+            - name: POSTGRES_DB
+              value: postgres
+            - name: POSTGRES_HOST
+              value: firecrawl-postgres
+            - name: POSTGRES_PORT
+              value: "5432"
+            - name: NUQ_DATABASE_URL
+              value: postgresql://firecrawl:firecrawl@firecrawl-postgres:5432/postgres
+            - name: NUQ_RABBITMQ_URL
+              value: amqp://firecrawl-rabbitmq:5672
+            - name: NUM_WORKERS_PER_QUEUE
+              value: "4"
+            - name: CRAWL_CONCURRENT_REQUESTS
+              value: "4"
+            - name: MAX_CONCURRENT_JOBS
+              value: "3"
+            - name: BROWSER_POOL_SIZE
+              value: "3"
+          readinessProbe:
+            tcpSocket:
+              port: http
+            initialDelaySeconds: 20
+            periodSeconds: 10
+            failureThreshold: 18
+          resources:
+            requests:
+              cpu: 250m
+              memory: 512Mi
+            limits:
+              cpu: 2000m
+              memory: 3Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: firecrawl
+  namespace: pantrywise
+  labels:
+    app: pantrywise-firecrawl
+spec:
+  type: ClusterIP
+  selector:
+    app: pantrywise-firecrawl
+  ports:
+    - name: http
+      port: 3002
+      targetPort: 3002
