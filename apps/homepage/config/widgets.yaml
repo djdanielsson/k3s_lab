@@ -5,6 +5,8 @@
     format:
       dateStyle: long
       timeStyle: short
+# The kubernetes widget renders `cluster.show` and `nodes.show`, so both keys
+# must exist even when one is hidden.
 - kubernetes:
     cluster:
       show: true
@@ -12,3 +14,9 @@
       memory: true
       showLabel: true
       label: Cluster
+    nodes:
+      show: true
+      cpu: true
+      memory: true
+      showLabel: true
+      label: Node

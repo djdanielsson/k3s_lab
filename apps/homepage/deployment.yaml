@@ -84,9 +84,11 @@ spec:
                         } catch {}
                         await new Promise((resolve) => setTimeout(resolve, 2000));
                       }
-                      console.error('Homepage could not load its mounted configuration.');
-                      process.exit(1);
-                    })();
+                      // Leave the container running: the pod still serves its
+                      // previous page rather than crash-looping.
+                      console.error('Homepage could not rebuild its page cache from the mounted config.');
+                      return;
+                    }})();
           volumeMounts:
             - name: config
               mountPath: /app/config
