@@ -68,27 +68,22 @@ spec:
             postStart:
               exec:
                 command:
-                  - node
-                  - -e
+                  - sh
+                  - -c
                   - |
-                    // The shipped page cache was built from the skeleton config;
-                    // rebuild it from the mounted config on every start.
-                    (async () => {
-                      for (let attempt = 0; attempt < 60; attempt++) {
-                        try {
-                          const response = await fetch('http://127.0.0.1:3000/api/revalidate', {
-                            headers: { Host: process.env.HOMEPAGE_ALLOWED_HOSTS },
-                            signal: AbortSignal.timeout(5000),
-                          });
-                          if (response.ok) return;
-                        } catch {}
-                        await new Promise((resolve) => setTimeout(resolve, 2000));
-                      }
-                      // Leave the container running: the pod still serves its
-                      // previous page rather than crash-looping.
-                      console.error('Homepage could not rebuild its page cache from the mounted config.');
-                      return;
-                    }})();
+                    # The image ships a page built from its skeleton config; ask
+                    # the running server to rebuild it from the mounted config.
+                    # Shell + wget keeps this independent of the image's node
+                    # version, and the hook never fails: a render problem must
+                    # not crash-loop the pod.
+                    for attempt in $(seq 1 15); do
+                      if wget -q -O /dev/null --header="Host: $HOMEPAGE_ALLOWED_HOSTS" http://127.0.0.1:3000/api/revalidate; then
+                        exit 0
+                      fi
+                      sleep 2
+                    done
+                    echo "homepage: could not rebuild the page cache from the mounted config"
+                    exit 0
           volumeMounts:
             - name: config
               mountPath: /app/config
