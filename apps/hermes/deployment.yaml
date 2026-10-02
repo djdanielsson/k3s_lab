@@ -22,7 +22,7 @@ spec:
         app: hermes
       annotations:
         # Changes when hermes-config changes => ArgoCD rolls the pod on config edits.
-        checksum/hermes-config: 26ad17473ba0f6546c15dcafc2a95b35f4b2d2225284911811f11311fff9af73
+        checksum/hermes-config: e269b47d0d61c523df08fd16a25f7892984b478df54ad0de264a5fff0a87cd7a
     spec:
       serviceAccountName: hermes
       securityContext:
