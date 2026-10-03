@@ -9,13 +9,13 @@ spec:
   project: k3s-lab
   source:
     repoURL: https://github.com/tailscale/tailscale
-    targetRevision: v1.102.4
+    targetRevision: v1.102.5
     path: cmd/k8s-operator/deploy/chart
     helm:
       values: |
         operator:
           image:
-            tag: v1.102.4
+            tag: v1.102.5
             pullPolicy: IfNotPresent
         operatorConfig:
           defaultTags:
