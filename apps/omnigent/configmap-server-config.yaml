@@ -14,6 +14,14 @@
 #   3. There is no `anthropic` lane on purpose (see external-secret-runner.yaml).
 #      `default:` names the families the provider serves, not harnesses, and the
 #      key must be `api_key_ref` — the server rejects an inline `api_key:`.
+#   4. `kubernetes.image` is the custom host image (Dockerfile.omnigent-host-opencode
+#      in the registry Namespace's build context). It exists for one reason: the
+#      official `omnigent-host` image ships claude / codex / pi / kiro-cli / agy
+#      and NO opencode binary, so a session that resolves to `opencode-native`
+#      could never launch — the harness would fail on a missing CLI. The custom
+#      image is `FROM ghcr.io/omnigent-ai/omnigent-host` plus upstream's own
+#      install-harness-cli.sh row for opencode, nothing else, so it tracks the
+#      official image except for the added CLI. Remove this key to fall back.
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -27,6 +35,19 @@ data:
       kubernetes:
         namespace: omnigent-sandboxes
         secret_name: omnigent-runner-llm
+        image: registry.registry.svc:5000/omnigent-host-opencode:latest
+      # Server-side model discovery for the host_config provider: without it a
+      # session create fails with "Configure sandbox.model_discovery for this
+      # provider or a model_allowlist for this harness" — the gateway's model
+      # list is resolved HERE, by the server, rather than in the sandbox.
+      # `openai` is the family for any OpenAI-compatible gateway (the same
+      # family the provider block above serves); the credential is a reference,
+      # never a value.
+      model_discovery:
+        litellm:
+          base_url: http://litellm.litellm.svc.cluster.local:4000/v1
+          api_key_ref: env:OPENAI_API_KEY
+          family: openai
       host_config:
         providers:
           litellm:
