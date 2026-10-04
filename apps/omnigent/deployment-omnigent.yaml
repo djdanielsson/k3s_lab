@@ -28,8 +28,8 @@ spec:
         # until the pod is replaced. One annotation per source: rebase the
         # checksum on configmap-config.yaml for a config edit, bump the nonce
         # for a Secret edit (a rotated credential, a new redirect URI).
-        checksum/omnigent-config: 634f8d4cf1ea8dae0142de4d5f7945ec1c2c880035fd9d08f4664fe80d358056
-        omnigent.io/restart-nonce: "2026-10-02T20:53Z"
+        checksum/omnigent-config: 99a56630ebed0ad0988ec3c02734cf869c0572185fbb44301395266454584191
+        omnigent.io/restart-nonce: "2026-10-04T19:45Z"
     spec:
       serviceAccountName: omnigent
       initContainers:
