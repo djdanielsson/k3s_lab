@@ -1,0 +1,48 @@
+# HashiCorp Vault — the credential-store cipher backend.
+#
+# WHY A CHART-SOURCED APPLICATION WITH TWO SOURCES: Vault is real vendor
+# software whose upgrade path is the chart, so vendoring every template into
+# this repo would be owning the chart. Instead the chart comes from upstream at
+# a pinned version, and the values file comes from THIS repo (the `$values`
+# ref), so a values change is still a normal reviewed commit here.
+#
+# `apps/vault` holds the Namespace and the values; the chart's own namespace
+# handling is off (CreateNamespace=false) so git owns the Namespace object.
+#
+# UNSEAL IS NOT PART OF THIS APP. Vault boots sealed and needs a threshold of
+# shards (in Vaultwarden as `k3s/vault-unseal`) before its Transit key works.
+# Run og-vault/unseal.py after any pod restart. Until then the consumer
+# (Omnigent's credential store) logs that it is disabled and stays dormant
+# rather than crashing.
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: vault
+  namespace: argocd
+spec:
+  project: k3s-lab
+  sources:
+    - repoURL: https://helm.releases.hashicorp.com
+      chart: vault
+      # Pinned: a floating chart version is not reproducible, and this chart
+      # moves its Vault image with it.
+      targetRevision: 0.34.1
+      helm:
+        releaseName: vault
+        valueFiles:
+          - $values/apps/vault/values.yaml
+    - repoURL: https://github.com/djdanielsson/k3s_lab
+      targetRevision: main
+      ref: values
+    - repoURL: https://github.com/djdanielsson/k3s_lab
+      targetRevision: main
+      path: apps/vault
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: vault
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=false

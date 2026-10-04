@@ -45,10 +45,12 @@ spec:
             - until pg_isready -h omnigent-postgres -p 5432 -U omnigent -d omnigent; do echo waiting for postgres; sleep 2; done
       containers:
         - name: omnigent
-          # Upstream publishes this image as a rolling tag; pinning a digest here
-          # would fight the project's release cadence, so this is the one place a
-          # mutable tag is tolerated. Roll a restart after a pull to use it.
-          image: ghcr.io/omnigent-ai/omnigent-server-kubernetes:latest
+          # PINNED, not rolling. Upstream's `:latest` currently resolves to the
+          # same digest as v0.16.0 (verified against ghcr), but a mutable tag
+          # means the running server can change under a restarted pod with no
+          # commit to point at — the one thing this repo's convention forbids
+          # elsewhere. Bump deliberately, and record the digest when you do.
+          image: ghcr.io/omnigent-ai/omnigent-server-kubernetes:v0.16.0
           imagePullPolicy: Always
           env:
             - name: OMNIGENT_CONFIG

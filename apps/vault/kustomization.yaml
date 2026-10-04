@@ -1,0 +1,12 @@
+# Vault is installed by its Helm chart, not by plain manifests, so this
+# directory holds only the values file the Application points at plus the
+# Namespace. `kubectl kustomize` is not used here; ArgoCD renders the chart
+# directly from helm.releases.hashicorp.com at the pinned version.
+#
+# Kept as a file (rather than an inline `helm.values` string in the Application)
+# so the values are readable and diffable in review, and so the Application
+# stays one path reference.
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - namespace.yaml

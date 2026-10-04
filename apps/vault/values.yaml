@@ -1,0 +1,60 @@
+# Helm values for the Vault chart. The chart itself is NOT vendored: the ArgoCD
+# Application sources it from the upstream repo at a pinned version, so this
+# file is the entire configuration contract for the release.
+#
+# Deliberate weakenings, named so they are decisions rather than surprises:
+#   - global.tlsDisable=true plus the standalone listener's tls_disable = 1:
+#     Vault speaks plain HTTP. It is reachable only through a ClusterIP Service
+#     inside the cluster — no Ingress, no NodePort — so the exposure is the
+#     cluster network.
+#   - injector disabled: nothing here uses sidecar injection (the only consumer
+#     reads VAULT_ADDR/VAULT_TOKEN from its environment), and leaving it on
+#     installs a cluster-wide mutating webhook.
+#
+# The cluster-scoped ClusterRoleBinding `system:auth-delegator` IS created (the
+# chart always renders it): Vault's Kubernetes auth method needs to review
+# ServiceAccount tokens. Unused until a k8s auth method is enabled, which is the
+# natural follow-up to the static token in use today.
+#
+# UNSEAL IS MANUAL AND OUTSIDE THIS APP. Vault boots sealed; unsealing requires
+# the threshold number of shards, which live in Vaultwarden
+# (`k3s/vault-unseal`) and are applied by og-vault/unseal.py. A chart cannot
+# unseal itself, and the keys must not sit beside the data they protect.
+global:
+  tlsDisable: true
+
+injector:
+  enabled: false
+
+server:
+  standalone:
+    enabled: true
+    config: |
+      ui = true
+
+      listener "tcp" {
+        tls_disable = 1
+        address = "[::]:8200"
+        cluster_address = "[::]:8201"
+      }
+
+      storage "file" {
+        path = "/vault/data"
+      }
+
+  ui:
+    enabled: true
+
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: "1"
+      memory: 1Gi
+
+  dataStorage:
+    enabled: true
+    size: 10Gi
+    storageClass: local-path
+    accessMode: ReadWriteOnce

@@ -28,5 +28,6 @@ resources:
   - application-argocd-apps.yaml
   - application-kube-prometheus-stack.yaml
   - application-omnigent.yaml
+  - application-vault.yaml
   - application-litellm.yaml
   - application-homepage.yaml

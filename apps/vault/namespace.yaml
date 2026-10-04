@@ -1,0 +1,9 @@
+# Namespace for the credential-store cipher backend. Applied from git so ArgoCD
+# owns it rather than a hand-run `helm install` (which is how it was first stood
+# up as a prototype).
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: vault
+  labels:
+    app.kubernetes.io/name: vault
