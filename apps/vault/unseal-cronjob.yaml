@@ -1,0 +1,177 @@
+# Auto-unseal for the lab Vault.
+#
+# WHY A CRONJOB AND NOT A JOB OR AN INIT CONTAINER
+#   A plain Job runs once and never again, so it cannot respond to the event
+#   that actually matters: the Vault pod restarting (node reboot, rollout,
+#   chart upgrade). An init container on Vault itself would unseal before Vault
+#   is serving — impossible, the server must be up to receive shards. So the
+#   shape is a short-interval CronJob that asks "is Vault sealed?" and does
+#   nothing unless it is. Polling is idempotent and cheap; the alternative
+#   (watching Vault) needs the API to report transitions, which a sealed Vault
+#   does not.
+#
+#   Standard k8s CronJobs cannot run more often than once a minute
+#   (`spec.schedule` is minute-granular), and that is the recovery-time floor:
+#   a restart leaves the credential store dormant for up to ~60s. Vault's own
+#   `vault-agent-injector` style sidecar approaches do not fit here either —
+#   this cluster has the injector deliberately disabled, and the shards must
+#   not live on the Vault pod.
+#
+# THE REAL ANSWER IS A SECOND SEAL, AND THIS IS NOT IT
+#   HashiCorp's supported auto-unseal is a second seal backed by a KMS
+#   (AWS/GCP/Azure/Transit). Vault fetches the root key from that KMS at boot
+#   and never needs shard entry at all. This lab has no cloud KMS — that absence
+#   is precisely why Vault Transit is the cipher here — so this CronJob is a
+#   deliberate lab-grade substitute. It is strictly weaker than a KMS seal:
+#   the shards sit in Vaultwarden next to everything they protect, so anyone who
+#   can read that vault can unseal Vault. Documented, not hidden.
+#
+# WHERE THE SHARDS COME FROM
+#   The CronJob does NOT embed them. It reads them from the vault item
+#   `k3s/vault-unseal` through the ESO bridge, the same path og-vault/unseal.py
+#   uses, so rotation stays a single-vault-item operation. That requires the
+#   ESO bridge to be reachable from this namespace — see the NetworkPolicy note
+#   in the accompanying manifests.
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: vault-unseal
+  namespace: vault
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: vault-unseal
+  namespace: vault
+rules:
+  # The job only reads its own logs on failure; no cluster reach is needed.
+  - apiGroups: [""]
+    resources: ["pods"]
+    verbs: ["get", "list"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: vault-unseal
+  namespace: vault
+subjects:
+  - kind: ServiceAccount
+    name: vault-unseal
+    namespace: vault
+roleRef:
+  kind: Role
+  name: vault-unseal
+  apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: vault-unseal
+  namespace: vault
+  labels:
+    app.kubernetes.io/name: vault-unseal
+spec:
+  # Every minute is the k8s floor and the recovery-time ceiling.
+  schedule: "* * * * *"
+  # Overlap is pointless: a second run would see an unsealed Vault and exit.
+  concurrencyPolicy: Forbid
+  # Keep a couple of runs for forensics, then let them go.
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 3
+  startingDeadlineSeconds: 30
+  jobTemplate:
+    spec:
+      backoffLimit: 0
+      ttlSecondsAfterFinished: 600
+      template:
+        metadata:
+          labels:
+            app.kubernetes.io/name: vault-unseal
+        spec:
+          restartPolicy: Never
+          serviceAccountName: vault-unseal
+          containers:
+            - name: unseal
+              image: docker.io/library/python:3.12-slim
+              command: ["python3", "-c"]
+              args:
+                - |
+                  # Ask the SEAL STATUS first. An unsealed Vault is the normal
+                  # case every minute of the day, so the cheap exit matters;
+                  # only a sealed one triggers the (root-token-free) unseal
+                  # POSTs, which is the whole point of polling rather than
+                  # acting blindly.
+                  import json, os, sys, urllib.error, urllib.request
+
+                  VAULT = os.environ["VAULT_ADDR"]
+                  BRIDGE = os.environ["ESO_BRIDGE_URL"]
+
+                  def get(url, token=None):
+                      r = urllib.request.Request(url)
+                      if token:
+                          r.add_header("X-Vault-Token", token)
+                      with urllib.request.urlopen(r, timeout=15) as resp:
+                          body = resp.read().decode()
+                          return json.loads(body) if body.strip() else {}
+
+                  def post(url, payload, token=None):
+                      r = urllib.request.Request(url, data=json.dumps(payload).encode(), method="POST")
+                      r.add_header("Content-Type", "application/json")
+                      if token:
+                          r.add_header("X-Vault-Token", token)
+                      try:
+                          with urllib.request.urlopen(r, timeout=15) as resp:
+                              return resp.status, json.loads(resp.read().decode() or "{}")
+                      except urllib.error.HTTPError as e:
+                          return e.code, {"err": e.read().decode()[:200]}
+
+                  try:
+                      status = get(VAULT + "/v1/sys/seal-status")
+                  except Exception as exc:
+                      # Vault not up yet: a normal early-boot condition, not an
+                      # error worth failing the Job over.
+                      print("vault not reachable yet:", type(exc).__name__)
+                      sys.exit(0)
+                  if not status.get("initialized"):
+                      print("vault not initialised; nothing to do")
+                      sys.exit(0)
+                  if not status.get("sealed"):
+                      print("already unsealed")
+                      sys.exit(0)
+
+                  # Sealed: pull the shards from the vault item, never from here.
+                  listing = get(BRIDGE + "/list/object/items?search=k3s%2Fvault-unseal")
+                  items = (listing.get("data") or {}).get("data") or []
+                  if not items:
+                      print("ERROR: vault item k3s/vault-unseal not found via the bridge")
+                      sys.exit(1)
+                  fields = {f["name"]: f["value"] for f in (items[0].get("fields") or [])}
+                  shares = [v for k, v in sorted(fields.items()) if k.startswith("UNSEAL_KEY_")]
+                  threshold = int(fields.get("UNSEAL_THRESHOLD") or 3)
+                  if len(shares) < threshold:
+                      print(f"ERROR: only {len(shares)} shard(s), need {threshold}")
+                      sys.exit(1)
+
+                  for i, share in enumerate(shares[:threshold]):
+                      code, resp = post(VAULT + "/v1/sys/unseal", {"key": share})
+                      print("shard", i + 1, "->", code, "sealed", resp.get("sealed"),
+                            "progress", resp.get("progress"))
+                      if resp.get("sealed") is False:
+                          break
+                  final = get(VAULT + "/v1/sys/seal-status")
+                  print("final: sealed =", final.get("sealed"))
+                  sys.exit(0 if final.get("sealed") is False else 1)
+              env:
+                - name: VAULT_ADDR
+                  value: http://vault.vault.svc.cluster.local:8200
+                - name: ESO_BRIDGE_URL
+                  value: http://bitwarden-cli.external-secrets.svc:8087
+              resources:
+                requests: { cpu: 10m, memory: 32Mi }
+                limits: { cpu: 100m, memory: 64Mi }
+              securityContext:
+                allowPrivilegeEscalation: false
+                readOnlyRootFilesystem: true
+                runAsNonRoot: true
+                runAsUser: 65534
+                capabilities: { drop: ["ALL"] }
