@@ -50,7 +50,19 @@ spec:
           # means the running server can change under a restarted pod with no
           # commit to point at — the one thing this repo's convention forbids
           # elsewhere. Bump deliberately, and record the digest when you do.
-          image: ghcr.io/omnigent-ai/omnigent-server-kubernetes:v0.16.0
+          #
+          # CUSTOM BUILD: this is our own image, built in-cluster from the pinned
+          # upstream base with ONE change — the `harness_labels` dict in
+          # omnigent/harness_plugins.py gains an `opencode-native` row, which is
+          # all that was hiding it from the UI picker (the harness is already in
+          # valid_harnesses, so the catalog's `not in valid_harnesses` filter was
+          # never the problem). Dockerfile + build job: k8s_lab/apps/omnigent or
+          # the og-images build script. Digest: sha256:dbb9f5ee13f2…
+          #
+          # Caveat: the picker row does NOT make an opencode session run. The
+          # runner must also advertise and dispatch the harness; that is
+          # separate work. This image exists so the rest can be tested.
+          image: registry.registry.svc:5000/omnigent-server-opencode:latest
           imagePullPolicy: Always
           env:
             - name: OMNIGENT_CONFIG

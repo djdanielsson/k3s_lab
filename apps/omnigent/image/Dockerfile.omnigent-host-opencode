@@ -1,0 +1,50 @@
+# Custom Omnigent host image: official host image + the opencode CLI baked in.
+#
+# Why a fork of any kind: the `opencode-native` harness ships NO CLI in the
+# official `omnigent-host` image (claude / codex / pi / kiro-cli / agy only), so
+# every session that resolves to opencode-native can never launch in a managed
+# sandbox. The upstream Dockerfile exposes exactly one supported extension point
+# for this — the EXTRA_HARNESS_CLIS build arg, which runs
+# deploy/docker/install-harness-cli.sh — and that is what this image uses. There
+# is no source fork here: the whole build is `FROM <official host>` plus one
+# script invocation, so the image tracks upstream except for the added CLI.
+#
+# Build context: this directory. No repo checkout required, and no git
+# credential — everything comes either from the pinned base image or from the
+# script fetched from the upstream tag below.
+#
+#   docker build -t omnigent-host-opencode:latest \
+#     -f Dockerfile.omnigent-host-opencode .
+#
+# The base tag and the script ref are ARGs so a version bump is one --build-arg.
+ARG HOST_BASE_IMAGE=ghcr.io/omnigent-ai/omnigent-host:latest
+FROM ${HOST_BASE_IMAGE}
+
+# Pin the script to the same upstream tag as the base image when you pin the
+# base; `main` tracks the same code the official image is built from.
+ARG INSTALL_SCRIPT_REF=main
+ARG OPENCODE_VERSION=1.18.0
+
+USER root
+RUN set -eu; \
+    curl -fsSL -o /tmp/install-harness-cli.sh \
+      "https://raw.githubusercontent.com/omnigent-ai/omnigent/${INSTALL_SCRIPT_REF}/deploy/docker/install-harness-cli.sh"; \
+    bash /tmp/install-harness-cli.sh "opencode@${OPENCODE_VERSION}"; \
+    rm -f /tmp/install-harness-cli.sh
+
+# The script's own smoke check runs as root and as the non-root `sandbox` user
+# (uid 1000660000). Re-assert it, plus the version gate the runtime enforces
+# (opencode_native.client: >=1.17.7,<1.19.0), so a bad base or a moved default
+# fails the build instead of the first session.
+RUN set -eu; \
+    command -v opencode >/dev/null; \
+    /usr/local/bin/opencode --version; \
+    setpriv --reuid=sandbox --regid=sandbox --clear-groups \
+      env HOME=/sandbox /usr/local/bin/opencode --version
+
+# Everything below is `omnigent` PATH/filesystem-policy dependant, unchanged
+# from the base image: the host runs as uid 1000660000 with HOME=/home/omnigent
+# (see omnigent/onboarding/sandboxes/kubernetes.py). Nothing extra to install —
+# opencode is a static Node bundle on the shared /usr/local/bin.
+USER sandbox
+WORKDIR /home/omnigent

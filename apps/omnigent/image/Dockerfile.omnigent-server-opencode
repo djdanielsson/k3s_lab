@@ -1,0 +1,59 @@
+# Custom Omnigent SERVER image: the stock server image plus one picker row.
+#
+# WHY THIS EXISTS
+#   `opencode-native` is fully wired in the server image — it is in
+#   `valid_harnesses()` (27 entries) and has install/auth setup steps — but it
+#   never appears in the UI picker because `harness_labels` in
+#   `omnigent/harness_plugins.py` omits it, and `harness_catalog()` builds each
+#   row from that dict. So a session can never be created for it.
+#
+# HOW THE PATCH WORKS (verified against the image, not assumed)
+#   The image installs omnigent as an EDITABLE install:
+#     /opt/venv/lib/python3.12/site-packages/__editable__.omnigent-0.16.0.pth
+#     -> module resolves to /build/omnigent/harness_plugins.py
+#   That is plain Python source, so a single-line insertion into the
+#   `harness_labels` dict is all that is needed. No bytecode surgery and no
+#   `.pyc` invalidation: Python imports a source file directly under an editable
+#   install, so editing the .py is enough. (This is the trap that made an
+#   earlier plan look like it needed a cache-clearing step — the source is at
+#   /build/omnigent, NOT under site-packages, and there is no .pyc to fight.)
+#
+#   The patch FAILS THE BUILD if the anchor text is absent, so an upstream
+#   refactor that moves the dict breaks the build loudly instead of silently
+#   shipping an image with an unpatched file.
+#
+# WHAT IT DOES NOT DO
+#   It does not make an opencode session run. The runner must also advertise the
+#   harness (`_runner_hello_frame`, serve.py) and dispatch it; that side is
+#   separate. This image only makes the row selectable so the rest can be tested.
+#
+# BASE: pinned. The stock server image is a rolling `:latest`, which would make
+# this image unreproducible — the same reason the Deployment pins v0.16.0.
+ARG SERVER_BASE_IMAGE=ghcr.io/omnigent-ai/omnigent-server-kubernetes:v0.16.0
+FROM ${SERVER_BASE_IMAGE}
+
+USER root
+
+RUN set -eu; \
+    F=/build/omnigent/harness_plugins.py; \
+    test -f "$F" || { echo "ERROR: $F not found — the editable-install layout changed"; exit 1; }; \
+    grep -q 'opencode-native' "$F" || { echo "ERROR: opencode-native absent from harness_plugins.py"; exit 1; }; \
+    if grep -q '^        "opencode-native": "OpenCode",$' "$F"; then \
+      echo "already patched"; \
+    else \
+      grep -q '^        "pi": "Pi",$' "$F" || { echo "ERROR: anchor line not found; upstream dict changed"; exit 1; }; \
+      sed -i 's|^        "pi": "Pi",$|        "opencode-native": "OpenCode",\n        "pi": "Pi",|' "$F"; \
+      echo "patched harness_labels"; \
+    fi; \
+    grep -n -A2 '"opencode-native": "OpenCode",' "$F"
+
+# Prove the patch at BUILD time by calling the same function the API calls:
+# the catalog must now contain an opencode-native row.
+RUN /opt/venv/bin/python - <<'PY'
+import omnigent.harness_plugins as m
+rows = {r["id"] for r in m.harness_catalog()}
+assert "opencode-native" in rows, f"opencode-native missing from catalog: {sorted(rows)}"
+print("catalog rows:", sorted(rows))
+PY
+
+USER 1000
