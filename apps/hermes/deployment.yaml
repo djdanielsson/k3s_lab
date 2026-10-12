@@ -25,7 +25,7 @@ spec:
         checksum/hermes-config: e269b47d0d61c523df08fd16a25f7892984b478df54ad0de264a5fff0a87cd7a
         # sha256 over HOOK.yaml + handler.py (recompute command in kustomization.yaml)
         # => rolls the pod when the usage-notice hook changes.
-        checksum/hermes-hooks: 7f85a97a0f3a8337b46da9f1fcd2eea305747fbe7c4392025d9f74f3d58a44d7
+        checksum/hermes-hooks: 20ee2203a35973b55b6cbed3a60bf3c2a08e1445023155f096590cfc56c5606a
     spec:
       serviceAccountName: hermes
       securityContext:

@@ -1,5 +1,5 @@
 name: usage-notice
-description: "Append a month-to-date token-usage line to the new-session notice (State.db totals)."
+description: "Append the OpenCode Go plan's rolling/weekly/monthly usage to the new-session notice."
 events:
   - gateway:startup
   - session:start

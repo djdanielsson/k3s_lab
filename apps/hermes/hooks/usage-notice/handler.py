@@ -1,21 +1,32 @@
-"""usage-notice — add a month-to-date usage line to the new-session notice.
+"""usage-notice — add an OpenCode Go plan-usage line to the new-session notice.
 
 The "New session started" / auto-reset notice is built by the gateway in
 ``gateway/run_turn.py::GatewayTurnMixin._format_session_info()`` and is exactly
 three lines (Model / Provider / Context). Hermes exposes no config key, hook
 return value, or language-pack slot that appends to it, so this gateway hook
-wraps that method once at startup and appends one line rendered from the
-gateway's own SQLite session store.
-
-    ✨ New session started!
+wraps that method once at startup and appends the Go plan's usage windows:
 
     ◆ Model: `deepseek-v4.1-flash`
     ◆ Provider: opencode-go
-    ◆ Context: 200K tokens (detected)
-    ◆ Usage (Oct): 12.4M in · 1.1M out · 3,412 calls
+    ◆ Context: 1.0M tokens (detected)
+    ◆ OpenCode Go: 5h 0% (resets 2h05m) · week 0% · month 0%
 
-Fail-safe by design: a missing DB, a renamed method, or schema drift leaves the
-notice exactly as upstream renders it — nothing here may break the notice.
+Source: ``GET https://opencode.ai/zen/go/v1/usage`` with the same API key the
+agent uses (``hermes_cli.auth.resolve_api_key_provider_credentials``). It returns
+the three plan meters the workspace dashboard shows — rolling (5h), weekly and
+monthly — each as a whole, floored percent of the window's allowance plus the
+reset timestamp; the allowance is metered server-side in spend, not tokens, so
+"0%" means under 1% consumed, not "no data".
+
+Two things this endpoint is picky about, both handled below: it is behind
+Cloudflare, which answers the default Python-urllib User-Agent with
+"403 error code: 1010" (a curl/browser UA gets 200 in ~150 ms), and it must never
+be polled hard — the meters are a three-table join server-side, so results are
+cached in-process for a minute and only fetched when a notice is rendered.
+
+Fail-safe by design: any error (no key, HTTP error, entitlement missing, renamed
+method) leaves the notice exactly as upstream renders it — nothing here may break
+the notice.
 
 Deployed by gitops (k3s_lab apps/hermes): the `hermes-hooks` ConfigMap is copied
 into $HERMES_HOME/hooks/usage-notice/ by the fix-perms init container on every
@@ -24,85 +35,124 @@ boot, because Hermes only reads hooks/ once, at gateway startup.
 
 from __future__ import annotations
 
+import json
 import logging
 import os
-import sqlite3
+import threading
+import time
+import urllib.error
+import urllib.request
 from datetime import datetime, timezone
-from pathlib import Path
 
 logger = logging.getLogger("hooks.usage_notice")
 
 _PATCH_FLAG = "_usage_notice_patched"
 _BULLET = "\u25c6"  # ◆ — the marker the built-in lines use
+_USAGE_URL = "https://opencode.ai/zen/go/v1/usage"
+_PROVIDER = "opencode-go"
+_TIMEOUT_S = 6.0
+_CACHE_TTL_S = 60.0
+# Cloudflare fronts opencode.ai and returns "403 error code: 1010" for the
+# default Python-urllib UA; a curl-style UA is accepted.
+_USER_AGENT = "curl/8.5.0"
+
+_cache_lock = threading.Lock()
+_cache_at = 0.0
+_cache_line = ""
 
 
-def _hermes_home() -> Path:
-    home = os.environ.get("HERMES_HOME")
-    return Path(home) if home else Path.home() / ".hermes"
-
-
-def _human(n: int) -> str:
-    if n >= 1_000_000_000:
-        return f"{n / 1_000_000_000:.1f}B"
-    if n >= 1_000_000:
-        return f"{n / 1_000_000:.1f}M"
-    if n >= 1_000:
-        return f"{n / 1_000:.1f}K"
-    return str(n)
-
-
-def _usage_line() -> str:
-    """Month-to-date totals across the whole store, or "" when unavailable.
-
-    Every session row (telegram / tui / cron / subagent alike) carries only its
-    own counters, so they sum without double counting — and the parent filter
-    SessionDB.usage_totals() applies would be wrong here: this deployment's /new
-    chains each session to its predecessor as parent_session_id, so filtering on
-    "top-level only" hides nearly all usage.
-
-    Window is sessions *started* in the current calendar month (UTC), so a
-    session that spans a month boundary lands in exactly one month.
-    """
-    db = _hermes_home() / "state.db"
-    if not db.exists():
-        return ""
-    now = datetime.now(timezone.utc)
-    month_start = datetime(now.year, now.month, 1, tzinfo=timezone.utc).timestamp()
+def _api_key() -> str:
+    """The Go plan API key, resolved the same way the agent resolves it."""
     try:
-        con = sqlite3.connect(f"file:{db}?mode=ro", uri=True, timeout=2.0)
-    except sqlite3.Error as exc:
-        logger.debug("usage-notice: cannot open %s: %s", db, exc)
+        from hermes_cli.auth import resolve_api_key_provider_credentials
+
+        creds = resolve_api_key_provider_credentials(_PROVIDER) or {}
+        key = str(creds.get("api_key") or "").strip()
+        if key:
+            return key
+    except Exception:
+        logger.debug("usage-notice: credential resolution failed", exc_info=True)
+    for name in ("OPENCODE_GO_API_KEY", "OPENCODE_ZEN_API_KEY", "OPENCODE_API_KEY"):
+        value = (os.environ.get(name) or "").strip()
+        if value:
+            return value
+    return ""
+
+
+def _human_delta(seconds: float) -> str:
+    """Reset countdown: ``42m`` / ``2h05m`` / ``6d21h``."""
+    total = max(0, int(seconds))
+    minutes, _ = divmod(total, 60)
+    hours, minutes = divmod(minutes, 60)
+    days, hours = divmod(hours, 24)
+    if days:
+        return f"{days}d{hours}h"
+    if hours:
+        return f"{hours}h{minutes:02d}m"
+    return f"{minutes}m"
+
+
+def _reset_in(window: dict) -> str:
+    raw = window.get("resetsAt")
+    if not isinstance(raw, str) or not raw:
         return ""
     try:
-        row = con.execute(
-            """
-            SELECT COALESCE(SUM(COALESCE(input_tokens, 0)), 0),
-                   COALESCE(SUM(COALESCE(output_tokens, 0)), 0),
-                   COALESCE(SUM(COALESCE(api_call_count, 0)), 0),
-                   COALESCE(SUM(COALESCE(actual_cost_usd, estimated_cost_usd, 0)), 0)
-              FROM sessions
-             WHERE COALESCE(message_count, 0) >= 1
-               AND COALESCE(archived, 0) = 0
-               AND COALESCE(started_at, last_activity_at, 0) >= ?
-            """,
-            (month_start,),
-        ).fetchone()
-    except sqlite3.Error as exc:
-        logger.debug("usage-notice: usage query failed: %s", exc)
+        resets_at = datetime.fromisoformat(raw.replace("Z", "+00:00"))
+    except ValueError:
         return ""
-    finally:
-        con.close()
+    return _human_delta((resets_at - datetime.now(timezone.utc)).total_seconds())
 
-    if not row:
-        return ""
-    tokens_in, tokens_out, calls = int(row[0] or 0), int(row[1] or 0), int(row[2] or 0)
-    cost = float(row[3] or 0.0)
-    if not (tokens_in or tokens_out or calls):
-        return ""
-    parts = [f"{_human(tokens_in)} in", f"{_human(tokens_out)} out", f"{calls:,} calls"]
-    if cost > 0:  # opencode-go has no price catalog entry, so this stays hidden today
-        parts.append(f"${cost:,.2f}")
-    return f"{_BULLET} Usage ({now.strftime('%b')}): " + " · ".join(parts)
+
+def _fetch_windows() -> dict:
+    key = _api_key()
+    if not key:
+        return {}
+    request = urllib.request.Request(_USAGE_URL)
+    request.add_header("Authorization", f"Bearer {key}")
+    request.add_header("Accept", "application/json")
+    request.add_header("User-Agent", _USER_AGENT)
+    with urllib.request.urlopen(request, timeout=_TIMEOUT_S) as response:
+        payload = json.loads(response.read().decode("utf-8", errors="replace"))
+    usage = payload.get("usage")
+    return usage if isinstance(usage, dict) else {}
+
+
+def _plan_line() -> str:
+    """``◆ OpenCode Go: 5h 0% (resets 2h05m) · week 0% · month 0%`` or ""."""
+    global _cache_at, _cache_line
+    with _cache_lock:
+        now = time.monotonic()
+        if now - _cache_at < _CACHE_TTL_S:
+            return _cache_line
+
+    line = ""
+    try:
+        windows = _fetch_windows()
+        parts = []
+        for key, label in (("rolling", "5h"), ("weekly", "week"), ("monthly", "month")):
+            window = windows.get(key)
+            if not isinstance(window, dict) or window.get("percent") is None:
+                continue
+            segment = f"{label} {int(window['percent'])}%"
+            if key == "rolling":
+                reset = _reset_in(window)
+                if reset:
+                    segment += f" (resets {reset})"
+            if window.get("status") not in (None, "ok"):
+                segment += " — rate limited"
+            parts.append(segment)
+        if parts:
+            line = f"{_BULLET} OpenCode Go: " + " · ".join(parts)
+    except urllib.error.HTTPError as exc:
+        # 401/403 mean "no Go subscription for this key" as much as "bad key".
+        logger.debug("usage-notice: usage endpoint returned HTTP %s", exc.code)
+    except Exception:
+        logger.debug("usage-notice: plan usage lookup failed", exc_info=True)
+
+    with _cache_lock:
+        _cache_at = time.monotonic()
+        _cache_line = line
+    return line
 
 
 def _install_patch() -> bool:
@@ -116,15 +166,15 @@ def _install_patch() -> bool:
     def _format_session_info(self):
         base = original(self)
         try:
-            line = _usage_line()
+            line = _plan_line()
         except Exception:  # the notice must render even if usage does not
-            logger.debug("usage-notice: usage line failed", exc_info=True)
+            logger.debug("usage-notice: plan line failed", exc_info=True)
             line = ""
         return f"{base}\n{line}" if line else base
 
     setattr(_format_session_info, _PATCH_FLAG, True)
     GatewayTurnMixin._format_session_info = _format_session_info
-    logger.info("usage-notice: session-info block now carries a usage line")
+    logger.info("usage-notice: session-info block now carries the Go plan windows")
     return True
 
 

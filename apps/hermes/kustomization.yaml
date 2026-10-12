@@ -14,9 +14,9 @@ resources:
   - external-secret.yaml
   - tailscale-ingress.yaml
 configMapGenerator:
-  # Gateway hook that appends a month-to-date usage line to the new-session
-  # notice. The fix-perms init container copies these files into
-  # /opt/data/hooks/usage-notice/ on every boot (Hermes reads hooks/ only at
+  # Gateway hook that appends the OpenCode Go plan's rolling/weekly/monthly usage
+  # to the new-session notice. The fix-perms init container copies these files
+  # into /opt/data/hooks/usage-notice/ on every boot (Hermes reads hooks/ only at
   # gateway startup).
   #
   # Stable name on purpose: a hashed name would need kustomize to rewrite the
