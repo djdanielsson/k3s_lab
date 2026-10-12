@@ -23,6 +23,9 @@ spec:
       annotations:
         # Changes when hermes-config changes => ArgoCD rolls the pod on config edits.
         checksum/hermes-config: e269b47d0d61c523df08fd16a25f7892984b478df54ad0de264a5fff0a87cd7a
+        # sha256 over HOOK.yaml + handler.py (recompute command in kustomization.yaml)
+        # => rolls the pod when the usage-notice hook changes.
+        checksum/hermes-hooks: 7f85a97a0f3a8337b46da9f1fcd2eea305747fbe7c4392025d9f74f3d58a44d7
     spec:
       serviceAccountName: hermes
       securityContext:
@@ -48,11 +51,21 @@ spec:
                 cp /config/config.yaml /opt/data/config.yaml
                 chown hermes:hermes /opt/data/config.yaml
               fi
+              # Gateway hooks: refreshed from the hermes-hooks ConfigMap on every
+              # boot, unlike config.yaml above — Hermes reads hooks/ once at
+              # gateway startup, so a GitOps edit has to land before the
+              # gateway starts.
+              mkdir -p /opt/data/hooks/usage-notice
+              cp -f /hooks-src/HOOK.yaml /hooks-src/handler.py /opt/data/hooks/usage-notice/
+              chown -R 10000:10000 /opt/data/hooks
           volumeMounts:
             - name: data
               mountPath: /opt/data
             - name: config
               mountPath: /config
+            - name: hooks-src
+              mountPath: /hooks-src
+              readOnly: true
           securityContext:
             runAsUser: 0
       containers:
@@ -138,5 +151,8 @@ spec:
         - name: config
           configMap:
             name: hermes-config
+        - name: hooks-src
+          configMap:
+            name: hermes-hooks
         - name: tmp
           emptyDir: {}

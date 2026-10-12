@@ -1,5 +1,8 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
+# Set here (not just per resource) so generated ConfigMaps carry the same
+# namespace as the resources referencing them.
+namespace: hermes
 resources:
   - namespace.yaml
   - serviceaccount.yaml
@@ -10,3 +13,21 @@ resources:
   - service.yaml
   - external-secret.yaml
   - tailscale-ingress.yaml
+configMapGenerator:
+  # Gateway hook that appends a month-to-date usage line to the new-session
+  # notice. The fix-perms init container copies these files into
+  # /opt/data/hooks/usage-notice/ on every boot (Hermes reads hooks/ only at
+  # gateway startup).
+  #
+  # Stable name on purpose: a hashed name would need kustomize to rewrite the
+  # Deployment's volume reference, and a missed rewrite leaves the pod unable to
+  # start. Bump checksum/hermes-hooks in deployment.yaml when these files change
+  # so the pod rolls:
+  #   sha256sum apps/hermes/hooks/usage-notice/HOOK.yaml apps/hermes/hooks/usage-notice/handler.py
+  #   python3 -c "import hashlib,sys;h=hashlib.sha256();[h.update(open(p,'rb').read()) for p in sys.argv[1:]];print(h.hexdigest())" apps/hermes/hooks/usage-notice/HOOK.yaml apps/hermes/hooks/usage-notice/handler.py
+  - name: hermes-hooks
+    options:
+      disableNameSuffixHash: true
+    files:
+      - HOOK.yaml=hooks/usage-notice/HOOK.yaml
+      - handler.py=hooks/usage-notice/handler.py

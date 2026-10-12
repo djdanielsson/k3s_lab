@@ -1,0 +1,6 @@
+name: usage-notice
+description: "Append a month-to-date token-usage line to the new-session notice (State.db totals)."
+events:
+  - gateway:startup
+  - session:start
+  - session:reset
