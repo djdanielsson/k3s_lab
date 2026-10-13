@@ -56,4 +56,36 @@ assert "opencode-native" in rows, f"opencode-native missing from catalog: {sorte
 print("catalog rows:", sorted(rows))
 PY
 
-USER 1000
+# WHY: the Vault Transit credential cipher (`OMNIGENT_CREDENTIAL_CIPHER=vault`)
+# lives behind the `omnigent[vault]` extra, which the stock server image does NOT
+# install. The cipher still *constructs* without hvac — it fails lazily, inside
+# `encrypt`, at the first credential write. That write is the GitHub OAuth
+# callback storing the connection, so the whole connect flow dies with a bare
+# {"error":{"code":"internal_error"}} and `connections` stays empty, while every
+# other symptom (App configured, enabled_connections: [github], broker answering
+# {"connected": false}) reads as "the user never connected".
+RUN /opt/venv/bin/pip install --no-cache-dir "hvac>=2,<3"
+
+# Prove the extra landed AND that the cipher's import guard is satisfied.
+# Building an hvac.Client is lazy (no Vault connection), so this needs no Vault
+# and no token at build time.
+RUN OMNIGENT_CREDENTIAL_VAULT_KEY=buildcheck /opt/venv/bin/python - <<'PY'
+import importlib.metadata as md
+
+from omnigent.stores.credential_store.vault_cipher import build_vault_secret_cipher
+
+cipher = build_vault_secret_cipher()
+assert cipher is not None, "OMNIGENT_CREDENTIAL_VAULT_KEY did not select the Vault cipher"
+cipher._vault  # raises ImportError when hvac is missing
+print("hvac", md.version("hvac"), "- vault cipher wired")
+PY
+
+# NO `USER` DIRECTIVE, deliberately — leave the image as root, like upstream.
+# The server image is NOT the host image: it writes to the artifacts PVC, whose
+# .cache/.staging subdirectories are root-owned (0755/0700), and AgentCache
+# extracts every bundle through mkdtemp there. Running the server as a non-root
+# uid makes that mkdtemp fail with PermissionError, which the session-create path
+# swallows into a generic "Cannot load the agent to validate its configured
+# inference provider" — i.e. EVERY session create breaks, for every harness.
+# That failure is worth remembering: it presents as an inference/config problem
+# and is actually a file-permission one.
