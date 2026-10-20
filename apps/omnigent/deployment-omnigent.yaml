@@ -34,7 +34,7 @@ spec:
         # pod too — a mounted ConfigMap updates on disk but the server parses
         # it once at boot.
         checksum/omnigent-server-config: 06e682b5658607f973d500071ea297887f73daade7f84ebcaabaf430c6f4a230
-        omnigent.io/restart-nonce: "2026-10-20T03:20Z"
+        omnigent.io/restart-nonce: "2026-10-20T03:55Z"
     spec:
       serviceAccountName: omnigent
       initContainers:
