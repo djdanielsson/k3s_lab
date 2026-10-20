@@ -17,6 +17,14 @@ upstream instead of drifting from it.
   ships claude / codex / pi / kiro-cli / agy and **no opencode binary**, so a
   sandbox that picks opencode-native has nothing to launch. Upstream's own
   `install-harness-cli.sh` row installs it; the Dockerfile just calls it.
+  The same image carries two source patches for the **direct OpenCode Go lane**:
+  the runner's tunnel hello frame now advertises `opencode-native` (without that
+  row the server never offers the harness on a managed sandbox, even though
+  `configured_harness_map()` already reports it ready), and the synthesized
+  `@ai-sdk/openai-compatible` provider gets `x-opencode-session` /
+  `x-opencode-client` headers — OpenCode Go answers `400 MissingSessionID`
+  without a stable per-conversation session id. Both patches assert their anchors
+  at build time and drop stale bytecode for the two edited modules.
 
 ## Building
 
@@ -45,3 +53,4 @@ is inlined, and everything else comes from the pinned base.
 - **A picker row is not a working session.** The runner advertises its own
   harness list in the hello frame (`runner/transports/ws_tunnel/serve.py`) and
   dispatches through its own tables; the row only lets a session be *created*.
+  The hello-frame patch above is what closes that gap for `opencode-native`.

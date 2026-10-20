@@ -42,6 +42,33 @@ RUN set -eu; \
     setpriv --reuid=sandbox --regid=sandbox --clear-groups \
       env HOME=/sandbox /usr/local/bin/opencode --version
 
+# ---------------------------------------------------------------------------
+# Cluster patch: make opencode-native launchable AND able to reach OpenCode Go
+# directly. Two upstream gaps, both established by reading this image's code:
+#
+#   1. The runner's tunnel hello frame (`runner/transports/ws_tunnel/serve.py`)
+#      lists the harness kinds it can spawn, and `opencode-native` is absent —
+#      so the server never offers the harness on a managed sandbox even though
+#      the CLI and the executor are installed. `configured_harness_map()` in the
+#      same image already reports opencode-native: True (it is gated on the
+#      binary), so the hello-frame row is the only missing piece.
+#
+#   2. `build_opencode_provider_config` writes an @ai-sdk/openai-compatible
+#      provider with baseURL/apiKey only. OpenCode Go rejects requests without a
+#      stable per-conversation `x-opencode-session` (400 MissingSessionID) and
+#      asks for a real client identity, so a direct provider block can never
+#      work unpatched. LiteLLM papers over this today by sending a constant
+#      header; these headers are per Omnigent session instead, which is also
+#      better for Go's prompt-cache affinity.
+#
+# This is a source edit inside the image's normal (non-editable) install. The
+# patch is a real file in the build context, NOT a Dockerfile heredoc: Kaniko
+# 1.23.2 hands `RUN python - <<'PY'` an empty stdin, so Python exits 0 without
+# executing anything and the build goes green over an unpatched image. The
+# script asserts both anchors and exits non-zero when a patch is missing.
+COPY patches/opencode-direct.py /tmp/opencode-direct.py
+RUN /opt/venv/bin/python /tmp/opencode-direct.py && rm -f /tmp/opencode-direct.py
+
 # Everything below is `omnigent` PATH/filesystem-policy dependant, unchanged
 # from the base image: the host runs as uid 1000660000 with HOME=/home/omnigent
 # (see omnigent/onboarding/sandboxes/kubernetes.py). Nothing extra to install —

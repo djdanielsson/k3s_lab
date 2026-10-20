@@ -22,6 +22,16 @@
 #      image is `FROM ghcr.io/omnigent-ai/omnigent-host` plus upstream's own
 #      install-harness-cli.sh row for opencode, nothing else, so it tracks the
 #      official image except for the added CLI. Remove this key to fall back.
+#
+#   5. `opencode-native` is the only harness on the DIRECT lane: its provider is
+#      `opencode-go`, i.e. the sandbox talks to https://opencode.ai/zen/go/v1
+#      with the subscription key, skipping LiteLLM. Everything else (pi,
+#      codex-native) stays on `litellm`, which keeps both paths live at once:
+#      the gateway still gives spend logging and a single credential for the
+#      other harnesses. The same custom host image also injects the
+#      `x-opencode-session` header Go requires and advertises the harness in its
+#      tunnel hello frame — without those two patches a direct lane 400s and the
+#      harness is never offered to a managed sandbox.
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -48,6 +58,14 @@ data:
           base_url: http://litellm.litellm.svc.cluster.local:4000/v1
           api_key_ref: env:OPENAI_API_KEY
           family: openai
+        # Direct OpenCode Go discovery: the same upstream the `fast`/`smart`
+        # aliases front, queried without the gateway hop. `/models` on Go does
+        # NOT need the x-opencode-session header (only chat completions do), so
+        # the server can enumerate the catalog with just the bearer key.
+        opencode-go:
+          base_url: https://opencode.ai/zen/go/v1
+          api_key_ref: env:OPENCODE_GO_API_KEY
+          family: openai
       host_config:
         providers:
           litellm:
@@ -59,6 +77,21 @@ data:
               wire_api: chat
               models:
                 default: smart
+          # Direct OpenCode Go. No `default:` on purpose: litellm keeps the
+          # openai-family default (two defaults on one family is a validation
+          # error), and this provider is reached only through the explicit
+          # opencode-native binding below. Go needs wire_api chat — the
+          # opencode harness rejects a Responses endpoint — and the runner
+          # injects the required x-opencode-session header per session (host
+          # image patch; without it every turn 400s MissingSessionID).
+          opencode-go:
+            kind: gateway
+            openai:
+              base_url: https://opencode.ai/zen/go/v1
+              api_key_ref: env:OPENCODE_GO_API_KEY
+              wire_api: chat
+              models:
+                default: deepseek-v4.1-flash
         inference:
           harnesses:
             pi:
@@ -67,6 +100,12 @@ data:
             codex-native:
               provider: litellm
               default_model: smart
+            # The only harness on the direct lane. `model_allowlist` is also
+            # what opencode's in-session model picker lists, so it is the knob
+            # that decides how much of Go's catalog is reachable.
             opencode-native:
-              provider: litellm
-              default_model: smart
+              provider: opencode-go
+              default_model: deepseek-v4.1-flash
+              model_allowlist:
+                - deepseek-v4.1-flash
+                - deepseek-v4-flash
