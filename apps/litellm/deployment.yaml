@@ -24,7 +24,7 @@ spec:
         # a new Secret value — a rotated master key, a new UI password — reaches
         # nothing until the pod is replaced. This string is the only thing that
         # has to change to force that.
-        litellm.io/restart-nonce: "2026-09-29T15:38Z"
+        litellm.io/restart-nonce: "2026-10-20T02:48Z"
     spec:
       securityContext:
         runAsUser: 1000
