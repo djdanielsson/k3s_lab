@@ -17,7 +17,14 @@
 #     -f Dockerfile.omnigent-host-opencode .
 #
 # The base tag and the script ref are ARGs so a version bump is one --build-arg.
-ARG HOST_BASE_IMAGE=ghcr.io/omnigent-ai/omnigent-host:latest
+#
+# PINNED, not `:latest`. Renovate's Dependency Dashboard shows this Dockerfile
+# with NO detected dependency while the base is a mutable tag — there is no
+# version to compare against, so an available upgrade is simply invisible. The
+# pin below is the version already running (verified: ghcr's `latest` and
+# `v0.19.0` shared the index digest sha256:eb0ab8dc… at the time of pinning), so
+# pinning changes nothing in the image and everything for the update feed.
+ARG HOST_BASE_IMAGE=ghcr.io/omnigent-ai/omnigent-host:v0.19.0
 FROM ${HOST_BASE_IMAGE}
 
 # Pin the script to the same upstream tag as the base image when you pin the
