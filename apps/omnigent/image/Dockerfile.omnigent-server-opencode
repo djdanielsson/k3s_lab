@@ -28,8 +28,10 @@
 #   separate. This image only makes the row selectable so the rest can be tested.
 #
 # BASE: pinned. The stock server image is a rolling `:latest`, which would make
-# this image unreproducible — the same reason the Deployment pins v0.16.0.
-ARG SERVER_BASE_IMAGE=ghcr.io/omnigent-ai/omnigent-server-kubernetes:v0.16.0
+# this image unreproducible. The pin is the version this cluster runs; Renovate
+# tracks it (it ignores mutable tags, which is why the host Dockerfile was
+# invisible to the dashboard until it was pinned too).
+ARG SERVER_BASE_IMAGE=ghcr.io/omnigent-ai/omnigent-server-kubernetes:v0.19.0
 FROM ${SERVER_BASE_IMAGE}
 
 USER root
@@ -47,15 +49,6 @@ RUN set -eu; \
     fi; \
     grep -n -A2 '"opencode-native": "OpenCode",' "$F"
 
-# Prove the patch at BUILD time by calling the same function the API calls:
-# the catalog must now contain an opencode-native row.
-RUN /opt/venv/bin/python - <<'PY'
-import omnigent.harness_plugins as m
-rows = {r["id"] for r in m.harness_catalog()}
-assert "opencode-native" in rows, f"opencode-native missing from catalog: {sorted(rows)}"
-print("catalog rows:", sorted(rows))
-PY
-
 # WHY: the Vault Transit credential cipher (`OMNIGENT_CREDENTIAL_CIPHER=vault`)
 # lives behind the `omnigent[vault]` extra, which the stock server image does NOT
 # install. The cipher still *constructs* without hvac — it fails lazily, inside
@@ -66,19 +59,14 @@ PY
 # {"connected": false}) reads as "the user never connected".
 RUN /opt/venv/bin/pip install --no-cache-dir "hvac>=2,<3"
 
-# Prove the extra landed AND that the cipher's import guard is satisfied.
-# Building an hvac.Client is lazy (no Vault connection), so this needs no Vault
-# and no token at build time.
-RUN OMNIGENT_CREDENTIAL_VAULT_KEY=buildcheck /opt/venv/bin/python - <<'PY'
-import importlib.metadata as md
-
-from omnigent.stores.credential_store.vault_cipher import build_vault_secret_cipher
-
-cipher = build_vault_secret_cipher()
-assert cipher is not None, "OMNIGENT_CREDENTIAL_VAULT_KEY did not select the Vault cipher"
-cipher._vault  # raises ImportError when hvac is missing
-print("hvac", md.version("hvac"), "- vault cipher wired")
-PY
+# Prove BOTH assertions against the built image: the catalog has an
+# opencode-native row, and the Vault cipher is wired (hvac importable, client
+# constructed). This is a real context file, not a heredoc — Kaniko silently
+# skips `RUN python - <<'PY'`, which is how both checks passed for months
+# without ever executing. Building an hvac.Client is lazy (no Vault connection),
+# so this needs no Vault and no token at build time.
+COPY patches/verify-server.py /tmp/verify-server.py
+RUN /opt/venv/bin/python /tmp/verify-server.py && rm -f /tmp/verify-server.py
 
 # NO `USER` DIRECTIVE, deliberately — leave the image as root, like upstream.
 # The server image is NOT the host image: it writes to the artifacts PVC, whose
