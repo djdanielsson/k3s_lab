@@ -1,0 +1,75 @@
+# A long-lived Omnigent host — the k3s analogue of the `omnigent-host`
+# container in ai-development-sandbox's docker-compose.
+#
+# WHY IT EXISTS: in the podman setup the composer's model list comes from a
+# connected host (Codex's own `model/list`, complete with per-model reasoning
+# ladders), not from a server-side provider catalog. Managed Kubernetes
+# sandboxes are created per session, so without a standing host the picker has
+# nothing to ask and falls back to a hand-written allowlist.
+#
+# It runs in the sandbox namespace on purpose: the Codex home claim lives there
+# (PVCs are namespace-scoped) and it is the same storage the runner Pods mount,
+# so auth-token refreshes stay coherent across the host and every sandbox.
+#
+# The claim is ReadWriteOnce and this is a single-node cluster; if nodes are
+# ever added, this Deployment and the runner Pods must land on the same node or
+# the mount will fail.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: omnigent-host
+  namespace: omnigent-sandboxes
+  labels:
+    app: omnigent-host
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: omnigent-host
+  template:
+    metadata:
+      labels:
+        app: omnigent-host
+    spec:
+      securityContext:
+        runAsUser: 1000660000
+        runAsGroup: 1000660000
+        fsGroup: 1000660000
+        fsGroupChangePolicy: OnRootMismatch
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: host
+          image: registry.registry.svc:5000/omnigent-host-opencode:v0.19.0-sub1
+          imagePullPolicy: IfNotPresent
+          # Same command the podman `omnigent-host` service runs.
+          command: ["omni", "host", "http://omnigent.omnigent.svc.cluster.local:8000"]
+          env:
+            - name: HOME
+              value: /home/omnigent
+            # The persistent Codex home: login + config.toml (model/effort).
+            - name: CODEX_HOME
+              value: /mnt/codex-home
+            - name: DO_NOT_TRACK
+              value: "1"
+            - name: OMNIGENT_RUNNER_ENV_PASSTHROUGH
+              value: DO_NOT_TRACK
+          volumeMounts:
+            - name: codex-home
+              mountPath: /mnt/codex-home
+          resources:
+            limits:
+              memory: 1Gi
+            requests:
+              cpu: 50m
+              memory: 256Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
+      volumes:
+        - name: codex-home
+          persistentVolumeClaim:
+            claimName: omnigent-codex-home

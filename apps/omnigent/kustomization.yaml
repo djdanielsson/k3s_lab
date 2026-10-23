@@ -16,6 +16,7 @@ resources:
   - pvc-codex-home.yaml
   - deployment-postgres.yaml
   - deployment-omnigent.yaml
+  - deployment-omnigent-host.yaml
   - service-postgres.yaml
   - service-omnigent.yaml
   - tailscale-ingress.yaml
