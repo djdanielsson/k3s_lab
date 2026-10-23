@@ -103,6 +103,22 @@ data:
           harnesses:
             codex-native:
               provider: codex-sub
+              # A subscription provider has no server-side discovery (no
+              # base_url/credential to list), so the pre-launch picker needs a
+              # curated list: without one the server answers
+              # "Configure sandbox.model_discovery for this provider or a
+              # model_allowlist for this harness" and the composer shows
+              # "Models unavailable". Slugs come from `codex debug models` on
+              # this account, not from guesswork.
+              default_model: gpt-6-luna
+              model_allowlist:
+                - gpt-6-luna
+                - gpt-6.1-sol
+                - gpt-6-sol
+                - gpt-6-astra
+                - gpt-5.6-sol
+                - gpt-5.6-terra
+                - gpt-5.6-luna
             # `model_allowlist` is also what opencode's in-session model picker
             # lists, so it is the knob that decides how much of Go's catalog is
             # reachable.
