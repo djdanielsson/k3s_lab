@@ -71,6 +71,13 @@ RUN /opt/venv/bin/pip install --no-cache-dir "hvac>=2,<3"
 COPY patches/subscription-managed.py /tmp/subscription-managed.py
 RUN /opt/venv/bin/python /tmp/subscription-managed.py
 
+# Second half of the same lane: give the curated (allowlist) catalog real
+# display names and per-model reasoning ladders, sourced from the account's own
+# `codex debug models` output via the omnigent-codex-catalog ConfigMap. Without
+# it the composer shows bare slugs and no effort choices.
+COPY patches/codex-catalog-metadata.py /tmp/codex-catalog-metadata.py
+RUN /opt/venv/bin/python /tmp/codex-catalog-metadata.py
+
 # Prove BOTH assertions against the built image: the catalog has an
 # opencode-native row, and the Vault cipher is wired (hvac importable, client
 # constructed). This is a real context file, not a heredoc — Kaniko silently

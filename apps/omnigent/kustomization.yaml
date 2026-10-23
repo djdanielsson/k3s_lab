@@ -10,6 +10,7 @@ resources:
   - external-secret-runner.yaml
   - configmap-config.yaml
   - configmap-server-config.yaml
+  - configmap-codex-catalog.yaml
   - pvc-artifacts.yaml
   - pvc-pg-data.yaml
   - pvc-codex-home.yaml

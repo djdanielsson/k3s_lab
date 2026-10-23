@@ -1,0 +1,36 @@
+# The Codex account's visible model catalog — what the composer's picker shows
+# and which reasoning efforts each model accepts.
+#
+# WHY A CONFIGMAP: a `kind: subscription` provider has no server-side model
+# discovery (no base_url, no credential to list), so the server serves the
+# harness `model_allowlist` instead. That list alone renders bare model ids with
+# no effort options. This file is the account's real catalog, copied from
+# `codex debug models` inside a sandbox that holds the login, and the server
+# patch merges it into the picker rows (display names + supportedReasoningEfforts).
+#
+# Generated, not authoritative: rerun `codex debug models` after an account or
+# CLI upgrade and update this file. Only `visibility: list` rows belong here —
+# gpt-reserve and codex-auto-review are hidden by the CLI itself.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: omnigent-codex-catalog
+  namespace: omnigent
+data:
+  codex-models.json: |
+    [
+      {"id": "gpt-6.1-sol", "displayName": "GPT-6.1-Sol", "defaultEffort": "low",
+       "efforts": ["low", "medium", "high", "xhigh", "max", "ultra"]},
+      {"id": "gpt-6-astra", "displayName": "GPT-6-Astra", "defaultEffort": "low",
+       "efforts": ["low", "medium", "high", "xhigh", "max", "ultra"]},
+      {"id": "gpt-6-sol", "displayName": "GPT-6-Sol", "defaultEffort": "medium",
+       "efforts": ["low", "medium", "high", "xhigh", "max", "ultra"]},
+      {"id": "gpt-6-luna", "displayName": "GPT-6-Luna", "defaultEffort": "medium",
+       "efforts": ["low", "medium", "high", "xhigh", "max"]},
+      {"id": "gpt-5.6-sol", "displayName": "GPT-5.6-Sol", "defaultEffort": "low",
+       "efforts": ["low", "medium", "high", "xhigh", "max", "ultra"]},
+      {"id": "gpt-5.6-terra", "displayName": "GPT-5.6-Terra", "defaultEffort": "medium",
+       "efforts": ["low", "medium", "high", "xhigh", "max", "ultra"]},
+      {"id": "gpt-5.6-luna", "displayName": "GPT-5.6-Luna", "defaultEffort": "medium",
+       "efforts": ["low", "medium", "high", "xhigh", "max"]}
+    ]
