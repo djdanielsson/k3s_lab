@@ -1,0 +1,29 @@
+# Persistent CODEX_HOME for the OpenAI lane.
+#
+# A personal ChatGPT plan has no headless token: Codex keeps its login in
+# `$CODEX_HOME/auth.json` and its refresh tokens rotate on every use, so a copy
+# in a shared Secret (or a fresh emptyDir per sandbox Job) goes stale as soon as
+# anything refreshes it. One login must therefore live on storage that survives
+# sandbox generations.
+#
+# The runner Pod mounts this read-write at /mnt/codex-home (see the
+# `sandbox.kubernetes.pvc_mounts` entry in configmap-server-config.yaml) and the
+# host image gets `CODEX_HOME=/mnt/codex-home` from the runner Secret, so
+# Omnigent's per-session Codex homes symlink `auth.json` back here and token
+# refreshes land on the claim instead of dying with the Job.
+#
+# /home/omnigent (the runner's HOME) is a reserved mount prefix — a claim cannot
+# be mounted over it — which is why the mount lives under /mnt and CODEX_HOME
+# points there rather than at the default ~/.codex.
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: omnigent-codex-home
+  namespace: omnigent-sandboxes
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: local-path
+  resources:
+    requests:
+      storage: 1Gi

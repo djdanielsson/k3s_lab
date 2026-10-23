@@ -12,6 +12,7 @@ resources:
   - configmap-server-config.yaml
   - pvc-artifacts.yaml
   - pvc-pg-data.yaml
+  - pvc-codex-home.yaml
   - deployment-postgres.yaml
   - deployment-omnigent.yaml
   - service-postgres.yaml

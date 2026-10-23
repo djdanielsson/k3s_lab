@@ -1,5 +1,5 @@
 # The server config, mounted at /data/server-config.yaml and pointed at by
-# OMNIGENT_CONFIG. Three things in here were established the hard way; they are
+# OMNIGENT_CONFIG. Four things in here were established the hard way; they are
 # load-bearing, not stylistic:
 #
 #   1. `provider: kubernetes` with a runner namespace and a credentials Secret
@@ -8,13 +8,8 @@
 #      and needs an upgraded, incompatible gateway to do it, so the host's
 #      websocket tunnel to the server never connected. Plain runner Pods have
 #      ordinary cluster networking and connect on the first try.
-#   2. Each provider family lane needs `models.default`. Pi's credential
-#      resolver silently drops a family whose default model is unset, then
-#      "Pi will use its own login" and 401s against whatever it defaults to.
-#   3. There is no `anthropic` lane on purpose (see external-secret-runner.yaml).
-#      `default:` names the families the provider serves, not harnesses, and the
-#      key must be `api_key_ref` — the server rejects an inline `api_key:`.
-#   4. `kubernetes.image` is the custom host image (Dockerfile.omnigent-host-opencode
+#
+#   2. `kubernetes.image` is the custom host image (Dockerfile.omnigent-host-opencode
 #      in the registry Namespace's build context). It exists for one reason: the
 #      official `omnigent-host` image ships claude / codex / pi / kiro-cli / agy
 #      and NO opencode binary, so a session that resolves to `opencode-native`
@@ -23,15 +18,32 @@
 #      install-harness-cli.sh row for opencode, nothing else, so it tracks the
 #      official image except for the added CLI. Remove this key to fall back.
 #
-#   5. `opencode-native` is the only harness on the DIRECT lane: its provider is
-#      `opencode-go`, i.e. the sandbox talks to https://opencode.ai/zen/go/v1
-#      with the subscription key, skipping LiteLLM. Everything else (pi,
-#      codex-native) stays on `litellm`, which keeps both paths live at once:
-#      the gateway still gives spend logging and a single credential for the
-#      other harnesses. The same custom host image also injects the
-#      `x-opencode-session` header Go requires and advertises the harness in its
-#      tunnel hello frame — without those two patches a direct lane 400s and the
-#      harness is never offered to a managed sandbox.
+#   3. Two lanes, two authentications, no gateway in between:
+#
+#      - `opencode-native` → `opencode-go`, the flat-rate Go subscription at
+#        https://opencode.ai/zen/go/v1. Go requires a stable
+#        `x-opencode-session` header and a real client UA on chat completions;
+#        the host image injects both per session and advertises the harness in
+#        its tunnel hello frame. Without those two patches a direct lane 400s
+#        and the harness is never offered to a managed sandbox.
+#
+#      - `codex-native` → `codex-sub`, a `kind: subscription` provider, i.e.
+#        Codex's own ChatGPT login. There is no API key anywhere: a personal
+#        Plus/Pro plan has no headless token, and Codex stores its session in
+#        `$CODEX_HOME/auth.json` with rotating single-use refresh tokens.
+#        `sandbox.kubernetes.pvc_mounts` therefore backs CODEX_HOME with a
+#        claim (omnigent-codex-home) and the runner Secret sets
+#        `CODEX_HOME=/mnt/codex-home`, so refreshes land on storage that
+#        outlives the 7-day sandbox Job. A read-only Secret copy of auth.json
+#        would work exactly once and then go stale.
+#
+#      Pi is deliberately absent: it has no ChatGPT-subscription lane (a codex
+#      subscription cannot drive it) and the Go upstream needs headers Pi does
+#      not send. Its old binding pointed at the LiteLLM gateway, which is gone.
+#
+#   4. There is no `anthropic` lane on purpose (see external-secret-runner.yaml).
+#      `default:` names the families a provider serves, not harnesses, and a key
+#      must be `api_key_ref` — the server rejects an inline `api_key:`.
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -46,44 +58,39 @@ data:
         namespace: omnigent-sandboxes
         secret_name: omnigent-runner-llm
         image: registry.registry.svc:5000/omnigent-host-opencode:latest
-      # Server-side model discovery for the host_config provider: without it a
-      # session create fails with "Configure sandbox.model_discovery for this
-      # provider or a model_allowlist for this harness" — the gateway's model
-      # list is resolved HERE, by the server, rather than in the sandbox.
-      # `openai` is the family for any OpenAI-compatible gateway (the same
-      # family the provider block above serves); the credential is a reference,
-      # never a value.
+        # One shared, persistent CODEX_HOME. `/home/omnigent` is a reserved
+        # mount prefix in the provider's validation, so the claim cannot be
+        # mounted over the runner's HOME; CODEX_HOME points at /mnt instead.
+        pvc_mounts:
+          - claim_name: omnigent-codex-home
+            mount_path: /mnt/codex-home
+            read_only: false
+      # Server-side model discovery for a gateway provider: without it a session
+      # create fails with "Configure sandbox.model_discovery for this provider or
+      # a model_allowlist for this harness" — the catalog is resolved HERE, by
+      # the server, rather than in the sandbox. `/models` on Go does NOT need the
+      # x-opencode-session header (only chat completions do), so the server can
+      # enumerate it with just the bearer key. A subscription provider needs no
+      # entry: codex-native probes its own CLI for the account's catalog.
       model_discovery:
-        litellm:
-          base_url: http://litellm.litellm.svc.cluster.local:4000/v1
-          api_key_ref: env:OPENAI_API_KEY
-          family: openai
-        # Direct OpenCode Go discovery: the same upstream the `fast`/`smart`
-        # aliases front, queried without the gateway hop. `/models` on Go does
-        # NOT need the x-opencode-session header (only chat completions do), so
-        # the server can enumerate the catalog with just the bearer key.
         opencode-go:
           base_url: https://opencode.ai/zen/go/v1
           api_key_ref: env:OPENCODE_GO_API_KEY
           family: openai
       host_config:
         providers:
-          litellm:
-            kind: gateway
+          # Codex's own ChatGPT login. `cli: codex` is what tells the resolver
+          # this provider serves the openai family without carrying any
+          # credential of its own: the login lives in $CODEX_HOME.
+          codex-sub:
+            kind: subscription
+            cli: codex
             default: [openai]
-            openai:
-              base_url: http://litellm.litellm.svc.cluster.local:4000/v1
-              api_key_ref: env:OPENAI_API_KEY
-              wire_api: chat
-              models:
-                default: smart
-          # Direct OpenCode Go. No `default:` on purpose: litellm keeps the
+          # Direct OpenCode Go. No `default:` on purpose: codex-sub keeps the
           # openai-family default (two defaults on one family is a validation
           # error), and this provider is reached only through the explicit
           # opencode-native binding below. Go needs wire_api chat — the
-          # opencode harness rejects a Responses endpoint — and the runner
-          # injects the required x-opencode-session header per session (host
-          # image patch; without it every turn 400s MissingSessionID).
+          # opencode harness rejects a Responses endpoint.
           opencode-go:
             kind: gateway
             openai:
@@ -94,15 +101,11 @@ data:
                 default: deepseek-v4.1-flash
         inference:
           harnesses:
-            pi:
-              provider: litellm
-              default_model: smart
             codex-native:
-              provider: litellm
-              default_model: smart
-            # The only harness on the direct lane. `model_allowlist` is also
-            # what opencode's in-session model picker lists, so it is the knob
-            # that decides how much of Go's catalog is reachable.
+              provider: codex-sub
+            # `model_allowlist` is also what opencode's in-session model picker
+            # lists, so it is the knob that decides how much of Go's catalog is
+            # reachable.
             opencode-native:
               provider: opencode-go
               default_model: deepseek-v4.1-flash
