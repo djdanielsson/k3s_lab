@@ -70,7 +70,12 @@ spec:
           # lives in the host image (Dockerfile.omnigent-host-opencode), which
           # adds `opencode-native` to the tunnel hello frame and injects the
           # OpenCode Go session headers. Both halves are required.
-          image: registry.registry.svc:5000/omnigent-server-opencode:v0.19.0
+          # v0.19.0-sub1 adds the subscription-provider patch: upstream refuses
+          # any provider kind except gateway/key/local for managed inference and
+          # calls _wire() (which needs a family table) before reading
+          # model_allowlist, so the Codex ChatGPT lane could never appear in the
+          # composer. Image digest: sha256:6068ce324804…
+          image: registry.registry.svc:5000/omnigent-server-opencode:v0.19.0-sub1
           imagePullPolicy: Always
           env:
             - name: OMNIGENT_CONFIG

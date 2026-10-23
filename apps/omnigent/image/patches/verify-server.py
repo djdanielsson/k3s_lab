@@ -50,3 +50,19 @@ except ImportError as exc:
     print(f"FATAL: hvac missing, Vault cipher is inert: {exc}")
     sys.exit(1)
 print(f"ok: hvac {md.version('hvac')} installed, Vault cipher wired")
+
+# 3. subscription providers may back a managed sandbox. Both halves are needed:
+#    `prepare()` must admit the kind, and `catalog()` must reach the allowlist
+#    path instead of `_wire()`, which raises for a family-less provider.
+import inspect  # noqa: E402
+
+import omnigent.server.inference_catalog as ic  # noqa: E402
+
+ic_src = inspect.getsource(ic)
+if '{"gateway", "key", "local", "subscription"}' not in ic_src:
+    print("FATAL: prepare() still rejects subscription providers for managed inference")
+    sys.exit(1)
+if 'if provider.kind == "subscription":' not in ic_src:
+    print("FATAL: catalog() has no subscription short-circuit; _wire() would raise")
+    sys.exit(1)
+print("ok: subscription providers allowed for managed sandboxes")

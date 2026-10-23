@@ -59,6 +59,18 @@ RUN set -eu; \
 # {"connected": false}) reads as "the user never connected".
 RUN /opt/venv/bin/pip install --no-cache-dir "hvac>=2,<3"
 
+# ---------------------------------------------------------------------------
+# Cluster patch: let a `kind: subscription` provider back a managed sandbox.
+#
+# Upstream refuses every kind except gateway/key/local for managed inference and
+# calls `_wire()` before it ever reads `model_allowlist`, so a Codex ChatGPT
+# login — which has no family table — could never be picked in the composer.
+# Our runner mounts a persistent claim at $CODEX_HOME, so the sandbox holds the
+# login itself; the server only needs to publish the allowlist. See
+# patches/subscription-managed.py for the two edits and the reasons.
+COPY patches/subscription-managed.py /tmp/subscription-managed.py
+RUN /opt/venv/bin/python /tmp/subscription-managed.py
+
 # Prove BOTH assertions against the built image: the catalog has an
 # opencode-native row, and the Vault cipher is wired (hvac importable, client
 # constructed). This is a real context file, not a heredoc — Kaniko silently
