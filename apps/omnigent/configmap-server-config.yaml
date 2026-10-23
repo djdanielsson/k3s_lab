@@ -57,7 +57,11 @@ data:
       kubernetes:
         namespace: omnigent-sandboxes
         secret_name: omnigent-runner-llm
-        image: registry.registry.svc:5000/omnigent-host-opencode:latest
+        # Pinned, not :latest: the host image now carries the subscription
+        # launch patch (patches/subscription-codex-host.py), so the running
+        # sandbox image must be addressable for rollback. Digest:
+        # sha256:aca4e90124fc…
+        image: registry.registry.svc:5000/omnigent-host-opencode:v0.19.0-sub1
         # One shared, persistent CODEX_HOME. `/home/omnigent` is a reserved
         # mount prefix in the provider's validation, so the claim cannot be
         # mounted over the runner's HOME; CODEX_HOME points at /mnt instead.

@@ -76,6 +76,15 @@ RUN set -eu; \
 COPY patches/opencode-direct.py /tmp/opencode-direct.py
 RUN /opt/venv/bin/python /tmp/opencode-direct.py && rm -f /tmp/opencode-direct.py
 
+# ---------------------------------------------------------------------------
+# Cluster patch: a bound `kind: subscription` provider must launch Codex's own
+# login rather than raise "cannot route Codex". The server publishes the model
+# list for such a provider (server-image patch) and the sandbox holds the OAuth
+# login in a persistent CODEX_HOME; this edit is the last missing branch — the
+# bound-provider path only understood endpoint kinds.
+COPY patches/subscription-codex-host.py /tmp/subscription-codex-host.py
+RUN /opt/venv/bin/python /tmp/subscription-codex-host.py && rm -f /tmp/subscription-codex-host.py
+
 # Everything below is `omnigent` PATH/filesystem-policy dependant, unchanged
 # from the base image: the host runs as uid 1000660000 with HOME=/home/omnigent
 # (see omnigent/onboarding/sandboxes/kubernetes.py). Nothing extra to install —
