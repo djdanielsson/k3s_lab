@@ -33,8 +33,8 @@ spec:
         # blocks and harness bindings, so an inference change has to roll the
         # pod too — a mounted ConfigMap updates on disk but the server parses
         # it once at boot.
-        checksum/omnigent-server-config: 9c7cb664030cd5c1c462343ab350b6e472e3d0d0d79e9405ff8790cf47ac85ff
-        omnigent.io/restart-nonce: "2026-10-22T15:10Z"
+        checksum/omnigent-server-config: 2c0976c10eb616030ebbceeaabe39143c4e70ea4ae6113999f42843ff72f57b4
+        omnigent.io/restart-nonce: "2026-11-01T19:40Z"
     spec:
       serviceAccountName: omnigent
       initContainers:

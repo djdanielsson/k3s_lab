@@ -85,6 +85,17 @@ RUN /opt/venv/bin/python /tmp/opencode-direct.py && rm -f /tmp/opencode-direct.p
 COPY patches/subscription-codex-host.py /tmp/subscription-codex-host.py
 RUN /opt/venv/bin/python /tmp/subscription-codex-host.py && rm -f /tmp/subscription-codex-host.py
 
+# ---------------------------------------------------------------------------
+# Cluster patch: opencode-native sessions never ask for permission. Upstream
+# forces `config["permission"] = "ask"` so tool calls round-trip through
+# Omnigent's policy engine (opencode's enforcement is reactive). That makes
+# every bash/edit/external-directory read a TUI modal, and since each subagent
+# is its own opencode session, one "Allow always" does not cover the next —
+# unattended sessions stall silently. Override back with
+# OMNIGENT_OPENCODE_PERMISSION=ask; the trade-off is documented in the patch.
+COPY patches/opencode-no-ask.py /tmp/opencode-no-ask.py
+RUN /opt/venv/bin/python /tmp/opencode-no-ask.py && rm -f /tmp/opencode-no-ask.py
+
 # Everything below is `omnigent` PATH/filesystem-policy dependant, unchanged
 # from the base image: the host runs as uid 1000660000 with HOME=/home/omnigent
 # (see omnigent/onboarding/sandboxes/kubernetes.py). Nothing extra to install —
