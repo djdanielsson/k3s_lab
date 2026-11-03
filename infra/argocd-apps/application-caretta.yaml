@@ -24,6 +24,45 @@ spec:
             pspEnabled: false
           podDisruptionBudget:
             enabled: false
+          server:
+            # Months. Left at the chart default: partitions are monthly, so a
+            # shorter period would not free anything until the month rolls.
+            retentionPeriod: 1
+            # Sample rate, not retention, is what costs disk here. The 686
+            # active series at a 5s scrape are ~8.6M samples/day, and VM spends
+            # ~20GB/day rewriting its single November partition while merging
+            # small parts - for 58MB of data actually stored. These are
+            # counters, so a slower scrape loses resolution, not accuracy.
+            scrape:
+              config:
+                global:
+                  scrape_interval: 30s
+                scrape_configs:
+                  - job_name: caretta
+                    metrics_path: /metrics
+                    scrape_interval: 30s
+                    kubernetes_sd_configs:
+                      - role: pod
+                        namespaces:
+                          own_namespace: true
+                    relabel_configs:
+                      - source_labels: [__meta_kubernetes_pod_label_app]
+                        separator: ";"
+                        regex: caretta
+                        replacement: $1
+                        action: keep
+                      - source_labels: [__meta_kubernetes_pod_name]
+                        action: replace
+                        target_label: caretta_pod
+                      - source_labels: [__meta_kubernetes_pod_node_name]
+                        action: replace
+                        target_label: caretta_node
+                    # The chart's config also carries a labelmap rule with
+                    # `__meta_kubrnetes_pod_label_` (typo, never matched). It is
+                    # deliberately not restated: fixing the spelling would turn
+                    # every pod label into a metric label and multiply series.
+        # Must not sample faster than the scrape that reads it.
+        pollIntervalSeconds: 30
         # eBPF agent OOMs under the chart's 300Mi default during startup.
         resources:
           limits:
