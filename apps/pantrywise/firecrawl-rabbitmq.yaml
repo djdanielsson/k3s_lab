@@ -17,7 +17,9 @@ spec:
     spec:
       containers:
         - name: rabbitmq
-          image: docker.io/library/rabbitmq:3-management
+          # Pinned to the running release: 3-management floats to whatever is
+          # current, which turns an unrelated pod restart into an upgrade.
+          image: docker.io/library/rabbitmq:3.13.7-management
           command: ["rabbitmq-server"]
           ports:
             - containerPort: 5672
@@ -32,15 +34,24 @@ spec:
             requests:
               cpu: 100m
               memory: 256Mi
+            # tmpfs below counts against this limit, so keep headroom above it.
             limits:
               cpu: 1000m
-              memory: 1Gi
+              memory: 2Gi
           volumeMounts:
             - name: data
               mountPath: /var/lib/rabbitmq
       volumes:
         - name: data
-          emptyDir: {}
+          # Firecrawl declares all four queues as x-queue-type=quorum, so every
+          # publish is a fsynced Raft WAL append: that was ~13GB of disk writes
+          # per day on a node whose single SSD is the bottleneck. The volume was
+          # already an emptyDir, so nothing survives a pod restart today and
+          # moving it to tmpfs costs no durability. sizeLimit bounds the RAM the
+          # queues can pin; raise it together with the memory limit above.
+          emptyDir:
+            medium: Memory
+            sizeLimit: 1Gi
 ---
 apiVersion: v1
 kind: Service

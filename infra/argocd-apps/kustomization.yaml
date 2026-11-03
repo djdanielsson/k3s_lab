@@ -19,7 +19,12 @@ resources:
   # app-of-apps stops reconciling it (the Application object is deleted too);
   # apps/netdata now asks for 2Gi, so re-enabling is uncommenting this line.
   # - application-netdata.yaml
-  - application-netalertx.yaml
+  # netalertx is disabled for now: it churned ~4.7GB/day through a 42MB SQLite
+  # file on the node's only disk, which is already the cluster's bottleneck.
+  # The Application object is deleted too, so this stops the app-of-apps from
+  # recreating it. The netalertx-data PVC is kept (Prune=false) so device
+  # history survives a re-enable: uncommenting this line is all it takes.
+  # - application-netalertx.yaml
   - application-cert-manager-issuers.yaml
   - application-ingress.yaml
   - application-dnsmasq.yaml
