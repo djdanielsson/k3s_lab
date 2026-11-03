@@ -51,7 +51,11 @@ spec:
               # Canonical form: the API server stores 1000m as "1", and ArgoCD
               # compares the stored value, so "1000m" here is permanent drift.
               cpu: "1"
-              memory: 768Mi
+              # 768Mi OOMKilled the container on every start: dbengine reloads
+              # its journal set (78 files) during init and the working set peaks
+              # above 800MB, so the pod crash-looped ~1200 times and re-read
+              # 80MB/s from disk on each attempt. Give it real headroom.
+              memory: 2Gi
           volumeMounts:
             - name: proc
               mountPath: /host/proc
