@@ -13,7 +13,12 @@ resources:
   - application-cert-manager.yaml
   - application-sealed-secrets.yaml
   - application-forgejo.yaml
-  - application-netdata.yaml
+  # netdata is disabled for now: its container OOMKilled on every start and the
+  # restart loop re-read ~80MB/s from the node's only disk, which starved the
+  # k3s datastore and every probe on that disk. Commented out here so the
+  # app-of-apps stops reconciling it (the Application object is deleted too);
+  # apps/netdata now asks for 2Gi, so re-enabling is uncommenting this line.
+  # - application-netdata.yaml
   - application-netalertx.yaml
   - application-cert-manager-issuers.yaml
   - application-ingress.yaml
