@@ -8,6 +8,7 @@
   "platformAutomerge": true,
   "minimumReleaseAge": "3 days",
   "minimumReleaseAgeBehaviour": "timestamp-optional",
+  "prHourlyLimit": 10,
   "kubernetes": {
     "managerFilePatterns": [
       "/(^|/)[^/]*(deployment|daemonset|statefulset|job|cronjob|controller)\\.ya?ml$/"
