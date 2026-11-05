@@ -79,7 +79,12 @@ spec:
           # calls _wire() (which needs a family table) before reading
           # model_allowlist, so the Codex ChatGPT lane could never appear in the
           # composer. Image digest: sha256:6068ce324804…
-          image: registry.registry.svc:5000/omnigent-server-opencode:v0.19.0-sub2
+          #
+          # v0.20.0-sub1 is all of the above re-applied to the v0.20.0 base
+          # (both source patches still hit their anchors). Digest:
+          # sha256:60006dd7d495…; the v0.19.0-sub2 image
+          # (sha256:4f3127ce6d96…) stays in the registry as the rollback handle.
+          image: registry.registry.svc:5000/omnigent-server-opencode:v0.20.0-sub1
           imagePullPolicy: Always
           env:
             - name: OMNIGENT_CONFIG

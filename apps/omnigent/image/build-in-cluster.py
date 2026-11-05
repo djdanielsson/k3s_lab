@@ -37,14 +37,14 @@ IMAGES = {
         "image": "omnigent-server-opencode",
         "job": "omnigent-server-opencode-build",
         "arg": "SERVER_BASE_IMAGE",
-        "default_base": "ghcr.io/omnigent-ai/omnigent-server-kubernetes:v0.19.0",
+        "default_base": "ghcr.io/omnigent-ai/omnigent-server-kubernetes:v0.20.0",
     },
     "host": {
         "dockerfile": "Dockerfile.omnigent-host-opencode",
         "image": "omnigent-host-opencode",
         "job": "omnigent-host-opencode-build",
         "arg": "HOST_BASE_IMAGE",
-        "default_base": "ghcr.io/omnigent-ai/omnigent-host:v0.19.0",
+        "default_base": "ghcr.io/omnigent-ai/omnigent-host:v0.20.0",
     },
 }
 
