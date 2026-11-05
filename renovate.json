@@ -11,7 +11,7 @@
   "prHourlyLimit": 10,
   "kubernetes": {
     "managerFilePatterns": [
-      "/(^|/)[^/]*(deployment|daemonset|statefulset|job|cronjob|controller)\\.ya?ml$/"
+      "/(^|/)[^/]*(deployment|daemonset|statefulset|job|cronjob|controller)[^/]*\\.ya?ml$/"
     ]
   },
   "argocd": {
