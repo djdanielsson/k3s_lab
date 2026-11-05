@@ -7,14 +7,10 @@
   ],
   "platformAutomerge": true,
   "minimumReleaseAge": "3 days",
+  "minimumReleaseAgeBehaviour": "timestamp-optional",
   "kubernetes": {
     "managerFilePatterns": [
-      "/(^|/)deployment\\.ya?ml$/",
-      "/(^|/)daemonset\\.ya?ml$/",
-      "/(^|/)statefulset\\.ya?ml$/",
-      "/(^|/)job\\.ya?ml$/",
-      "/(^|/)cronjob\\.ya?ml$/",
-      "/(^|/)controller\\.ya?ml$/"
+      "/(^|/)[^/]*(deployment|daemonset|statefulset|job|cronjob|controller)\\.ya?ml$/"
     ]
   },
   "argocd": {
