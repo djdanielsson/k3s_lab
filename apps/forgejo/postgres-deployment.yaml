@@ -17,7 +17,9 @@ spec:
     spec:
       containers:
         - name: postgres
-          image: docker.io/library/postgres:17-alpine
+          # 18 needs a fresh cluster: PGDATA points at pg18 so the 17 directory
+          # stays in place as the rollback. Dump at /var/lib/postgresql/data/pre18.dump.
+          image: docker.io/library/postgres:18-alpine
           ports:
             - containerPort: 5432
               name: postgres
@@ -37,6 +39,8 @@ spec:
                 secretKeyRef:
                   name: forgejo-secrets
                   key: db-name
+            - name: PGDATA
+              value: /var/lib/postgresql/data/pg18
           volumeMounts:
             - name: data
               mountPath: /var/lib/postgresql/data
