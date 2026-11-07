@@ -1,0 +1,39 @@
+# Layer-3 tailnet exposure: an HTTP Ingress cannot carry RustDesk's ports, so
+# the operator proxies raw TCP/UDP from a tailnet device to this Service.
+# Clients must be ON the tailnet; there is no public exposure (and Funnel cannot
+# carry 21116/UDP).
+#
+# Deliberately no 21118/21119: those are the web-client WebSocket ports, and
+# when they are open hbbs/hbbr trust X-Real-IP / X-Forwarded-For without
+# validating them.
+apiVersion: v1
+kind: Service
+metadata:
+  name: rustdesk
+  namespace: rustdesk
+  annotations:
+    tailscale.com/expose: "true"
+    tailscale.com/hostname: rustdesk
+  labels:
+    app.kubernetes.io/name: rustdesk
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: rustdesk
+  ports:
+    - name: nat-test
+      port: 21115
+      targetPort: 21115
+      protocol: TCP
+    - name: id-tcp
+      port: 21116
+      targetPort: 21116
+      protocol: TCP
+    - name: id-udp
+      port: 21116
+      targetPort: 21116
+      protocol: UDP
+    - name: relay
+      port: 21117
+      targetPort: 21117
+      protocol: TCP

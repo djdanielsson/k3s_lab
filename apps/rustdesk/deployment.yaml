@@ -1,0 +1,129 @@
+# hbbs (rendezvous) and hbbr (relay) live in ONE pod on purpose:
+#   - they must share /data (the key pair; hbbr reads what hbbs signed with),
+#   - a Service load-balances every port across its selected pods, so two
+#     Deployments behind one Service send half of the 21115/21116 connections
+#     to hbbr, which listens on neither, and the port looks randomly closed.
+#
+# Both containers set workingDir: /data. The image's default working directory
+# is NOT the volume: hbbs writes id_ed25519 and db_v2.sqlite3 as relative paths,
+# so without this the key is regenerated in an ephemeral layer on every restart
+# and every enrolled client breaks with "key mismatch".
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rustdesk
+  namespace: rustdesk
+  labels:
+    app.kubernetes.io/name: rustdesk
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: rustdesk
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: rustdesk
+    spec:
+      initContainers:
+        # Restore the identity only when the volume is missing it. Never
+        # overwrites a key that is already live, so a stale vault copy cannot
+        # break running clients.
+        - name: seed-keys
+          image: busybox:1.36
+          command:
+            - sh
+            - -c
+            - |
+              set -eu
+              for f in id_ed25519 id_ed25519.pub; do
+                if [ ! -s "/data/$f" ] && [ -s "/keys/$f" ]; then
+                  cp "/keys/$f" "/data/$f"
+                  echo "restored $f from Secret rustdesk-keys"
+                fi
+              done
+          volumeMounts:
+            - name: data
+              mountPath: /data
+            - name: keys
+              mountPath: /keys
+              readOnly: true
+      containers:
+        - name: hbbs
+          image: rustdesk/rustdesk-server:1.1.16
+          workingDir: /data
+          command: ["hbbs"]
+          # Advertise the relay by its tailnet name: behind the L3 proxy the
+          # pod's own address is a cluster IP that clients cannot reach.
+          args: ["-r", "rustdesk.tail7f3c08.ts.net:21117"]
+          env:
+            # RustDesk's own end-to-end encryption; the key must be configured
+            # in every client. Independent of the transport.
+            - name: ENCRYPTED_ONLY
+              value: "1"
+          ports:
+            - name: nat-test
+              containerPort: 21115
+              protocol: TCP
+            - name: id-tcp
+              containerPort: 21116
+              protocol: TCP
+            - name: id-udp
+              containerPort: 21116
+              protocol: UDP
+          volumeMounts:
+            - name: data
+              mountPath: /data
+          readinessProbe:
+            tcpSocket:
+              port: 21116
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+            limits:
+              cpu: 500m
+              memory: 256Mi
+        - name: hbbr
+          image: rustdesk/rustdesk-server:1.1.16
+          workingDir: /data
+          command: ["hbbr"]
+          env:
+            - name: ENCRYPTED_ONLY
+              value: "1"
+          ports:
+            - name: relay
+              containerPort: 21117
+              protocol: TCP
+          volumeMounts:
+            - name: data
+              mountPath: /data
+          readinessProbe:
+            tcpSocket:
+              port: 21117
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+            limits:
+              cpu: 500m
+              memory: 256Mi
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: rustdesk-data
+        - name: keys
+          secret:
+            secretName: rustdesk-keys
+            defaultMode: 0400
+            items:
+              - key: id_ed25519
+                path: id_ed25519
+              - key: id_ed25519.pub
+                path: id_ed25519.pub

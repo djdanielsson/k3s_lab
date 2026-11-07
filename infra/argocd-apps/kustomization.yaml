@@ -40,3 +40,4 @@ resources:
   - application-omnigent.yaml
   - application-vault.yaml
   - application-homepage.yaml
+  - application-rustdesk.yaml
