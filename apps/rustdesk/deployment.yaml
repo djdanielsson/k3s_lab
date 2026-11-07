@@ -32,7 +32,7 @@ spec:
         # overwrites a key that is already live, so a stale vault copy cannot
         # break running clients.
         - name: seed-keys
-          image: busybox:1.36
+          image: busybox:1.38
           command:
             - sh
             - -c
