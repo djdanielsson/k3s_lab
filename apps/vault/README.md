@@ -10,12 +10,24 @@ Vault, a rotation, or debugging a failed unseal.
 
 - **`k3s/vault-unseal`** (Vaultwarden, read through the ESO bridge) — the five
   unseal shards plus `UNSEAL_THRESHOLD`. This is the single source of truth for
-  unsealing. The root token is deliberately NOT in the vault: it can administer
-  the whole Vault and nothing running needs it.
+  unsealing, and `renew-token-cronjob.yaml` / `unseal-cronjob.yaml` both read
+  their material through the bridge rather than embedding it.
+- **`k3s/vault-root`** — the root token from `vault operator init`, kept here for
+  one purpose: minting or rotating the least-privilege token below. It is
+  deliberately reachable from nothing (no ExternalSecret references it), but it
+  IS in the vault, which reverses this app's earlier stance. The reason is
+  mechanical, not a change of taste: Vault 2.0.4 refuses
+  `sys/generate-root/attempt` on an **unsealed** Vault without a sudo token, so
+  the unseal shards alone can no longer recover root. Losing the root token
+  therefore means wiping and re-initialising Vault — which invalidates every
+  stored integration secret. If you would rather keep root off Vaultwarden, move
+  it somewhere offline and delete this item.
 - **`k3s/vault-omnigent-cipher`** — the least-privilege Transit token Omnigent's
   credential store consumes (`VAULT_TOKEN`, plus `VAULT_ADDR` and `VAULT_KEY`).
   Policy `omnigent-transit` grants encrypt/decrypt/read on the single key
-  `omnigent-credentials` and nothing else.
+  `omnigent-credentials` and nothing else. It is a **periodic** token (90-day
+  period), renewed by `renew-token-cronjob.yaml` once its remaining TTL drops
+  below 60 days, so it does not lapse.
 - **`init.json`** — the one-time `vault operator init` output (root token). It is
   written mode 600 wherever you keep it and must never be printed or committed.
   Losing it means losing the root token; the shards in Vaultwarden can still

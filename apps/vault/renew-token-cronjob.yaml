@@ -1,0 +1,142 @@
+# Keep Omnigent's Vault Transit token from lapsing.
+#
+# WHY THIS EXISTS
+#   Omnigent's credential store encrypts every integration secret with Vault
+#   Transit, using a least-privilege token (`omnigent-transit` policy) stored in
+#   Vaultwarden. Vault caps every token at the auth mount's `max_lease_ttl`, so
+#   even a "long" token eventually lapses — and when it does the symptom is
+#   silent and misleading: the GitHub broker answers `connected: false`, the
+#   sandbox gets no git credentials, and `git clone` fails with
+#   `could not read Username for 'https://github.com'` while every pod looks
+#   healthy. That is exactly what bit this cluster on 2026-11-05.
+#
+#   The token is a PERIODIC token (period 90d). Vault lets a periodic token be
+#   renewed indefinitely, provided each renewal happens inside its period; a
+#   non-periodic token is bounded by max_lease_ttl and needs re-minting. This
+#   job renews on a threshold rather than every run, so the rolling window
+#   never drops below ~60 days.
+#
+# WHERE THE TOKEN COMES FROM
+#   It is NOT embedded here and NOT read from a Kubernetes Secret. The job reads
+#   it from the Vaultwarden item `k3s/vault-omnigent-cipher` through the ESO
+#   bridge — the same single source of truth the ExternalSecret uses — so
+#   rotating the token stays a one-item operation. Nothing prints the token:
+#   only the resulting TTL and expiry.
+#
+# WHAT THIS CANNOT DO
+#   Renewal needs a still-valid token. Once it has actually lapsed, nothing here
+#   can revive it: the fix is to mint a fresh one with the root token in vault
+#   item `k3s/vault-root`, which is why the job exits 1 with that instruction
+#   instead of retrying.
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: vault-token-renew
+  namespace: vault
+  labels:
+    app.kubernetes.io/name: vault-token-renew
+spec:
+  # Once a day is ample for a 90-day periodic token with a 60-day renewal
+  # threshold: a failed run still leaves ~60 days to notice it.
+  schedule: "41 3 * * *"
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 3
+  startingDeadlineSeconds: 300
+  jobTemplate:
+    spec:
+      backoffLimit: 0
+      ttlSecondsAfterFinished: 600
+      template:
+        metadata:
+          labels:
+            app.kubernetes.io/name: vault-token-renew
+        spec:
+          restartPolicy: Never
+          containers:
+            - name: renew
+              image: docker.io/library/python:3.15-slim
+              command: ["python3", "-c"]
+              args:
+                - |
+                  # Renew only when the remaining TTL has dropped below the
+                  # threshold, so the log states the truth every day ("nothing
+                  # to do" or "renewed") without re-renewing pointlessly.
+                  import json, os, sys, urllib.error, urllib.parse, urllib.request
+
+                  VAULT = os.environ["VAULT_ADDR"]
+                  BRIDGE = os.environ["ESO_BRIDGE_URL"]
+                  ITEM = os.environ["VAULT_TOKEN_ITEM"]
+                  RENEW_BELOW_DAYS = float(os.environ.get("RENEW_BELOW_DAYS", "60"))
+
+                  def request(url, payload=None, token=None):
+                      data = json.dumps(payload).encode() if payload is not None else None
+                      r = urllib.request.Request(url, data=data,
+                                                 method="POST" if data is not None else "GET")
+                      if data is not None:
+                          r.add_header("Content-Type", "application/json")
+                      if token:
+                          r.add_header("X-Vault-Token", token)
+                      try:
+                          with urllib.request.urlopen(r, timeout=15) as resp:
+                              body = resp.read().decode()
+                              return resp.status, (json.loads(body) if body.strip() else {})
+                      except urllib.error.HTTPError as e:
+                          return e.code, {"error": e.read().decode()[:200]}
+
+                  def token_from_bridge():
+                      code, listing = request(
+                          BRIDGE + "/list/object/items?search=" + urllib.parse.quote(ITEM))
+                      items = (listing.get("data") or {}).get("data") or []
+                      if code != 200 or not items:
+                          print("ERROR: cannot read vault item", ITEM,
+                                "through the ESO bridge (HTTP", code, ")")
+                          sys.exit(1)
+                      fields = {f["name"]: f.get("value")
+                                for f in (items[0].get("fields") or [])}
+                      token = fields.get("VAULT_TOKEN")
+                      if not token:
+                          print("ERROR: vault item", ITEM, "has no VAULT_TOKEN field")
+                          sys.exit(1)
+                      return token
+
+                  token = token_from_bridge()
+                  code, me = request(VAULT + "/v1/auth/token/lookup-self", token=token)
+                  if code != 200:
+                      print("ERROR: the stored token is no longer valid (HTTP", code, ").",
+                            "renew-self cannot revive it — mint a new one with the root",
+                            "token from vault item k3s/vault-root.")
+                      sys.exit(1)
+                  data = me.get("data") or {}
+                  days = (data.get("ttl") or 0) / 86400
+                  period = (data.get("period") or 0) / 86400
+                  print(f"current TTL: {days:.1f} days (period {period:.0f} days)")
+                  if days >= RENEW_BELOW_DAYS:
+                      print(f"above the {RENEW_BELOW_DAYS:.0f}-day renewal threshold; nothing to do")
+                      sys.exit(0)
+
+                  code, ren = request(VAULT + "/v1/auth/token/renew-self", {}, token=token)
+                  if code != 200:
+                      print("ERROR: renew-self failed (HTTP", code, "):", ren)
+                      sys.exit(1)
+                  print("renewed: TTL is now",
+                        round(((ren.get("auth") or {}).get("lease_duration") or 0) / 86400, 1),
+                        "days")
+              env:
+                - name: VAULT_ADDR
+                  value: http://vault.vault.svc.cluster.local:8200
+                - name: ESO_BRIDGE_URL
+                  value: http://bitwarden-cli.external-secrets.svc:8087
+                - name: VAULT_TOKEN_ITEM
+                  value: k3s/vault-omnigent-cipher
+                - name: RENEW_BELOW_DAYS
+                  value: "60"
+              resources:
+                requests: { cpu: 10m, memory: 32Mi }
+                limits: { cpu: 100m, memory: 64Mi }
+              securityContext:
+                allowPrivilegeEscalation: false
+                readOnlyRootFilesystem: true
+                runAsNonRoot: true
+                runAsUser: 65534
+                capabilities: { drop: ["ALL"] }

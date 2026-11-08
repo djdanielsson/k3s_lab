@@ -13,3 +13,6 @@ resources:
   # Auto-unseal is part of this app on purpose: Vault boots sealed every time,
   # so without this the credential store is dormant after any restart.
   - unseal-cronjob.yaml
+  # And the credential store's Transit token would lapse at max_lease_ttl,
+  # which looks like "GitHub is not connected" rather than a token expiry.
+  - renew-token-cronjob.yaml
