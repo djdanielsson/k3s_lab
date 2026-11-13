@@ -15,11 +15,14 @@ spec:
       labels:
         app: forgejo-postgres
     spec:
+      automountServiceAccountToken: false
       containers:
         - name: postgres
           # 18 needs a fresh cluster: PGDATA points at pg18 so the 17 directory
           # stays in place as the rollback. Dump at /var/lib/postgresql/data/pre18.dump.
           image: docker.io/library/postgres:18-alpine
+          securityContext:
+            allowPrivilegeEscalation: false
           ports:
             - containerPort: 5432
               name: postgres
@@ -44,6 +47,16 @@ spec:
           volumeMounts:
             - name: data
               mountPath: /var/lib/postgresql/data
+          readinessProbe:
+            exec:
+              command: [pg_isready]
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          livenessProbe:
+            exec:
+              command: [pg_isready]
+            initialDelaySeconds: 30
+            periodSeconds: 30
           resources:
             requests:
               cpu: 100m

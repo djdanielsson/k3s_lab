@@ -18,6 +18,7 @@ spec:
     spec:
       hostNetwork: true
       hostPID: true
+      automountServiceAccountToken: false
       containers:
         - name: netdata
           # `privileged` is a CONTAINER-level securityContext field. At the pod
@@ -43,6 +44,18 @@ spec:
               value: "1"
             - name: NETDATA_DISABLE_TELEMETRY
               value: "1"
+          readinessProbe:
+            httpGet:
+              path: /api/v1/info
+              port: netdata
+            initialDelaySeconds: 20
+            periodSeconds: 30
+          livenessProbe:
+            httpGet:
+              path: /api/v1/info
+              port: netdata
+            initialDelaySeconds: 60
+            periodSeconds: 60
           resources:
             requests:
               cpu: 100m
