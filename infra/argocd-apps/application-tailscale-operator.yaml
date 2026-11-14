@@ -15,7 +15,7 @@ spec:
       values: |
         operator:
           image:
-            tag: v1.104.5
+            tag: v1.104.6
             pullPolicy: IfNotPresent
         operatorConfig:
           defaultTags:
