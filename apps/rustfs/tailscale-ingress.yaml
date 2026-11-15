@@ -23,4 +23,4 @@ spec:
     service:
       name: rustfs
       port:
-        number: 9001
+        number: 8080

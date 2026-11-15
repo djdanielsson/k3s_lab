@@ -38,6 +38,14 @@ All app secrets live in **Vaultwarden** (synced by External Secrets Operator).
 See **[SECRETS.md](SECRETS.md)** for the `k3s/` item names/inputs to create and
 the Vaultwarden API credential setup.
 
+## Single sign-on
+
+Upstream Keycloak reads the login from Vaultwarden item **`sso`** for Argo CD,
+Radar, Forgejo, Omnigent, Homepage, Hermes dashboard/API, RustFS, and Vault.
+See [SSO setup and rollout](apps/sso/README.md), including the Vault bootstrap
+token prerequisite.
+The Kubernetes API and other application logins retain their existing setup.
+
 ## Layout
 
 | Path                  | Purpose                                                    |
@@ -137,8 +145,8 @@ operator plus a tailnet grant + service auto-approver.
   cert-manager is installed and ready; a **Let's Encrypt ClusterIssuer is
   staged (commented)** in `apps/cert-manager` — uncomment it once Traefik is up
   to issue real certs for `*.k3s.lab.danielsson.us.com`.
-- Radar's chart has **auth mode `none`** by default — do not expose it outside
-  the cluster until auth (proxy/OIDC) is configured.
+- Radar uses native OIDC against the upstream Keycloak realm; `lab-users`
+  have read access and explicit `lab-admins` have administrator access.
 - **Hermes** (`apps/hermes`) exposes an OpenAI-compatible API (8642) +
   dashboard (9119) over Tailscale and runs the **Telegram** gateway in-cluster
   (bot days from the `k3s/hermes-env` Vaultwarden item). Telegram polling is

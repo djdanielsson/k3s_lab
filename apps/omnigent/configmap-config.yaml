@@ -12,8 +12,12 @@ data:
   ARTIFACT_DIR: /data/artifacts
   OMNIGENT_ADMIN_CREDENTIALS_PATH: /data/admin-credentials
   OMNIGENT_AUTH_ENABLED: "1"
-  OMNIGENT_AUTH_PROVIDER: accounts
+  OMNIGENT_AUTH_PROVIDER: oidc
   OMNIGENT_ACCOUNTS_AUTO_OPEN: "0"
   OMNIGENT_ACCOUNTS_BASE_URL: https://omnigent.tail7f3c08.ts.net
   OMNIGENT_WS_ALLOWED_ORIGINS: https://omnigent.tail7f3c08.ts.net
   OMNIGENT_FEATURES: ""
+  OMNIGENT_OIDC_ISSUER: https://sso.tail7f3c08.ts.net/realms/lab
+  OMNIGENT_OIDC_CLIENT_ID: omnigent
+  OMNIGENT_OIDC_REDIRECT_URI: https://omnigent.tail7f3c08.ts.net/auth/callback
+  OMNIGENT_ADMIN_LIST_PATH: /etc/omnigent/identity/admins

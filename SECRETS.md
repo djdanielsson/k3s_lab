@@ -4,6 +4,13 @@ All app secrets live in **Vaultwarden** and are synced into the cluster by
 **External Secrets Operator (ESO)** via the bitwarden-cli bridge. Item names
 are prefixed **`k3s/`**.
 
+The shared SSO Login item is named **`sso`** (no `k3s/` prefix). Its **login
+username and password** are the human credentials for both labs; see
+[SSO](apps/sso/README.md). Machine/database/client passwords are generated in
+cluster and are independent of this login. Vault SSO additionally needs item
+**`k3s/vault-sso`**, custom field **`token`**, authorized by
+[the bootstrap policy](apps/sso/vault-sso-bootstrap.hcl).
+
 ## 1. Provider credentials — create these yourself (NOT vault items)
 
 These are the auth the bridge/operator use; they're the only things in
@@ -73,7 +80,8 @@ three places (pick what fits):
 | Multiple values | a **Custom Field** (name=key) | `bitwarden-fields` |
 | User/pass | the item's **login** object | `bitwarden-login`  |
 
-Item names must be unique (the bridge searches by exact name).
+Item names must be unique. The general bridge searches by substring and uses
+the first match; the dedicated `bitwarden-sso` store filters exact name `sso`.
 
 **The bridge does not sync on its own.** `bw serve` holds a local copy of the
 vault and only refreshes it when told to; ESO reads through that copy, so an item
@@ -93,7 +101,7 @@ curl -X POST http://bitwarden-cli.external-secrets.svc.cluster.local:8087/sync
 | `k3s/github-tokens`   | Custom fields| one field per token            |
 | `k3s/radar-auth`      | Custom fields| `oidcSecret`, `clientId`       |
 | `k3s/registry-htpasswd` | Secure Note | Notes = the htpasswd string  |
-| `k3s/hermes-env`       | Custom fields| `OPENCODE_GO_API_KEY`, `GITHUB_TOKEN`, `API_SERVER_KEY`, `HERMES_DASHBOARD_BASIC_AUTH_USERNAME`, `HERMES_DASHBOARD_BASIC_AUTH_PASSWORD`, `HERMES_DASHBOARD_BASIC_AUTH_SECRET`, and (if running Telegram in-cluster) `TELEGRAM_BOT_TOKEN`, `TELEGRAM_ALLOWED_USERS`, `TELEGRAM_HOME_CHANNEL` |
+| `k3s/hermes-env`       | Custom fields| `OPENCODE_GO_API_KEY`, `GITHUB_TOKEN`, `API_SERVER_KEY`, (dashboard authentication is configured through OIDC in GitOps), and (if running Telegram in-cluster) `TELEGRAM_BOT_TOKEN`, `TELEGRAM_ALLOWED_USERS`, `TELEGRAM_HOME_CHANNEL` |
 | `k3s/radar-argocd-token` | Custom field | field `token` — ArgoCD API token for account `radar` (mint after install, see §1 note) |
 | `k3s/forgejo-secrets` | Custom fields| `db-name`, `db-user`, `db-password` — **must match the live `forgejo-secrets` Secret** or Forgejo loses its database on redeploy |
 | `k3s/pantrywise-secrets` | Custom fields | `database-url`, `jwt-secret`, `postgres-db`, `postgres-user`, `postgres-password` — **must match the live `pantrywise-secrets` Secret** |

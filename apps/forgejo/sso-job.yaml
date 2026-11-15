@@ -1,0 +1,229 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: forgejo-sso
+  namespace: forgejo
+spec:
+  schedule: '*/5 * * * *'
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 2
+  startingDeadlineSeconds: 240
+  jobTemplate:
+    spec:
+      activeDeadlineSeconds: 240
+      backoffLimit: 1
+      template:
+        metadata:
+          labels:
+            app: forgejo-sso
+        spec:
+          restartPolicy: Never
+          automountServiceAccountToken: false
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 1000
+            runAsGroup: 1000
+            fsGroup: 1000
+          affinity:
+            podAffinity:
+              requiredDuringSchedulingIgnoredDuringExecution:
+              - labelSelector:
+                  matchLabels:
+                    app: forgejo
+                topologyKey: kubernetes.io/hostname
+          initContainers:
+          - name: native-cli
+            image: codeberg.org/forgejo/forgejo:17.0.1-rootless
+            command:
+            - cp
+            - /app/gitea/gitea
+            - /etc/passwd
+            - /etc/group
+            - /tools/
+            volumeMounts:
+            - name: tools
+              mountPath: /tools
+            securityContext: &id001
+              allowPrivilegeEscalation: false
+              capabilities:
+                drop:
+                - ALL
+              seccompProfile:
+                type: RuntimeDefault
+            resources:
+              requests:
+                cpu: 25m
+                memory: 32Mi
+              limits:
+                memory: 64Mi
+          containers:
+          - name: configure
+            image: docker.io/library/python:3.13-slim-bookworm
+            command:
+            - python3
+            - /config/configure-sso.py
+            env:
+            - name: USER
+              value: git
+            - name: HOME
+              value: /var/lib/gitea/git
+            - name: GITEA_WORK_DIR
+              value: /var/lib/gitea
+            - name: PYTHONDONTWRITEBYTECODE
+              value: '1'
+            securityContext: *id001
+            resources:
+              requests:
+                cpu: 25m
+                memory: 64Mi
+              limits:
+                memory: 256Mi
+            volumeMounts:
+            - name: tools
+              mountPath: /tools
+              readOnly: true
+            - name: tools
+              mountPath: /etc/passwd
+              subPath: passwd
+              readOnly: true
+            - name: tools
+              mountPath: /etc/group
+              subPath: group
+              readOnly: true
+            - name: data
+              mountPath: /var/lib/gitea
+            - name: config
+              mountPath: /config
+              readOnly: true
+            - name: credentials
+              mountPath: /credentials
+              readOnly: true
+          volumes:
+          - name: tools
+            emptyDir: {}
+          - name: data
+            persistentVolumeClaim:
+              claimName: forgejo-data
+          - name: config
+            configMap:
+              name: forgejo-sso
+          - name: credentials
+            secret:
+              secretName: sso-oidc
+              items:
+              - key: client-secret
+                path: client-secret
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: forgejo-sso-configure
+  namespace: forgejo
+  annotations:
+    argocd.argoproj.io/hook: PostSync
+    argocd.argoproj.io/hook-delete-policy: BeforeHookCreation,HookSucceeded
+spec:
+  activeDeadlineSeconds: 240
+  backoffLimit: 1
+  template:
+    metadata:
+      labels:
+        app: forgejo-sso
+    spec:
+      restartPolicy: Never
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+      affinity:
+        podAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchLabels:
+                app: forgejo
+            topologyKey: kubernetes.io/hostname
+      initContainers:
+      - name: native-cli
+        image: codeberg.org/forgejo/forgejo:17.0.1-rootless
+        command:
+        - cp
+        - /app/gitea/gitea
+        - /etc/passwd
+        - /etc/group
+        - /tools/
+        volumeMounts:
+        - name: tools
+          mountPath: /tools
+        securityContext: &id001
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
+          seccompProfile:
+            type: RuntimeDefault
+        resources:
+          requests:
+            cpu: 25m
+            memory: 32Mi
+          limits:
+            memory: 64Mi
+      containers:
+      - name: configure
+        image: docker.io/library/python:3.13-slim-bookworm
+        command:
+        - python3
+        - /config/configure-sso.py
+        env:
+        - name: USER
+          value: git
+        - name: HOME
+          value: /var/lib/gitea/git
+        - name: GITEA_WORK_DIR
+          value: /var/lib/gitea
+        - name: PYTHONDONTWRITEBYTECODE
+          value: '1'
+        securityContext: *id001
+        resources:
+          requests:
+            cpu: 25m
+            memory: 64Mi
+          limits:
+            memory: 256Mi
+        volumeMounts:
+        - name: tools
+          mountPath: /tools
+          readOnly: true
+        - name: tools
+          mountPath: /etc/passwd
+          subPath: passwd
+          readOnly: true
+        - name: tools
+          mountPath: /etc/group
+          subPath: group
+          readOnly: true
+        - name: data
+          mountPath: /var/lib/gitea
+        - name: config
+          mountPath: /config
+          readOnly: true
+        - name: credentials
+          mountPath: /credentials
+          readOnly: true
+      volumes:
+      - name: tools
+        emptyDir: {}
+      - name: data
+        persistentVolumeClaim:
+          claimName: forgejo-data
+      - name: config
+        configMap:
+          name: forgejo-sso
+      - name: credentials
+        secret:
+          secretName: sso-oidc
+          items:
+          - key: client-secret
+            path: client-secret

@@ -13,6 +13,7 @@ resources:
   - service.yaml
   - external-secret.yaml
   - tailscale-ingress.yaml
+  - api-sso.yaml
 configMapGenerator:
   # Gateway hook that appends the OpenCode Go plan's rolling/weekly/monthly usage
   # to the new-session notice. The fix-perms init container copies these files
@@ -31,3 +32,9 @@ configMapGenerator:
     files:
       - HOOK.yaml=hooks/usage-notice/HOOK.yaml
       - handler.py=hooks/usage-notice/handler.py
+  - name: hermes-dashboard-sso
+    files:
+      - configure-dashboard.py
+  - name: hermes-api-auth
+    files:
+      - oauth2-proxy.yaml

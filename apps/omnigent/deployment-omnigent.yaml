@@ -28,7 +28,7 @@ spec:
         # until the pod is replaced. One annotation per source: rebase the
         # checksum on configmap-config.yaml for a config edit, bump the nonce
         # for a Secret edit (a rotated credential, a new redirect URI).
-        checksum/omnigent-config: 634f8d4cf1ea8dae0142de4d5f7945ec1c2c880035fd9d08f4664fe80d358056
+        checksum/omnigent-config: c1969bd52d9bbd85ade893d70199d2cffaf0c9eeb3c0eaeed0bac9b0f0827141
         # sha256 of configmap-server-config.yaml. That file holds the provider
         # blocks and harness bindings, so an inference change has to roll the
         # pod too — a mounted ConfigMap updates on disk but the server parses
@@ -89,6 +89,12 @@ spec:
           env:
             - name: OMNIGENT_CONFIG
               value: /data/server-config.yaml
+            - name: OMNIGENT_OIDC_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef: {name: sso-oidc, key: client-secret}
+            - name: OMNIGENT_OIDC_COOKIE_SECRET
+              valueFrom:
+                secretKeyRef: {name: sso-oidc, key: cookie-secret}
           envFrom:
             - configMapRef:
                 name: omnigent-config
@@ -114,6 +120,9 @@ spec:
             limits: { memory: 2Gi }
             requests: { cpu: 250m, memory: 512Mi }
           volumeMounts:
+            - name: sso-identity
+              mountPath: /etc/omnigent/identity
+              readOnly: true
             - name: server-config
               mountPath: /data/server-config.yaml
               subPath: config.yaml
@@ -137,3 +146,7 @@ spec:
         - name: codex-catalog
           configMap:
             name: omnigent-codex-catalog
+        - name: sso-identity
+          secret:
+            secretName: sso-oidc
+            items: [{key: admins, path: admins}]

@@ -1,0 +1,43 @@
+# These maps are reconciled by the SSO Application on existing clusters too.
+# Keep the bootstrap literals in infra/argocd/kustomization.yaml in agreement.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: argocd-cm
+  namespace: argocd
+  labels:
+    app.kubernetes.io/part-of: argocd
+data:
+  accounts.radar: apiKey
+  url: https://argocd.tail7f3c08.ts.net
+  oidc.config: 'name: Lab SSO
+
+    issuer: https://sso.tail7f3c08.ts.net/realms/lab
+
+    clientID: argocd
+
+    cliClientID: argocd-cli
+
+    enablePKCEAuthentication: true
+
+    requestedScopes: [openid, profile, email]
+
+    '
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: argocd-rbac-cm
+  namespace: argocd
+  labels:
+    app.kubernetes.io/part-of: argocd
+data:
+  policy.csv: 'g, radar, role:admin
+
+    g, lab-admins, role:admin
+
+    g, lab-users, role:readonly
+
+    '
+  policy.default: role:readonly
+  scopes: '[groups]'

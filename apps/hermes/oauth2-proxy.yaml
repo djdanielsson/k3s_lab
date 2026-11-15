@@ -1,0 +1,29 @@
+upstreamConfig:
+  upstreams:
+  - id: hermes
+    path: /
+    uri: http://hermes.hermes.svc:8642
+    flushInterval: 100ms
+providers:
+- id: lab
+  provider: oidc
+  clientID: hermes-api
+  clientSecret: ${OIDC_CLIENT_SECRET}
+  allowedGroups:
+  - lab-users
+  oidcConfig:
+    issuerURL: https://sso.tail7f3c08.ts.net/realms/lab
+    groupsClaim: groups
+    audienceClaims:
+    - aud
+    insecureSkipNonce: false
+  code_challenge_method: S256
+  scope: openid profile email
+injectRequestHeaders:
+- name: Authorization
+  preserveRequestValue: false
+  values:
+  - secretSource:
+      fromEnv: HERMES_UPSTREAM_AUTHORIZATION
+server:
+  bindAddress: 0.0.0.0:4180

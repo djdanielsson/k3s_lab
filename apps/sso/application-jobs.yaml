@@ -1,0 +1,66 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: sso-vault
+  namespace: sso
+spec:
+  schedule: '*/5 * * * *'
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 2
+  startingDeadlineSeconds: 240
+  jobTemplate:
+    spec:
+      activeDeadlineSeconds: 600
+      backoffLimit: 1
+      template:
+        metadata:
+          labels:
+            app: sso-reconciler
+        spec:
+          serviceAccountName: sso-vault
+          restartPolicy: Never
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 1000
+            runAsGroup: 1000
+          containers:
+          - name: reconcile
+            image: docker.io/library/python:3.13-slim-bookworm
+            command:
+            - python3
+            - /config/applications.py
+            - vault
+            env:
+            - name: PYTHONDONTWRITEBYTECODE
+              value: '1'
+            securityContext:
+              allowPrivilegeEscalation: false
+              capabilities:
+                drop:
+                - ALL
+              seccompProfile:
+                type: RuntimeDefault
+              readOnlyRootFilesystem: true
+            resources:
+              requests:
+                cpu: 25m
+                memory: 32Mi
+              limits:
+                memory: 128Mi
+            volumeMounts:
+            - name: config
+              mountPath: /config
+              readOnly: true
+            - name: clients
+              mountPath: /credentials/clients
+              readOnly: true
+          volumes:
+          - name: config
+            configMap:
+              name: sso-reconciler
+          - name: clients
+            projected:
+              sources:
+              - secret:
+                  name: sso-vault-credentials

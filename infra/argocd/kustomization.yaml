@@ -23,9 +23,22 @@ configMapGenerator:
     behavior: merge
     literals:
       - accounts.radar="apiKey"
+      - url=https://argocd.tail7f3c08.ts.net
+      - |
+        oidc.config=name: Lab SSO
+        issuer: https://sso.tail7f3c08.ts.net/realms/lab
+        clientID: argocd
+        cliClientID: argocd-cli
+        enablePKCEAuthentication: true
+        requestedScopes: [openid, profile, email]
   # Radar gets full ArgoCD access so in-cluster actions (sync, etc.) work.
   # Tailnet-only exposure; downgrade to `role:readonly` here if preferred.
   - name: argocd-rbac-cm
     behavior: merge
     literals:
-      - policy.csv="g, radar, role:admin"
+      - |
+        policy.csv=g, radar, role:admin
+        g, lab-admins, role:admin
+        g, lab-users, role:readonly
+      - policy.default=role:readonly
+      - scopes=[groups]

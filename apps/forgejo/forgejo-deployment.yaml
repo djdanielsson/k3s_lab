@@ -54,6 +54,10 @@ spec:
                 secretKeyRef:
                   name: forgejo-secrets
                   key: db-password
+            - name: FORGEJO__oauth2_client__ENABLE_AUTO_REGISTRATION
+              value: "true"
+            - name: FORGEJO__oauth2_client__ACCOUNT_LINKING
+              value: login
           volumeMounts:
             - name: data
               mountPath: /var/lib/gitea

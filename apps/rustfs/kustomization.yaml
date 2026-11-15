@@ -7,3 +7,9 @@ resources:
   - pvc.yaml
   - tailscale-ingress.yaml
   # NOTE: Traefik ingress for the RustFS console lives in ../ingress (disabled).
+
+configMapGenerator:
+  - name: rustfs-browser
+    namespace: rustfs
+    files:
+      - nginx.conf=browser-nginx.conf
