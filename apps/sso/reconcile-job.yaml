@@ -26,7 +26,7 @@ spec:
             runAsGroup: 1000
           containers:
           - name: reconcile
-            image: docker.io/library/python:3.13-slim-bookworm
+            image: docker.io/library/python:3.15-slim-bookworm
             command:
             - python3
             - /config/reconcile.py
@@ -110,7 +110,7 @@ spec:
         runAsGroup: 1000
       containers:
       - name: reconcile
-        image: docker.io/library/python:3.13-slim-bookworm
+        image: docker.io/library/python:3.15-slim-bookworm
         command:
         - python3
         - /config/reconcile.py
