@@ -41,3 +41,4 @@ resources:
   - application-vault.yaml
   - application-homepage.yaml
   - application-rustdesk.yaml
+  - application-sso.yaml

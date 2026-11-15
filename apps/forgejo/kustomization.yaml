@@ -11,3 +11,10 @@ resources:
   - forgejo-service.yaml
   - data-pvc.yaml
   - tailscale-ingress.yaml
+  - sso-job.yaml
+
+configMapGenerator:
+  - name: forgejo-sso
+    namespace: forgejo
+    files:
+      - configure-sso.py

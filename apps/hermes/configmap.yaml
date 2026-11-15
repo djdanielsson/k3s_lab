@@ -19,13 +19,12 @@ data:
       base_url: https://opencode.ai/zen/go/v1
       api_mode: chat_completions
 
-    # Plugins are OPT-IN — all bundled plugins stay off unless listed here.
-    # dashboard_auth.basic ("basic") is required for the web dashboard to bind;
-    # it registers the username/password auth provider (see dashboard below).
+    # Explicitly select the bundled self-hosted OIDC dashboard provider.
     plugins:
       enabled:
+        - self-hosted
+      disabled:
         - basic
-      disabled: []
 
     # Telemetry: explicit opt-out of anonymous shared-metric reporting.
     telemetry:
@@ -57,10 +56,12 @@ data:
       telegram:
         enabled: true
 
-    # Web dashboard. Auth via basic_auth. password_hash is a one-way hash of
-    # the HERMES_DASHBOARD_BASIC_AUTH_PASSWORD from the k3s/hermes-env item.
+    # Environment overrides below also cover pre-existing PVC configuration.
     dashboard:
       public_url: https://hermes.tail7f3c08.ts.net
-      basic_auth:
-        username: welcome
-        password_hash: scrypt$16384$8$1$0R0IYYl5HcUya+yJB6utPA==$Hpzvv1OlWPy6zNa7AFTz4cJQqcIq8gSGHafCOAIX7Z0=
+      oauth:
+        provider: self-hosted
+        self_hosted:
+          issuer: https://sso.tail7f3c08.ts.net/realms/lab
+          client_id: hermes-dashboard
+          scopes: openid profile email

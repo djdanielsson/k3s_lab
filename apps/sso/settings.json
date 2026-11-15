@@ -1,0 +1,232 @@
+{
+  "realm": "lab",
+  "issuer": "https://sso.tail7f3c08.ts.net/realms/lab",
+  "openshift": false,
+  "user": {
+    "emailDomain": "danielsson.us.com",
+    "enabled": true,
+    "admin": false,
+    "policyGroups": [
+      {
+        "name": "readonly",
+        "adminOnly": false
+      },
+      {
+        "name": "consoleAdmin",
+        "adminOnly": true
+      }
+    ]
+  },
+  "clients": [
+    {
+      "clientId": "argocd",
+      "redirectUris": [
+        "https://argocd.tail7f3c08.ts.net/auth/callback"
+      ],
+      "webOrigins": [
+        "https://argocd.tail7f3c08.ts.net"
+      ],
+      "attributes": {
+        "post.logout.redirect.uris": "https://argocd.tail7f3c08.ts.net/"
+      },
+      "pkce": true
+    },
+    {
+      "clientId": "argocd-cli",
+      "redirectUris": [
+        "http://localhost:8085/auth/callback"
+      ],
+      "webOrigins": [
+        "http://localhost:8085"
+      ],
+      "attributes": {
+        "post.logout.redirect.uris": "http://localhost:8085/"
+      },
+      "pkce": true
+    },
+    {
+      "clientId": "radar",
+      "redirectUris": [
+        "https://radar.tail7f3c08.ts.net/auth/callback"
+      ],
+      "webOrigins": [
+        "https://radar.tail7f3c08.ts.net"
+      ],
+      "attributes": {
+        "post.logout.redirect.uris": "https://radar.tail7f3c08.ts.net/"
+      },
+      "secretKey": "radar-client-secret",
+      "pkce": true
+    },
+    {
+      "clientId": "forgejo",
+      "redirectUris": [
+        "https://forgejo.tail7f3c08.ts.net/user/oauth2/lab-sso/callback"
+      ],
+      "webOrigins": [
+        "https://forgejo.tail7f3c08.ts.net"
+      ],
+      "attributes": {
+        "post.logout.redirect.uris": "https://forgejo.tail7f3c08.ts.net/"
+      },
+      "secretKey": "forgejo-client-secret"
+    },
+    {
+      "redirectUris": [
+        "https://omnigent.tail7f3c08.ts.net/auth/callback"
+      ],
+      "webOrigins": [
+        "https://omnigent.tail7f3c08.ts.net"
+      ],
+      "clientId": "omnigent",
+      "secretKey": "omnigent-client-secret"
+    },
+    {
+      "redirectUris": [
+        "https://homepage.tail7f3c08.ts.net/api/auth/callback/homepage-oidc"
+      ],
+      "webOrigins": [
+        "https://homepage.tail7f3c08.ts.net"
+      ],
+      "pkce": true,
+      "clientId": "homepage",
+      "secretKey": "homepage-client-secret"
+    },
+    {
+      "redirectUris": [
+        "https://hermes.tail7f3c08.ts.net/auth/callback"
+      ],
+      "webOrigins": [
+        "https://hermes.tail7f3c08.ts.net"
+      ],
+      "pkce": true,
+      "clientId": "hermes-dashboard"
+    },
+    {
+      "redirectUris": [
+        "https://hermes-api.tail7f3c08.ts.net/oauth2/callback"
+      ],
+      "webOrigins": [
+        "https://hermes-api.tail7f3c08.ts.net"
+      ],
+      "pkce": true,
+      "clientId": "hermes-api",
+      "secretKey": "hermes-api-client-secret",
+      "additionalProtocolMappers": [
+        {
+          "name": "hermes-api-audience",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-audience-mapper",
+          "config": {
+            "included.custom.audience": "hermes-api",
+            "access.token.claim": "true",
+            "id.token.claim": "true"
+          }
+        }
+      ]
+    },
+    {
+      "redirectUris": [
+        "https://rustfs.tail7f3c08.ts.net/rustfs/admin/v3/oidc/callback/default"
+      ],
+      "webOrigins": [
+        "https://rustfs.tail7f3c08.ts.net"
+      ],
+      "pkce": true,
+      "clientId": "rustfs",
+      "secretKey": "rustfs-client-secret"
+    },
+    {
+      "redirectUris": [
+        "https://vault.tail7f3c08.ts.net/ui/vault/auth/oidc/oidc/callback",
+        "http://localhost:8250/oidc/callback"
+      ],
+      "webOrigins": [
+        "https://vault.tail7f3c08.ts.net"
+      ],
+      "clientId": "vault",
+      "secretKey": "vault-client-secret"
+    },
+    {
+      "clientId": "hermes-api-cli",
+      "redirectUris": [
+        "http://localhost:8250/oidc/callback"
+      ],
+      "webOrigins": [
+        "http://localhost:8250"
+      ],
+      "pkce": true,
+      "additionalProtocolMappers": [
+        {
+          "name": "hermes-api-audience",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-audience-mapper",
+          "config": {
+            "included.custom.audience": "hermes-api",
+            "access.token.claim": "true",
+            "id.token.claim": "true"
+          }
+        }
+      ]
+    }
+  ],
+  "secretDestinations": [
+    {
+      "namespace": "radar",
+      "keys": {
+        "client-secret": "radar-client-secret",
+        "auth-secret": "radar-cookie-secret"
+      }
+    },
+    {
+      "namespace": "forgejo",
+      "keys": {
+        "client-secret": "forgejo-client-secret"
+      }
+    },
+    {
+      "namespace": "omnigent",
+      "keys": {
+        "client-secret": "omnigent-client-secret"
+      },
+      "sha256": {
+        "cookie-secret": "omnigent-cookie-secret"
+      },
+      "adminEmails": true
+    },
+    {
+      "namespace": "homepage",
+      "keys": {
+        "client-secret": "homepage-client-secret",
+        "auth-secret": "homepage-cookie-secret"
+      }
+    },
+    {
+      "namespace": "hermes",
+      "keys": {
+        "client-secret": "hermes-api-client-secret"
+      },
+      "base64sha256": {
+        "cookie-secret": "hermes-api-cookie-secret"
+      }
+    },
+    {
+      "namespace": "rustfs",
+      "keys": {
+        "client-secret": "rustfs-client-secret"
+      }
+    },
+    {
+      "namespace": "vault",
+      "keys": {
+        "client-secret": "vault-client-secret"
+      }
+    }
+  ],
+  "applications": {
+    "vault": {
+      "url": "http://vault.vault.svc:8200",
+      "publicUrl": "https://vault.tail7f3c08.ts.net"
+    }
+  }
+}

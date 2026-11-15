@@ -39,6 +39,31 @@ spec:
               value: "true"
             - name: RUST_LOG
               value: info
+            - name: RUSTFS_BROWSER_REDIRECT_URL
+              value: https://rustfs.tail7f3c08.ts.net
+            - name: RUSTFS_IDENTITY_OPENID_ENABLE
+              value: "on"
+            - name: RUSTFS_IDENTITY_OPENID_CONFIG_URL
+              value: https://sso.tail7f3c08.ts.net/realms/lab
+            - name: RUSTFS_IDENTITY_OPENID_CLIENT_ID
+              value: rustfs
+            - name: RUSTFS_IDENTITY_OPENID_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: sso-oidc
+                  key: client-secret
+            - name: RUSTFS_IDENTITY_OPENID_SCOPES
+              value: openid,profile,email
+            - name: RUSTFS_IDENTITY_OPENID_REDIRECT_URI
+              value: https://rustfs.tail7f3c08.ts.net/rustfs/admin/v3/oidc/callback/default
+            - name: RUSTFS_IDENTITY_OPENID_REDIRECT_URI_DYNAMIC
+              value: "off"
+            - name: RUSTFS_IDENTITY_OPENID_GROUPS_CLAIM
+              value: groups
+            - name: RUSTFS_IDENTITY_OPENID_DISPLAY_NAME
+              value: Lab SSO
+            - name: RUSTFS_OUTBOUND_ALLOW_ORIGINS
+              value: https://sso.tail7f3c08.ts.net
           volumeMounts:
             - name: data
               mountPath: /data/rustfs0
@@ -49,7 +74,43 @@ spec:
             limits:
               cpu: 1000m
               memory: 512Mi
+        - name: browser
+          image: docker.io/nginxinc/nginx-unprivileged:1.29-alpine
+          command:
+            - nginx
+            - -g
+            - daemon off;
+          ports:
+            - name: browser
+              containerPort: 8080
+          securityContext:
+            allowPrivilegeEscalation: false
+            runAsNonRoot: true
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
+            seccompProfile:
+              type: RuntimeDefault
+          volumeMounts:
+            - name: browser-config
+              mountPath: /etc/nginx/nginx.conf
+              subPath: nginx.conf
+              readOnly: true
+            - name: browser-tmp
+              mountPath: /tmp
+          resources:
+            requests:
+              cpu: 10m
+              memory: 16Mi
+            limits:
+              memory: 64Mi
       volumes:
         - name: data
           persistentVolumeClaim:
             claimName: rustfs-data
+        - name: browser-config
+          configMap:
+            name: rustfs-browser
+        - name: browser-tmp
+          emptyDir: {}

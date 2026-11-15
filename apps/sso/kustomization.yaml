@@ -1,0 +1,24 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+- namespaces.yaml
+- secret-store.yaml
+- credential-generators.yaml
+- external-secrets.yaml
+- postgres.yaml
+- keycloak.yaml
+- ingress.yaml
+- argocd-config.yaml
+- client-secrets.yaml
+- rbac.yaml
+- reconcile-job.yaml
+- application-jobs.yaml
+configMapGenerator:
+- name: sso-reconciler
+  namespace: sso
+  files:
+  - settings.json
+  - reconcile.py
+  - applications.py
+  - lab-sso-readonly.hcl
+  - lab-sso-admin.hcl

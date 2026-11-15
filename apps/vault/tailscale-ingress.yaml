@@ -1,0 +1,21 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: vault-ts
+  namespace: vault
+  annotations:
+    gethomepage.dev/enabled: 'true'
+    gethomepage.dev/name: Vault
+    gethomepage.dev/group: Platform
+    gethomepage.dev/icon: vault.png
+    gethomepage.dev/href: https://vault.tail7f3c08.ts.net
+spec:
+  ingressClassName: tailscale
+  tls:
+  - hosts:
+    - vault.tail7f3c08.ts.net
+  defaultBackend:
+    service:
+      name: vault
+      port:
+        number: 8200

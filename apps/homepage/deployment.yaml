@@ -59,31 +59,29 @@ spec:
           env:
             - name: HOMEPAGE_ALLOWED_HOSTS
               value: homepage.tail7f3c08.ts.net
+            - name: HOMEPAGE_AUTH_ENABLED
+              value: "true"
+            - name: HOMEPAGE_EXTERNAL_URL
+              value: https://homepage.tail7f3c08.ts.net
+            - name: HOMEPAGE_AUTH_SECRET
+              valueFrom:
+                secretKeyRef: {name: sso-oidc, key: auth-secret}
+            - name: HOMEPAGE_OIDC_ISSUER
+              value: https://sso.tail7f3c08.ts.net/realms/lab
+            - name: HOMEPAGE_OIDC_CLIENT_ID
+              value: homepage
+            - name: HOMEPAGE_OIDC_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef: {name: sso-oidc, key: client-secret}
+            - name: HOMEPAGE_OIDC_NAME
+              value: Lab SSO
             - name: TZ
               value: America/Chicago
           ports:
             - name: http
               containerPort: 3000
-          lifecycle:
-            postStart:
-              exec:
-                command:
-                  - sh
-                  - -c
-                  - |
-                    # The image ships a page built from its skeleton config; ask
-                    # the running server to rebuild it from the mounted config.
-                    # Shell + wget keeps this independent of the image's node
-                    # version, and the hook never fails: a render problem must
-                    # not crash-loop the pod.
-                    for attempt in $(seq 1 15); do
-                      if wget -q -O /dev/null --header="Host: $HOMEPAGE_ALLOWED_HOSTS" http://127.0.0.1:3000/api/revalidate; then
-                        exit 0
-                      fi
-                      sleep 2
-                    done
-                    echo "homepage: could not rebuild the page cache from the mounted config"
-                    exit 0
+          # v2.8 renders authenticated pages through getServerSideProps;
+          # the former anonymous /api/revalidate startup hook is unnecessary.
           volumeMounts:
             - name: config
               mountPath: /app/config
