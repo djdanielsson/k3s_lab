@@ -14,7 +14,10 @@ spec:
     namespace: cert-manager
   syncPolicy:
     automated:
-      prune: false
+      # Pruning is safe here: this app renders only the Let's Encrypt
+      # ClusterIssuer. Deleting it (by deleting the manifest) stops renewals,
+      # which is what removing it from git should mean.
+      prune: true
       selfHeal: true
     syncOptions:
       - CreateNamespace=false

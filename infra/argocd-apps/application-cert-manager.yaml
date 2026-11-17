@@ -17,7 +17,10 @@ spec:
     namespace: cert-manager
   syncPolicy:
     automated:
-      prune: false
+      # Pruning is safe here: cert-manager's CRDs are applied out of band, so
+      # ArgoCD tracks none of them (0 CRDs in the resource tree) and can only
+      # prune controller resources it rendered itself.
+      prune: true
       selfHeal: true
     syncOptions:
       - CreateNamespace=true
