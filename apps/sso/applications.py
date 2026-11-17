@@ -118,6 +118,14 @@ def configure_vault(kube, settings):
     config = settings['applications']['vault']
     token = kube_secret(kube, 'vault', 'vault-sso-bootstrap', 'token')
     vault = API(config['url'], headers={'X-Vault-Token': token})
+    # The bootstrap token is periodic (768h). Renew it on every pass so a
+    # long-lived cluster does not quietly lose SSO reconciliation when the
+    # window lapses; a non-periodic or already-expired token simply falls
+    # through to the explicit error below.
+    try:
+        vault.request('POST', '/v1/auth/token/renew-self', {})
+    except ReconcileError:
+        pass
     status = vault.request('GET', '/v1/sys/seal-status')
     if not status.get('initialized') or status.get('sealed'):
         raise ReconcileError('Vault must be initialized and unsealed before SSO configuration')
