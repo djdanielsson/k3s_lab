@@ -75,7 +75,7 @@ spec:
               cpu: 1000m
               memory: 512Mi
         - name: browser
-          image: docker.io/nginxinc/nginx-unprivileged:1.29-alpine
+          image: docker.io/nginxinc/nginx-unprivileged:1.31-alpine
           command:
             - nginx
             - -g
