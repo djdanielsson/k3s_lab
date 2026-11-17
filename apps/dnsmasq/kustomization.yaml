@@ -5,3 +5,6 @@ resources:
   - namespace.yaml
   - configmap.yaml
   - deployment.yaml
+  # Cluster CoreDNS overrides (k3s coredns-custom): records for names that only
+  # exist in tailnet MagicDNS, e.g. Vault's OIDC issuer.
+  - coredns-custom.yaml

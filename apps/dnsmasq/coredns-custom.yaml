@@ -1,0 +1,22 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: coredns-custom
+  namespace: kube-system
+  labels:
+    app.kubernetes.io/part-of: cluster-dns
+data:
+  # Tailnet names are served by MagicDNS, which cluster pods cannot use.
+  # Workloads that must reach a tailnet service by its public name (Vault's
+  # OIDC discovery against sso.tail7f3c08.ts.net) need an explicit record here.
+  # The IP is the Tailscale ingress proxy's tailnet address; it follows the
+  # proxy's node identity, which is stored in its state Secret and survives
+  # pod recreation under the same Ingress name.
+  #
+  # `template` rather than a `hosts` block: the k3s Corefile already uses the
+  # hosts plugin, and CoreDNS refuses to load it twice in one server block
+  # ("plugin/hosts: this plugin can only be used once per Server Block").
+  tailnet-sso.override: |
+    template IN A sso.tail7f3c08.ts.net {
+      answer "{{ .Name }} 60 IN A 100.80.233.71"
+    }

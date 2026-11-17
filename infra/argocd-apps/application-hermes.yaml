@@ -12,9 +12,10 @@ spec:
   destination:
     server: https://kubernetes.default.svc
     namespace: hermes
+  # PAUSED ON PURPOSE: Hermes is the agent runtime itself. Auto-sync stays off
+  # so a GitOps mistake cannot restart the assistant mid-investigation. Re-enable
+  # by restoring the `automated:` block once a change to this app has been
+  # reviewed and Hermes is not the one applying it.
   syncPolicy:
-    automated:
-      prune: true
-      selfHeal: true
     syncOptions:
       - CreateNamespace=false
