@@ -1,0 +1,24 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: kirimoto-ts
+  namespace: kirimoto
+  labels:
+    app.kubernetes.io/instance: tailscale-ingress
+  annotations:
+    gethomepage.dev/enabled: "true"
+    gethomepage.dev/name: Kiri:Moto
+    gethomepage.dev/group: Applications
+    gethomepage.dev/icon: https://cdn.jsdelivr.net/gh/GridSpace/grid-apps@master/web/icon/kirimoto.png
+    gethomepage.dev/description: Browser-based 3D printing / CNC / laser slicer
+    gethomepage.dev/href: https://kirimoto.tail7f3c08.ts.net
+spec:
+  ingressClassName: tailscale
+  tls:
+    - hosts:
+        - kirimoto.tail7f3c08.ts.net
+  defaultBackend:
+    service:
+      name: kirimoto
+      port:
+        number: 8080

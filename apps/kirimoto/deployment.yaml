@@ -1,0 +1,70 @@
+# Kiri:Moto - browser-side 3D printing / CNC / laser slicer.
+# The slicing runs in the browser; the server only serves the static app, so
+# this needs no storage and no GPU. The upstream app server (port 8080) is
+# fronted by nginx on 8081 purely to redirect "/" to "/kiri/".
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kirimoto
+  namespace: kirimoto
+  labels:
+    app: kirimoto
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kirimoto
+  template:
+    metadata:
+      labels:
+        app: kirimoto
+    spec:
+      containers:
+        - name: kirimoto
+          image: registry.registry.svc:5000/kirimoto:0.1.0
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080
+              name: app
+          env:
+            - name: TZ
+              value: UTC
+          resources:
+            requests:
+              cpu: 50m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+        - name: front
+          image: nginx:1.27-alpine
+          ports:
+            - containerPort: 8081
+              name: http
+          readinessProbe:
+            httpGet:
+              path: /kiri/
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /kiri/
+              port: http
+            initialDelaySeconds: 30
+            periodSeconds: 30
+          resources:
+            requests:
+              cpu: 10m
+              memory: 16Mi
+            limits:
+              cpu: 200m
+              memory: 64Mi
+          volumeMounts:
+            - name: front-conf
+              mountPath: /etc/nginx/conf.d
+              readOnly: true
+      volumes:
+        - name: front-conf
+          configMap:
+            name: kirimoto-front

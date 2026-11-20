@@ -1,0 +1,9 @@
+# Kiri:Moto - browser-side slicer for 3D printers, CNC mills and lasers.
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - namespace.yaml
+  - configmap.yaml
+  - deployment.yaml
+  - service.yaml
+  - tailscale-ingress.yaml

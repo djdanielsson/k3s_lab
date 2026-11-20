@@ -1,0 +1,31 @@
+# Kiri:Moto's app server 404s at "/" (the app lives at /kiri/), which makes a
+# plain hostname link look broken. A tiny nginx in front sends "/" to /kiri/
+# and proxies everything else untouched.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: kirimoto-front
+  namespace: kirimoto
+data:
+  default.conf: |
+    server {
+      listen 8081;
+      server_name _;
+      client_max_body_size 0;
+
+      location = / {
+        return 302 /kiri/;
+      }
+
+      location / {
+        proxy_pass http://127.0.0.1:8080;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_buffering off;
+      }
+    }
