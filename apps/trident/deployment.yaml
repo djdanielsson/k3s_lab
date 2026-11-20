@@ -1,0 +1,66 @@
+# Trident - OrcaSlicer's slicing engine, headless, with a web UI.
+# Slicing runs in the container (unlike Kiri:Moto, which runs it in the
+# browser), so this needs real CPU/RAM and storage for jobs.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: trident
+  namespace: trident
+  labels:
+    app: trident
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: trident
+  template:
+    metadata:
+      labels:
+        app: trident
+    spec:
+      containers:
+        - name: trident
+          image: mugenoesis/trident:0.9.0
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8000
+              name: http
+          env:
+            - name: TZ
+              value: America/Chicago
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            failureThreshold: 6
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+            initialDelaySeconds: 60
+            periodSeconds: 30
+          resources:
+            requests:
+              cpu: 250m
+              memory: 512Mi
+            limits:
+              cpu: 4
+              memory: 6Gi
+          volumeMounts:
+            - name: data
+              mountPath: /data/models
+              subPath: models
+            - name: data
+              mountPath: /data/output
+              subPath: output
+            - name: data
+              mountPath: /data/orcaslicer-datadir
+              subPath: orcaslicer-datadir
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: trident-data
