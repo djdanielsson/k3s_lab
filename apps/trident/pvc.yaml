@@ -1,0 +1,14 @@
+# Uploaded models, sliced G-code / jobs, and OrcaSlicer's data directory.
+# One volume with subPaths keeps the three trees together.
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: trident-data
+  namespace: trident
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: local-path
+  resources:
+    requests:
+      storage: 20Gi
