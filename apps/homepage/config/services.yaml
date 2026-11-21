@@ -1,4 +1,74 @@
 # Only services that cannot be discovered from an Ingress belong here.
 # Everything else is built from gethomepage.dev/* annotations on the
 # ingressClassName: tailscale Ingresses in each app directory.
-[]
+#
+# The apps below run on the NAS (192.168.2.82), not in this cluster, so they
+# have no Ingress to be discovered from. Ports were found by scanning the host;
+# these are its LAN addresses, which also work over the tailnet because
+# truenas-scale advertises 192.168.2.0/24 as a subnet route.
+- TrueNAS:
+    - TrueNAS:
+        href: https://192.168.2.82/
+        description: Storage, VMs and app management
+        icon: truenas.png
+    - Vaultwarden:
+        href: http://192.168.2.82:30032
+        description: Password vault
+        icon: vaultwarden.png
+    - File Browser:
+        href: http://192.168.2.82:30051
+        description: Web file manager
+        icon: filebrowser.png
+    - Audiobookshelf:
+        href: http://192.168.2.82:30067
+        description: Audiobooks and podcasts
+        icon: audiobookshelf.png
+    - netboot.xyz:
+        href: http://192.168.2.82:31010
+        description: Network boot server
+        icon: netbootxyz.png
+    - Static files:
+        href: http://192.168.2.82:31011
+        description: nginx directory index
+        icon: nginx.png
+    - Dozzle:
+        href: http://192.168.2.82:8888
+        description: Docker log viewer
+        icon: dozzle.png
+- Media:
+    - Jellyfin:
+        href: http://192.168.2.82:8096
+        description: Media server
+        icon: jellyfin.png
+    - Seerr:
+        href: http://192.168.2.82:5055
+        description: Jellyfin media requests
+        icon: seerr.png
+    - Sonarr:
+        href: http://192.168.2.82:8989
+        description: TV series management
+        icon: sonarr.png
+    - Radarr:
+        href: http://192.168.2.82:7878
+        description: Movie management
+        icon: radarr.png
+    - Prowlarr:
+        href: http://192.168.2.82:9696
+        description: Indexer manager
+        icon: prowlarr.png
+    - Bazarr:
+        href: http://192.168.2.82:6767
+        description: Subtitle management
+        icon: bazarr.png
+    - Profilarr:
+        href: http://192.168.2.82:6868
+        description: Quality profile sync
+        icon: profilarr.png
+    - qBittorrent:
+        href: http://192.168.2.82:8080
+        description: Torrent client
+        icon: qbittorrent.png
+    - FlareSolverr:
+        href: http://192.168.2.82:8191
+        description: Cloudflare bypass proxy (API only)
+        icon: flaresolverr.png

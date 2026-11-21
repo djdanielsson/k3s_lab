@@ -17,3 +17,9 @@ layout:
   Agents:
     style: row
     columns: 3
+  TrueNAS:
+    style: row
+    columns: 4
+  Media:
+    style: row
+    columns: 4
