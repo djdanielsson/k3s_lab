@@ -1,0 +1,24 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: trident-ts
+  namespace: trident
+  labels:
+    app.kubernetes.io/instance: tailscale-ingress
+  annotations:
+    gethomepage.dev/enabled: "true"
+    gethomepage.dev/name: Trident
+    gethomepage.dev/group: Applications
+    gethomepage.dev/icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/orcaslicer.png
+    gethomepage.dev/description: Self-hosted slicer (OrcaSlicer engine) with a web UI
+    gethomepage.dev/href: https://trident.tail7f3c08.ts.net
+spec:
+  ingressClassName: tailscale
+  tls:
+    - hosts:
+        - trident.tail7f3c08.ts.net
+  defaultBackend:
+    service:
+      name: trident
+      port:
+        number: 8000
