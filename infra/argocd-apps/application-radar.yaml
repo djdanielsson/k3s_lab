@@ -8,7 +8,7 @@ spec:
   source:
     repoURL: https://skyhook-io.github.io/helm-charts
     chart: radar
-    targetRevision: 1.21.0
+    targetRevision: 1.21.1
     helm:
       values: |
         # Native OIDC; group claims map to Kubernetes RBAC in apps/sso/rbac.yaml.
