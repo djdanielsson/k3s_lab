@@ -62,6 +62,13 @@
       "enabled": false
     },
     {
+      "description": "postgres: major bumps are a data migration, not a tag flip. postgres 19 crash-looped forgejo/omnigent/pantrywise against PG18/PG17 data directories (see apps/*/pgdata comments). Bump by hand with the dump/restore procedure instead.",
+      "matchDatasources": ["docker"],
+      "matchPackageNames": ["docker.io/library/postgres"],
+      "matchUpdateTypes": ["major"],
+      "enabled": false
+    },
+    {
       "description": "kube-prometheus-stack capped at <59: 59+ targets newer k8s than this cluster (see the chart comment in the Application)",
       "matchDatasources": [
         "helm"
