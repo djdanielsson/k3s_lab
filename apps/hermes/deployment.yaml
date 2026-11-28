@@ -69,7 +69,7 @@ spec:
           securityContext:
             runAsUser: 0
         - name: configure-dashboard-sso
-          image: nousresearch/hermes-agent:latest@sha256:ef0650d523ee1b5ab32c779acabc446d9936869a9932591553688a62bcf0c42f
+          image: nousresearch/hermes-agent:latest@sha256:bc79a80fc9cb97521f4380c5d5b2ad88e2469e50fc1d5027339bbb42cc206854
           command:
             - python3
             - /sso/configure-dashboard.py
@@ -102,7 +102,7 @@ spec:
           # digest-update PR whenever the build moves (no newer versioned tag is
           # cut between releases; e.g. v2026.8.31 was the newest tag while the
           # Sep 7 opencode-go fix lived only on `latest`).
-          image: nousresearch/hermes-agent:latest@sha256:ef0650d523ee1b5ab32c779acabc446d9936869a9932591553688a62bcf0c42f
+          image: nousresearch/hermes-agent:latest@sha256:bc79a80fc9cb97521f4380c5d5b2ad88e2469e50fc1d5027339bbb42cc206854
           imagePullPolicy: IfNotPresent
           # Pass subcommand via args so the image entrypoint stays PID 1 and
           # s6 supervision stays active (do NOT override `command:`).
